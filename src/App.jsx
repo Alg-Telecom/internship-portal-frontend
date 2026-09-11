@@ -1,15 +1,19 @@
-function App() {
-  return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-xl shadow-md text-center">
-        <h1 className="text-3xl font-bold text-blue-600">
-          Internship Management Portal
-        </h1>
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+import { PageTitleProvider } from './context/PageTitleContext';
+import AppRoutes from './routes';
 
-        <p className="mt-4 text-gray-600">Frontend is working!</p>
-      </div>
-    </div>
+export default function App() {
+  return (
+    <BrowserRouter>
+      <ToastProvider>
+        <AuthProvider>
+          <PageTitleProvider>
+            <AppRoutes />
+          </PageTitleProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;

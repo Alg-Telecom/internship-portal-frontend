@@ -1,2 +1,70 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Algerie Telecom palette */
+  --color-primary: #1b2255;
+  --color-primary-hover: #141a42;
+  --color-on-primary: #ffffff;
+
+  --color-accent: #1e8449;
+  --color-accent-hover: #186b3b;
+  --color-on-accent: #ffffff;
+
+  --color-success: #1e8449;
+  --color-on-success: #ffffff;
+  --color-warning: #b45309;
+  --color-on-warning: #ffffff;
+
+  --color-destructive: #dc2626;
+  --color-destructive-hover: #b91c1c;
+  --color-on-destructive: #ffffff;
+
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+
+  --color-muted: #eef1f6;
+  --color-muted-foreground: #475569;
+
+  --color-border: #e2e8f0;
+  --color-ring: #1b2255;
+
+  color-scheme: light;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
