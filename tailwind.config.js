@@ -12,6 +12,8 @@ export default {
         muted: { DEFAULT: 'var(--color-muted)', foreground: 'var(--color-muted-foreground)' },
         border: 'var(--color-border)',
         ring: 'var(--color-ring)',
+        success: { DEFAULT: 'var(--color-success)', foreground: 'var(--color-on-success)' },
+        warning: { DEFAULT: 'var(--color-warning)', foreground: 'var(--color-on-warning)' },
       },
       fontFamily: { sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
     },

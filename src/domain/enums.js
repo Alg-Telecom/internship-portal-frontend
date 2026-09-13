@@ -70,6 +70,20 @@ export const DocumentStatus = {
   REJECTED: 'Rejected',
 };
 
+export const CalendarEventType = {
+  START: 'start',
+  END: 'end',
+  HOLIDAY: 'holiday',
+  EVENT: 'event',
+};
+
+export const CALENDAR_EVENT_TYPE_LABEL = {
+  [CalendarEventType.START]: 'Internship start',
+  [CalendarEventType.END]: 'Internship end',
+  [CalendarEventType.HOLIDAY]: 'Public holiday',
+  [CalendarEventType.EVENT]: 'Event',
+};
+
 export const NotificationType = {
   APPLICATION: 'Application',
   ASSIGNMENT: 'Assignment',

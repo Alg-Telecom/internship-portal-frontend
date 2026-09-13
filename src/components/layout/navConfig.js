@@ -22,7 +22,7 @@ export const ADMIN_NAV = [
 
 export const SUPERVISOR_NAV = [
   { label: 'Dashboard', to: '/supervisor', icon: SquaresFour, end: true },
-  { label: 'My Team', to: '/supervisor/team', icon: UsersThree },
+  { label: 'My Teams', to: '/supervisor/team', icon: UsersThree },
   { label: 'Assignments', to: '/supervisor/assignments', icon: ClipboardText },
   { label: 'Attendance', to: '/supervisor/attendance', icon: CalendarCheck },
   { label: 'Change Password', to: '/supervisor/change-password', icon: Key },
