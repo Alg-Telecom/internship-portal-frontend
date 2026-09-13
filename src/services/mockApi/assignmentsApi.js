@@ -39,6 +39,7 @@ export async function createAssignment(data) {
     title: 'New assignment',
     message: `A new assignment "${data.title}" has been created for you.`,
     notificationType: 'Assignment',
+    link: `/intern/assignments/${id}`,
   });
   return assignment;
 }
@@ -73,6 +74,7 @@ export async function submitWork(assignmentId, { fileName, fileUrl, notes }) {
     title: 'Assignment submitted',
     message: `A submission is ready for review: "${assignment.title}".`,
     notificationType: 'Assignment',
+    link: `/supervisor/assignments/${assignment.id}`,
   });
   return submission;
 }
@@ -95,6 +97,7 @@ export async function evaluateSubmission(submissionId, { grade, feedback }) {
     title: 'Assignment graded',
     message: `Your submission was graded: ${grade}/20.`,
     notificationType: 'Evaluation',
+    link: `/intern/assignments/${submission.assignmentId}`,
   });
 
   return updated;

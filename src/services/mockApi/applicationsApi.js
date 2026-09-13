@@ -33,6 +33,7 @@ export async function submitApplication(data) {
       title: 'New internship application',
       message: `${data.firstName} ${data.lastName} submitted an internship application.`,
       notificationType: 'Application',
+      link: `/admin/applications/${application.id}`,
     })
   );
 
@@ -121,6 +122,7 @@ export async function decideApplication(id, { status, rejectionReason = '' }) {
       title: 'Application accepted',
       message: 'Your internship application has been accepted. Welcome to Algerie Telecom!',
       notificationType: 'Application',
+      link: '/intern',
     });
   }
 

@@ -1,8 +1,13 @@
 import { getCollection, insert, update, delay } from './db';
 import { currentMaxId } from './seed';
 
-/** Internal helper used by other mockApi modules — not delayed on purpose. */
-export function createNotification({ userId, title, message, notificationType }) {
+/**
+ * Internal helper used by other mockApi modules — not delayed on purpose.
+ * `link` is the in-app route the notification should open when clicked
+ * (e.g. `/admin/applications/12`) — optional, since a few notification
+ * types (document request/approval) only make sense pointing at a list.
+ */
+export function createNotification({ userId, title, message, notificationType, link = null }) {
   const id = currentMaxId('notifications') + 1;
   return insert('notifications', {
     id,
@@ -10,6 +15,7 @@ export function createNotification({ userId, title, message, notificationType })
     title,
     message,
     notificationType,
+    link,
     creationDate: new Date().toISOString(),
     isRead: false,
   });

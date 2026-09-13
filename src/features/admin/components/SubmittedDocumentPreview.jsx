@@ -3,11 +3,15 @@ import { Check, X } from '@phosphor-icons/react';
 import Button from '../../../components/ui/Button';
 import Dialog from '../../../components/ui/Dialog';
 import Textarea from '../../../components/ui/Textarea';
-import StatusBadge from '../../../components/shared/StatusBadge';
 import DocumentLink from '../../../components/shared/DocumentLink';
 import { formatDateTime } from '../../../lib/utils';
 
-/** Shows the latest uploaded document for a request, with Approve/Reject actions. */
+/**
+ * Shows the latest uploaded document for a request, with Approve/Reject
+ * actions. No status badge here on purpose — the request's own Status
+ * (Pending/Submitted/Approved/Rejected) already reflects this document's
+ * outcome, so a second badge next to it would just repeat the same info.
+ */
 export default function SubmittedDocumentPreview({ document, onApprove, onReject }) {
   const [isRejecting, setIsRejecting] = useState(false);
   const [reason, setReason] = useState('');
@@ -38,19 +42,16 @@ export default function SubmittedDocumentPreview({ document, onApprove, onReject
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <StatusBadge status={document.status} />
-        {document.status === 'Pending' && (
-          <>
-            <Button size="sm" variant="outline" onClick={() => setIsRejecting(true)}>
-              <X className="h-4 w-4" aria-hidden="true" />
-            </Button>
-            <Button size="sm" variant="accent" onClick={onApprove}>
-              <Check className="h-4 w-4" aria-hidden="true" />
-            </Button>
-          </>
-        )}
-      </div>
+      {document.status === 'Pending' && (
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setIsRejecting(true)}>
+            <X className="h-4 w-4" aria-hidden="true" />
+          </Button>
+          <Button size="sm" variant="accent" onClick={onApprove}>
+            <Check className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        </div>
+      )}
 
       <Dialog open={isRejecting} onClose={() => setIsRejecting(false)} title="Reject document">
         <Textarea id="doc-reject-reason" label="Rejection reason" required value={reason} onChange={(e) => setReason(e.target.value)} />

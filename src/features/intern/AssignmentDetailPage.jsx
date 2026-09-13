@@ -20,8 +20,8 @@ export default function AssignmentDetailPage() {
   const { showToast } = useToast();
   const { assignment, isLoading, refetch } = useAssignment(id);
 
-  async function handleSubmitWork({ fileName, notes }) {
-    await assignmentsApi.submitWork(assignment.id, { fileName, notes });
+  async function handleSubmitWork({ fileName, fileUrl, notes }) {
+    await assignmentsApi.submitWork(assignment.id, { fileName, fileUrl, notes });
     showToast('Your work has been submitted.');
     refetch();
   }

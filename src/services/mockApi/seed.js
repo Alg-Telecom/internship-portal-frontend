@@ -465,6 +465,7 @@ export function seedDatabase() {
       creationDate: iso(-3),
       isRead: false,
       notificationType: NotificationType.APPLICATION,
+      link: "/admin/applications/4",
     },
     {
       id: 2,
@@ -474,6 +475,7 @@ export function seedDatabase() {
       creationDate: iso(-1),
       isRead: false,
       notificationType: NotificationType.APPLICATION,
+      link: "/admin/applications/5",
     },
     {
       id: 3,
@@ -484,6 +486,7 @@ export function seedDatabase() {
       creationDate: iso(-11),
       isRead: true,
       notificationType: NotificationType.EVALUATION,
+      link: "/intern/assignments/1",
     },
     {
       id: 4,
@@ -494,6 +497,7 @@ export function seedDatabase() {
       creationDate: iso(-47),
       isRead: false,
       notificationType: NotificationType.DOCUMENT,
+      link: "/intern/documents",
     },
   ];
 

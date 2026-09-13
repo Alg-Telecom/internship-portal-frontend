@@ -17,8 +17,8 @@ export default function DocumentsPage() {
   const { showToast } = useToast();
   const [uploadingRequest, setUploadingRequest] = useState(null);
 
-  async function handleUpload({ fileName, documentType }) {
-    await documentsApi.uploadDocument(uploadingRequest.id, { fileName, documentType, internId: user.id });
+  async function handleUpload({ fileName, fileUrl, documentType }) {
+    await documentsApi.uploadDocument(uploadingRequest.id, { fileName, fileUrl, documentType, internId: user.id });
     showToast('Document submitted for review.');
     refetch();
   }

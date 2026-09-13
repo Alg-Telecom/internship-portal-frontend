@@ -35,6 +35,7 @@ export async function createDocumentRequest(data) {
     title: 'New document request',
     message: `A new document has been requested: "${data.title}".`,
     notificationType: 'Document',
+    link: '/intern/documents',
   });
   return request;
 }
@@ -65,6 +66,7 @@ export async function uploadDocument(requestId, { fileName, fileUrl, documentTyp
     title: 'Document submitted',
     message: `A document was submitted for request "${request.title}".`,
     notificationType: 'Document',
+    link: `/admin/document-requests/${request.id}`,
   });
 
   return document;
@@ -79,6 +81,7 @@ export async function approveDocument(documentId) {
     title: 'Document approved',
     message: `Your document "${document.fileName}" was approved.`,
     notificationType: 'Document',
+    link: '/intern/documents',
   });
   return document;
 }
@@ -92,6 +95,7 @@ export async function rejectDocument(documentId, rejectionReason) {
     title: 'Document rejected',
     message: `Your document "${document.fileName}" was rejected: ${rejectionReason}`,
     notificationType: 'Document',
+    link: '/intern/documents',
   });
   return document;
 }
