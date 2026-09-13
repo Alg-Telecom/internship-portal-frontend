@@ -13,7 +13,7 @@ import {
 } from "../../domain/enums";
 import { getCollection, setCollection, isSeeded, markSeeded } from "./db";
 
-export const DEMO_PASSWORD = "Password123!";
+export const DEMO_PASSWORD = "Password123";
 
 const today = new Date();
 const iso = (offsetDays = 0) => {
@@ -29,8 +29,8 @@ export function seedDatabase() {
     {
       id: 1,
       role: Role.ADMIN,
-      firstName: "Yacine",
-      lastName: "Belkacem",
+      firstName: "Sara",
+      lastName: "Laribi",
       email: "admin@imp.dz",
       password: DEMO_PASSWORD,
       phoneNumber: "+213 555 10 10 10",
@@ -40,9 +40,9 @@ export function seedDatabase() {
     {
       id: 2,
       role: Role.SUPERVISOR,
-      firstName: "Nadia",
-      lastName: "Cherif",
-      email: "nadia.cherif@imp.dz",
+      firstName: "Lamia",
+      lastName: "Belkaid",
+      email: "lamia.belkaid@imp.dz",
       password: DEMO_PASSWORD,
       phoneNumber: "+213 555 20 20 20",
       specialization: "Network Engineering",
@@ -53,9 +53,9 @@ export function seedDatabase() {
     {
       id: 3,
       role: Role.SUPERVISOR,
-      firstName: "Karim",
-      lastName: "Boudiaf",
-      email: "karim.boudiaf@imp.dz",
+      firstName: "Wissam",
+      lastName: "Nekkache",
+      email: "wissam.nekkache@imp.dz",
       password: DEMO_PASSWORD,
       phoneNumber: "+213 555 30 30 30",
       specialization: "Software Development",
@@ -66,9 +66,9 @@ export function seedDatabase() {
     {
       id: 4,
       role: Role.INTERN,
-      firstName: "Amina",
-      lastName: "Ziani",
-      email: "amina.ziani@imp.dz",
+      firstName: "Mehdi",
+      lastName: "Laribi",
+      email: "mehdi.laribi@imp.dz",
       password: DEMO_PASSWORD,
       phoneNumber: "+213 555 40 40 01",
       studentId: "USTHB-2025-041",
@@ -83,9 +83,9 @@ export function seedDatabase() {
     {
       id: 5,
       role: Role.INTERN,
-      firstName: "Sofiane",
-      lastName: "Haddad",
-      email: "sofiane.haddad@imp.dz",
+      firstName: "Kamel",
+      lastName: "Laribi",
+      email: "kamel.laribi@imp.dz",
       password: DEMO_PASSWORD,
       phoneNumber: "+213 555 40 40 02",
       studentId: "ENSIA-2025-118",
@@ -100,9 +100,9 @@ export function seedDatabase() {
     {
       id: 6,
       role: Role.INTERN,
-      firstName: "Meriem",
-      lastName: "Larbi",
-      email: "meriem.larbi@imp.dz",
+      firstName: "Radia",
+      lastName: "Belkaid",
+      email: "radia.belkaid@imp.dz",
       password: DEMO_PASSWORD,
       phoneNumber: "+213 555 40 40 03",
       studentId: "USTHB-2025-077",
