@@ -11,7 +11,7 @@ import DocumentLink from '../../../components/shared/DocumentLink';
  * (CV or photo), per the sequence diagram's document-validation ALT
  * fragment. Rejecting requires a reason.
  */
-export default function DocumentReviewRow({ label, fileName, fileUrl, status, rejectionReason, onAccept, onReject }) {
+export default function DocumentReviewRow({ label, fileName, fileUrl, status, rejectionReason, actionable = true, onAccept, onReject }) {
   const [isRejecting, setIsRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +38,7 @@ export default function DocumentReviewRow({ label, fileName, fileUrl, status, re
       </div>
       <div className="flex items-center gap-2">
         <StatusBadge status={status} />
-        {status === 'Pending' && (
+        {status === 'Pending' && actionable && (
           <>
             <Button size="sm" variant="outline" onClick={() => setIsRejecting(true)}>
               <X className="h-4 w-4" aria-hidden="true" />

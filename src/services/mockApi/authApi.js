@@ -31,6 +31,16 @@ export async function logout() {
   localStorage.removeItem(SESSION_KEY);
 }
 
+/**
+ * Internal helper used by seed.js — not delayed, and not a real logout
+ * (no API call to await). Whenever the demo data gets reseeded, any
+ * session from before points at users that may no longer match, so it
+ * gets dropped along with the rest of the old data.
+ */
+export function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
 export async function getSession() {
   await delay(150);
   const raw = localStorage.getItem(SESSION_KEY);

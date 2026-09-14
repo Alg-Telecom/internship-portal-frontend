@@ -53,15 +53,22 @@ export function findById(name, id) {
 }
 
 
-/** A simple boolean flag stored at imp:seeded. This lets the app check "have I already populated this fake database with initial/demo data?" so seeding logic only runs once (e.g., on first load) rather than duplicating data every time. */
-export function isSeeded() {
-  return localStorage.getItem(STORAGE_PREFIX + 'seeded') === 'true';
+/**
+ * Checks whether the fake database was already populated with THIS version
+ * of the demo data, so seeding only runs once per version instead of every
+ * page load. Versioned (not just a plain true/false flag) so that editing
+ * the hardcoded records in seed.js — which a browser's localStorage has no
+ * way to know changed on its own — is picked up automatically on the next
+ * reload instead of silently keeping whatever was seeded before, which is
+ * what a bare boolean flag would do.
+ */
+export function isSeeded(version) {
+  return localStorage.getItem(STORAGE_PREFIX + 'seeded') === String(version);
 }
 
-
-/**  */
-export function markSeeded() {
-  localStorage.setItem(STORAGE_PREFIX + 'seeded', 'true');
+/** Records that the database now holds this version of the demo data. */
+export function markSeeded(version) {
+  localStorage.setItem(STORAGE_PREFIX + 'seeded', String(version));
 }
 
 /** A dev/testing utility: iterates over every key in localStorage, and removes any key that starts with the imp: prefix — effectively wiping the entire mock database (all collections, sequences, and the seeded flag) without touching unrelated localStorage data from other apps/scripts on the page. */

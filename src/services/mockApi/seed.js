@@ -12,8 +12,18 @@ import {
   NotificationType,
 } from "../../domain/enums";
 import { getCollection, setCollection, isSeeded, markSeeded } from "./db";
+import { clearSession } from "./authApi";
 
 export const DEMO_PASSWORD = "Password123";
+
+/**
+ * Bump this whenever the hardcoded records below change (a user, a team, a
+ * status, ...). The database only reseeds when this differs from what's
+ * stored in localStorage — without it, editing this file would have no
+ * visible effect until someone manually clears the browser's storage,
+ * since the mock "database" lives in the browser, not on disk.
+ */
+const SEED_VERSION = 3;
 
 const today = new Date();
 const iso = (offsetDays = 0) => {
@@ -23,7 +33,12 @@ const iso = (offsetDays = 0) => {
 };
 
 export function seedDatabase() {
-  if (isSeeded()) return;
+  if (isSeeded(SEED_VERSION)) return;
+
+  // The old data (and whatever session pointed into it) is about to be
+  // replaced — log out so the next load lands on /login instead of
+  // silently carrying a session over into the new demo data.
+  clearSession();
 
   const users = [
     {
@@ -142,10 +157,10 @@ export function seedDatabase() {
   const applications = [
     {
       id: 1,
-      firstName: "Amina",
-      lastName: "Ziani",
+      firstName: "Mehdi",
+      lastName: "Laribi",
       personalId: "ID-4471002",
-      email: "amina.ziani@imp.dz",
+      email: "mehdi.laribi@imp.dz",
       phone: "+213 555 40 40 01",
       birthday: "2001-03-12",
       university: "USTHB",
@@ -154,8 +169,8 @@ export function seedDatabase() {
       teamPreference: "Network Infrastructure Team",
       startDate: iso(-60),
       endDate: iso(60),
-      cvFileName: "amina_ziani_cv.pdf",
-      photoFileName: "amina_ziani_photo.jpg",
+      cvFileName: "mehdi_laribi_cv.pdf",
+      photoFileName: "mehdi_laribi_photo.jpg",
       submissionDate: iso(-65),
       status: ApplicationStatus.ACCEPTED,
       rejectionReason: "",
@@ -168,10 +183,10 @@ export function seedDatabase() {
     },
     {
       id: 2,
-      firstName: "Sofiane",
-      lastName: "Haddad",
+      firstName: "Kamel",
+      lastName: "Laribi",
       personalId: "ID-3382110",
-      email: "sofiane.haddad@imp.dz",
+      email: "kamel.laribi@imp.dz",
       phone: "+213 555 40 40 02",
       birthday: "2000-11-02",
       university: "ENSIA",
@@ -180,8 +195,8 @@ export function seedDatabase() {
       teamPreference: "Network Infrastructure Team",
       startDate: iso(-58),
       endDate: iso(62),
-      cvFileName: "sofiane_haddad_cv.pdf",
-      photoFileName: "sofiane_haddad_photo.jpg",
+      cvFileName: "kamel_laribi_cv.pdf",
+      photoFileName: "kamel_laribi_photo.jpg",
       submissionDate: iso(-63),
       status: ApplicationStatus.ACCEPTED,
       rejectionReason: "",
@@ -194,10 +209,10 @@ export function seedDatabase() {
     },
     {
       id: 3,
-      firstName: "Meriem",
-      lastName: "Larbi",
+      firstName: "Radia",
+      lastName: "Belkaid",
       personalId: "ID-5501987",
-      email: "meriem.larbi@imp.dz",
+      email: "radia.belkaid@imp.dz",
       phone: "+213 555 40 40 03",
       birthday: "2002-05-21",
       university: "USTHB",
@@ -206,8 +221,8 @@ export function seedDatabase() {
       teamPreference: "Digital Services Team",
       startDate: iso(-40),
       endDate: iso(80),
-      cvFileName: "meriem_larbi_cv.pdf",
-      photoFileName: "meriem_larbi_photo.jpg",
+      cvFileName: "radia_belkaid_cv.pdf",
+      photoFileName: "radia_belkaid_photo.jpg",
       submissionDate: iso(-45),
       status: ApplicationStatus.ACCEPTED,
       rejectionReason: "",
@@ -220,10 +235,10 @@ export function seedDatabase() {
     },
     {
       id: 4,
-      firstName: "Walid",
-      lastName: "Bensalem",
+      firstName: "Ikram",
+      lastName: "Nekkache",
       personalId: "ID-9903211",
-      email: "walid.bensalem@example.com",
+      email: "ikram.nekkache@example.com",
       phone: "+213 555 40 40 04",
       birthday: "2001-08-09",
       university: "ESI Alger",
@@ -232,8 +247,8 @@ export function seedDatabase() {
       teamPreference: "Digital Services Team",
       startDate: iso(10),
       endDate: iso(100),
-      cvFileName: "walid_bensalem_cv.pdf",
-      photoFileName: "walid_bensalem_photo.jpg",
+      cvFileName: "ikram_nekkache_cv.pdf",
+      photoFileName: "ikram_nekkache_photo.jpg",
       submissionDate: iso(-3),
       status: ApplicationStatus.PENDING,
       rejectionReason: "",
@@ -246,10 +261,10 @@ export function seedDatabase() {
     },
     {
       id: 5,
-      firstName: "Lina",
-      lastName: "Ferhat",
+      firstName: "Amel",
+      lastName: "Belkaid",
       personalId: "ID-1120456",
-      email: "lina.ferhat@example.com",
+      email: "amel.belkaid@example.com",
       phone: "+213 555 40 40 05",
       birthday: "2003-01-30",
       university: "Universite Bejaia",
@@ -258,8 +273,8 @@ export function seedDatabase() {
       teamPreference: "Network Infrastructure Team",
       startDate: iso(15),
       endDate: iso(105),
-      cvFileName: "lina_ferhat_cv.pdf",
-      photoFileName: "lina_ferhat_photo.jpg",
+      cvFileName: "amel_belkaid_cv.pdf",
+      photoFileName: "amel_belkaid_photo.jpg",
       submissionDate: iso(-1),
       status: ApplicationStatus.PENDING,
       rejectionReason: "",
@@ -461,7 +476,7 @@ export function seedDatabase() {
       id: 1,
       userId: 1,
       title: "New internship application",
-      message: "Walid Bensalem submitted an internship application.",
+      message: "Ikram Nekkache submitted an internship application.",
       creationDate: iso(-3),
       isRead: false,
       notificationType: NotificationType.APPLICATION,
@@ -471,7 +486,7 @@ export function seedDatabase() {
       id: 2,
       userId: 1,
       title: "New internship application",
-      message: "Lina Ferhat submitted an internship application.",
+      message: "Amel Belkaid submitted an internship application.",
       creationDate: iso(-1),
       isRead: false,
       notificationType: NotificationType.APPLICATION,
@@ -546,7 +561,7 @@ export function seedDatabase() {
   setCollection("notifications", notifications);
   setCollection("calendarEvents", calendarEvents);
 
-  markSeeded();
+  markSeeded(SEED_VERSION);
 }
 
 /** Used by id-generators in the other mockApi modules. */

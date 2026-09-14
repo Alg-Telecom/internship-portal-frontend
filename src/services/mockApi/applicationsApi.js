@@ -64,13 +64,24 @@ export async function getApplication(id) {
  * diagram. Rejecting sets a reason the candidate would see if resubmission
  * were wired up (not implemented client-side for the mock, since the
  * candidate has no authenticated session before acceptance).
+ *
+ * Since there's no resubmission path, a rejected document has nowhere to
+ * go but a rejected application — so rejecting either document rejects
+ * the application itself immediately, instead of leaving it stuck on
+ * Pending until someone separately clicks "Reject Application".
  */
 export async function reviewDocument(id, field, { status, rejectionReason = '' }) {
   await delay(300);
+  const application = findById('applications', Number(id));
   const patch = {
     [`${field}Status`]: status,
     [`${field}RejectionReason`]: status === 'Rejected' ? rejectionReason : '',
   };
+  if (status === 'Rejected' && application?.status === ApplicationStatus.PENDING) {
+    patch.status = ApplicationStatus.REJECTED;
+    patch.rejectionReason = rejectionReason;
+    patch.reviewedAt = new Date().toISOString();
+  }
   return update('applications', Number(id), patch);
 }
 
