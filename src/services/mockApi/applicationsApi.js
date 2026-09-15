@@ -89,8 +89,17 @@ export async function reviewDocument(id, field, { status, rejectionReason = '' }
  * Accept or reject the application itself (separate from per-document
  * review — see reviewDocument above). On acceptance, creates/activates the
  * Intern user account, per the sequence diagram.
+ *
+ * `teamId` is the team the admin actually confirmed in the accept dialog
+ * (AcceptApplicationDialog) — it starts pre-filled with whatever team
+ * matches the candidate's stated preference, but the admin can swap it for
+ * a different one before confirming, or leave the intern unassigned
+ * (`null`/omitted). Whichever team ends up chosen, the welcome
+ * notification says so explicitly, and calls it out when it differs from
+ * what the candidate originally asked for — so nobody finds out they
+ * didn't get their preferred team by quietly noticing it in their profile.
  */
-export async function decideApplication(id, { status, rejectionReason = '' }) {
+export async function decideApplication(id, { status, rejectionReason = '', teamId } = {}) {
   await delay(400);
   const application = findById('applications', Number(id));
   if (!application) throw new Error('Application not found.');
@@ -102,6 +111,19 @@ export async function decideApplication(id, { status, rejectionReason = '' }) {
   };
 
   if (status === ApplicationStatus.ACCEPTED) {
+    const teams = getCollection('teams');
+    const preferredTeam =
+      application.teamPreference && application.teamPreference !== 'No preference'
+        ? teams.find((t) => t.name === application.teamPreference)
+        : null;
+
+    // Explicit `teamId` (from the admin's confirmation dialog) is
+    // authoritative. Only when a caller omits it entirely do we fall back
+    // to auto-matching the stated preference, so existing/scripted calls
+    // that don't know about the dialog still behave sensibly.
+    const resolvedTeamId = teamId !== undefined ? (teamId ? Number(teamId) : null) : preferredTeam?.id ?? null;
+    const assignedTeam = resolvedTeamId ? teams.find((t) => t.id === resolvedTeamId) : null;
+
     const newUserId = currentMaxId('users') + 1;
     const internUser = {
       id: newUserId,
@@ -121,17 +143,29 @@ export async function decideApplication(id, { status, rejectionReason = '' }) {
       academicLevel: application.grade,
       cvPath: application.cvFileName,
       registrationDate: new Date().toISOString().slice(0, 10),
-      teamId: null,
+      teamId: resolvedTeamId,
       isActive: true,
       createdAt: new Date().toISOString(),
     };
     insert('users', internUser);
     patch.internId = internUser.id;
 
+    // Team names in this app already end in "Team" (e.g. "Digital Services
+    // Team"), so the message doesn't append its own "team" suffix — doing
+    // so read as "...Digital Services Team team".
+    let message = 'Your internship application has been accepted. Welcome to Algerie Telecom!';
+    if (assignedTeam && preferredTeam && assignedTeam.id === preferredTeam.id) {
+      message += ` You've been assigned to your preferred team: ${assignedTeam.name}.`;
+    } else if (assignedTeam && preferredTeam) {
+      message += ` You've been assigned to ${assignedTeam.name} instead of your preferred ${preferredTeam.name}.`;
+    } else if (assignedTeam) {
+      message += ` You've been assigned to ${assignedTeam.name}.`;
+    }
+
     createNotification({
       userId: internUser.id,
       title: 'Application accepted',
-      message: 'Your internship application has been accepted. Welcome to Algerie Telecom!',
+      message,
       notificationType: 'Application',
       link: '/intern',
     });

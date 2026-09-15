@@ -10,6 +10,7 @@ import EducationStep from './components/steps/EducationStep';
 import UploadsStep from './components/steps/UploadsStep';
 import { applicationSchema, STEP_FIELDS } from './schema';
 import * as applicationsApi from '../../services/mockApi/applicationsApi';
+import { fileToDataUrl } from '../../lib/utils';
 
 export default function ApplyPage() {
   const navigate = useNavigate();
@@ -54,6 +55,10 @@ export default function ApplyPage() {
   async function onFormSubmit(values) {
     setSubmitError('');
     try {
+      const [cvFileUrl, photoFileUrl] = await Promise.all([
+        values.cvFile ? fileToDataUrl(values.cvFile) : '',
+        values.photoFile ? fileToDataUrl(values.photoFile) : '',
+      ]);
       await applicationsApi.submitApplication({
         firstName: values.firstName,
         lastName: values.lastName,
@@ -61,10 +66,6 @@ export default function ApplyPage() {
         email: values.email,
         phone: values.phone,
         birthday: values.birthday,
-        // Chosen by the applicant here, not emailed later — becomes their
-        // intern login password once the application is accepted (see
-        // applicationsApi.decideApplication). confirmPassword is
-        // deliberately not sent, it only existed to validate this field.
         password: values.password,
         university: values.university,
         major: values.major,
@@ -73,13 +74,9 @@ export default function ApplyPage() {
         startDate: values.startDate,
         endDate: values.endDate,
         cvFileName: values.cvFile?.name || '',
-        // Object URLs only live for this browser tab/session (they don't
-        // survive a reload, and there's no backend yet to persist the
-        // actual file) — but they let a reviewer open the real file the
-        // applicant just picked, right now. See DocumentLink.
-        cvFileUrl: values.cvFile ? URL.createObjectURL(values.cvFile) : '',
+        cvFileUrl,
         photoFileName: values.photoFile?.name || '',
-        photoFileUrl: values.photoFile ? URL.createObjectURL(values.photoFile) : '',
+        photoFileUrl,
       });
       navigate('/apply/success', { replace: true });
     } catch (error) {

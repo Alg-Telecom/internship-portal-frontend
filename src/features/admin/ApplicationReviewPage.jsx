@@ -15,8 +15,8 @@ export default function ApplicationReviewPage() {
   const { showToast } = useToast();
   const { application, isLoading, refetch } = useApplication(id);
 
-  async function handleAccept() {
-    await applicationsApi.decideApplication(id, { status: 'Accepted' });
+  async function handleAccept(teamId) {
+    await applicationsApi.decideApplication(id, { status: 'Accepted', teamId });
     showToast('Application accepted. The intern account has been created.');
     refetch();
   }

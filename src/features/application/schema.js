@@ -13,7 +13,7 @@ export const applicationSchema = z
     lastName: z.string().min(1, 'Last name is required.'),
     personalId: z.string().min(1, 'Personal ID is required.'),
     email: z.string().min(1, 'Email is required.').email('Enter a valid email address.'),
-    phone: z.string().min(6, 'Enter a valid phone number.'),
+    phone: z.string().min(10, 'Enter a valid phone number.'),
     birthday: z.string().min(1, 'Birthday is required.'),
     // This becomes the intern's login password once the application is
     // accepted (see applicationsApi.decideApplication) — set here rather

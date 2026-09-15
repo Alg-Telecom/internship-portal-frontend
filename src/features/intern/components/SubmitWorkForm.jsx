@@ -2,6 +2,7 @@ import { useState } from 'react';
 import FileDropzone from '../../../components/ui/FileDropzone';
 import Textarea from '../../../components/ui/Textarea';
 import Button from '../../../components/ui/Button';
+import { fileToDataUrl } from '../../../lib/utils';
 
 export default function SubmitWorkForm({ onSubmit }) {
   const [file, setFile] = useState(null);
@@ -18,7 +19,8 @@ export default function SubmitWorkForm({ onSubmit }) {
     setError('');
     setIsSubmitting(true);
     try {
-      await onSubmit({ fileName: file.name, fileUrl: URL.createObjectURL(file), notes });
+      const fileUrl = await fileToDataUrl(file);
+      await onSubmit({ fileName: file.name, fileUrl, notes });
     } finally {
       setIsSubmitting(false);
     }

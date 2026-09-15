@@ -4,23 +4,16 @@ import Button from '../../../components/ui/Button';
 import Dialog from '../../../components/ui/Dialog';
 import Textarea from '../../../components/ui/Textarea';
 import StatusBadge from '../../../components/shared/StatusBadge';
+import AcceptApplicationDialog from './AcceptApplicationDialog';
 
 export default function ApplicationDecisionBar({ application, onAccept, onReject }) {
+  const [isAccepting, setIsAccepting] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const documentsReady = application.cvStatus === 'Approved' && application.photoStatus === 'Approved';
   const isDecided = application.status !== 'Pending';
-
-  async function handleAccept() {
-    setIsSubmitting(true);
-    try {
-      await onAccept();
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
 
   async function confirmReject() {
     setIsSubmitting(true);
@@ -54,11 +47,13 @@ export default function ApplicationDecisionBar({ application, onAccept, onReject
           <X className="h-4 w-4" aria-hidden="true" />
           Reject Application
         </Button>
-        <Button variant="accent" onClick={handleAccept} isLoading={isSubmitting} disabled={!documentsReady}>
+        <Button variant="accent" onClick={() => setIsAccepting(true)} disabled={!documentsReady}>
           <Check className="h-4 w-4" aria-hidden="true" />
           Accept Application
         </Button>
       </div>
+
+      <AcceptApplicationDialog open={isAccepting} onClose={() => setIsAccepting(false)} application={application} onConfirm={onAccept} />
 
       <Dialog open={isRejecting} onClose={() => setIsRejecting(false)} title="Reject application" description="This will be recorded as the reason for rejection.">
         <Textarea id="application-reject-reason" label="Rejection reason" required value={reason} onChange={(e) => setReason(e.target.value)} />

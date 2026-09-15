@@ -8,10 +8,7 @@ import { clearSession } from './services/mockApi/authApi'
 
 seedDatabase()
 
-// Dev convenience: always land on /login on a fresh `npm run dev` load
-// instead of picking up whatever session was left over from earlier
-// testing. Guarded by DEV so a production build keeps real persisted
-// sessions across reloads.
+
 if (import.meta.env.DEV) {
   clearSession()
 }

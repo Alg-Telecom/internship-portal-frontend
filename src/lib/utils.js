@@ -33,6 +33,24 @@ export function toDateInputValue(date) {
   return `${y}-${m}-${d}`;
 }
 
+/**
+ * Reads a File into a base64 data: URL. Used instead of
+ * `URL.createObjectURL()` for anything that needs to stay openable after
+ * this tab session ends: an object URL only lives as long as the document
+ * that created it, so it silently breaks (the "document" link errors out)
+ * the moment the page reloads, a new tab opens it, or someone logs back in
+ * later — since these mock uploads are persisted to localStorage as plain
+ * strings, only a self-contained data URL survives that round-trip.
+ */
+export function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error('Could not read the file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function initials(firstName = '', lastName = '') {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || '?';
 }

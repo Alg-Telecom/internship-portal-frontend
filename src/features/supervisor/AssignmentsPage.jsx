@@ -8,6 +8,7 @@ import { useInterns } from '../../hooks/useUsers';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import AssignmentCalendar from '../../components/shared/AssignmentCalendar';
 import AssignmentsTable from './components/AssignmentsTable';
 import AssignmentFormDialog from './components/AssignmentFormDialog';
 import * as assignmentsApi from '../../services/mockApi/assignmentsApi';
@@ -34,28 +35,43 @@ export default function AssignmentsPage() {
     refetch();
   }
 
+  function goToAssignment(a) {
+    navigate(`/supervisor/assignments/${a.id}`);
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Assignments</CardTitle>
-        <Button size="sm" onClick={() => setEditingAssignment(null)}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          New assignment
-        </Button>
-      </CardHeader>
-      <AssignmentsTable
-        assignments={assignments}
-        isLoading={isLoading}
-        internsById={internsById}
-        onSelect={(a) => navigate(`/supervisor/assignments/${a.id}`)}
-        onEdit={setEditingAssignment}
-      />
-      <AssignmentFormDialog
-        open={editingAssignment !== undefined}
-        onClose={() => setEditingAssignment(undefined)}
-        onSubmit={handleSubmit}
-        assignment={editingAssignment}
-      />
-    </Card>
+    <div className="flex flex-col gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Deadlines</CardTitle>
+        </CardHeader>
+        <div className="px-5 py-4">
+          <AssignmentCalendar assignments={assignments} internsById={internsById} onSelectAssignment={goToAssignment} />
+        </div>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Assignments</CardTitle>
+          <Button size="sm" onClick={() => setEditingAssignment(null)}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New assignment
+          </Button>
+        </CardHeader>
+        <AssignmentsTable
+          assignments={assignments}
+          isLoading={isLoading}
+          internsById={internsById}
+          onSelect={goToAssignment}
+          onEdit={setEditingAssignment}
+        />
+        <AssignmentFormDialog
+          open={editingAssignment !== undefined}
+          onClose={() => setEditingAssignment(undefined)}
+          onSubmit={handleSubmit}
+          assignment={editingAssignment}
+        />
+      </Card>
+    </div>
   );
 }
