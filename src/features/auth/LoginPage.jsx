@@ -4,12 +4,14 @@ import AuthLayout from './AuthLayout';
 import LoginForm from './components/LoginForm';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function LoginPage() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { showToast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (user) navigate(`/${user.role}`, { replace: true });
@@ -17,18 +19,18 @@ export default function LoginPage() {
 
   async function handleSubmit({ email, password }) {
     const loggedInUser = await login(email, password);
-    showToast(`Welcome back, ${loggedInUser.firstName}.`);
+    showToast(t('common.welcomeBack', { name: loggedInUser.firstName }));
     const redirectTo = location.state?.from?.pathname || `/${loggedInUser.role}`;
     navigate(redirectTo, { replace: true });
   }
 
   return (
-    <AuthLayout title="Internship Management Portal" subtitle="Sign in to continue">
+    <AuthLayout title={t('login.title')} subtitle={t('login.subtitle')}>
       <LoginForm onSubmit={handleSubmit} />
       <p className="mt-5 text-center text-sm text-muted-foreground">
-        Applying for an internship?{' '}
+        {t('login.applyingPrompt')}{' '}
         <Link to="/apply" className="font-medium text-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">
-          Submit an application
+          {t('login.submitApplication')}
         </Link>
       </p>
     </AuthLayout>

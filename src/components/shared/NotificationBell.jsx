@@ -6,11 +6,29 @@ import * as notificationsApi from '../../services/mockApi/notificationsApi';
 import { useAuth } from '../../context/AuthContext';
 import { formatDateTime, cn } from '../../lib/utils';
 import EmptyState from './EmptyState';
+import { useLanguage } from '../../context/LanguageContext';
+import { useTeams } from '../../hooks/useTeams';
 
 export default function NotificationBell() {
+  const { t, tTeam } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { notifications, unreadCount, refetch } = useNotifications();
+  const { teams } = useTeams();
+  const teamsByName = Object.fromEntries(teams.map((team) => [team.name, team]));
+
+  // Notification params captured at creation time (see notificationsApi.js)
+  // carry a raw team name — resolve it against the live team record (so a
+  // rename since the notification was created still shows up) and
+  // translate now, at render time, rather than when the notification was
+  // created, same reasoning as titleKey/messageKey themselves.
+  function renderParams(params) {
+    if (!params) return params;
+    const next = { ...params };
+    if (next.team) next.team = tTeam(teamsByName[next.team] || next.team);
+    if (next.preferredTeam) next.preferredTeam = tTeam(teamsByName[next.preferredTeam] || next.preferredTeam);
+    return next;
+  }
 
   async function handleMarkAllRead() {
     await notificationsApi.markAllAsRead(user.id);
@@ -31,7 +49,7 @@ export default function NotificationBell() {
   return (
     <Popover className="relative">
       <Popover.Button
-        aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
+        aria-label={t('common.notifications.ariaLabel', { unread: unreadCount ? t('common.notifications.ariaUnread', { count: unreadCount }) : '' })}
         className="relative cursor-pointer rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Bell className="h-5 w-5" aria-hidden="true" />
@@ -39,24 +57,24 @@ export default function NotificationBell() {
           <span className="absolute right-1 top-1 flex h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-card" aria-hidden="true" />
         )}
       </Popover.Button>
-      <Popover.Panel className="absolute right-0 z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-md border border-border bg-card shadow-popover sm:w-80">
+      <Popover.Panel className="absolute end-0 z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-md border border-border bg-card shadow-popover sm:w-80">
         {({ close }) => (
           <>
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <p className="text-sm font-semibold text-foreground">Notifications</p>
+              <p className="text-sm font-semibold text-foreground">{t('common.notifications.title')}</p>
               {unreadCount > 0 && (
                 <button
                   type="button"
                   onClick={handleMarkAllRead}
                   className="cursor-pointer text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
                 >
-                  Mark all as read
+                  {t('common.notifications.markAllRead')}
                 </button>
               )}
             </div>
             <div className="max-h-80 overflow-y-auto">
               {notifications.length === 0 ? (
-                <EmptyState icon={BellSimple} title="You're all caught up" description="New notifications will show up here." />
+                <EmptyState icon={BellSimple} title={t('common.notifications.empty')} description={t('common.notifications.emptyDescription')} />
               ) : (
                 <ul>
                   {notifications.map((n) => (
@@ -69,8 +87,8 @@ export default function NotificationBell() {
                           !n.isRead && 'bg-primary/5'
                         )}
                       >
-                        <p className="text-sm font-medium text-foreground">{n.title}</p>
-                        <p className="mt-0.5 text-sm text-muted-foreground">{n.message}</p>
+                        <p className="text-sm font-medium text-foreground">{n.titleKey ? t(n.titleKey) : n.title}</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">{n.messageKey ? t(n.messageKey, renderParams(n.params)) : n.message}</p>
                         <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(n.creationDate)}</p>
                       </button>
                     </li>

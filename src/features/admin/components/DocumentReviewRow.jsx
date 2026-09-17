@@ -5,6 +5,7 @@ import StatusBadge from '../../../components/shared/StatusBadge';
 import Dialog from '../../../components/ui/Dialog';
 import Textarea from '../../../components/ui/Textarea';
 import DocumentLink from '../../../components/shared/DocumentLink';
+import { useLanguage } from '../../../context/LanguageContext';
 
 /**
  * One row in CandidateDocumentsList — Accept/Reject a single document
@@ -12,6 +13,7 @@ import DocumentLink from '../../../components/shared/DocumentLink';
  * fragment. Rejecting requires a reason.
  */
 export default function DocumentReviewRow({ label, fileName, fileUrl, status, rejectionReason, actionable = true, onAccept, onReject }) {
+  const { t } = useLanguage();
   const [isRejecting, setIsRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +35,7 @@ export default function DocumentReviewRow({ label, fileName, fileUrl, status, re
         <div>
           <p className="text-sm font-medium text-foreground">{label}</p>
           <DocumentLink fileName={fileName} url={fileUrl} className="mt-0.5" />
-          {status === 'Rejected' && rejectionReason && <p className="mt-1 text-xs text-destructive">Reason: {rejectionReason}</p>}
+          {status === 'Rejected' && rejectionReason && <p className="mt-1 text-xs text-destructive">{t('admin.review.reason', { reason: rejectionReason })}</p>}
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -42,31 +44,31 @@ export default function DocumentReviewRow({ label, fileName, fileUrl, status, re
           <>
             <Button size="sm" variant="outline" onClick={() => setIsRejecting(true)}>
               <X className="h-4 w-4" aria-hidden="true" />
-              Reject
+              {t('common.reject')}
             </Button>
             <Button size="sm" variant="accent" onClick={onAccept}>
               <Check className="h-4 w-4" aria-hidden="true" />
-              Accept
+              {t('common.accept')}
             </Button>
           </>
         )}
       </div>
 
-      <Dialog open={isRejecting} onClose={() => setIsRejecting(false)} title={`Reject ${label}`} description="Explain what the candidate needs to correct.">
+      <Dialog open={isRejecting} onClose={() => setIsRejecting(false)} title={t('admin.review.rejectTitle', { label })} description={t('admin.review.rejectDescription')}>
         <Textarea
           id={`reject-reason-${label}`}
-          label="Rejection reason"
+          label={t('admin.review.rejectionReason')}
           required
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="e.g. The photo is not a recent passport-style photo."
+          placeholder={t('admin.review.rejectionPlaceholder')}
         />
         <div className="mt-4 flex justify-end gap-3">
           <Button variant="outline" onClick={() => setIsRejecting(false)} disabled={isSubmitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="destructive" onClick={confirmReject} isLoading={isSubmitting} disabled={!reason.trim()}>
-            Confirm rejection
+            {t('admin.review.confirmRejection')}
           </Button>
         </div>
       </Dialog>

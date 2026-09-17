@@ -5,9 +5,11 @@ import { useAssignments } from '../../hooks/useAssignments';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import AssignmentCalendar from '../../components/shared/AssignmentCalendar';
 import InternAssignmentsList from './components/InternAssignmentsList';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function AssignmentsPage() {
-  usePageHeader('My Assignments');
+  const { t } = useLanguage();
+  usePageHeader(t('intern.assignments.title'));
   const navigate = useNavigate();
   const { user } = useAuth();
   const { assignments, isLoading } = useAssignments({ internId: user.id });
@@ -20,7 +22,7 @@ export default function AssignmentsPage() {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Deadlines</CardTitle>
+          <CardTitle>{t('common.deadlines')}</CardTitle>
         </CardHeader>
         <div className="px-5 py-4">
           <AssignmentCalendar assignments={assignments} onSelectAssignment={goToAssignment} />

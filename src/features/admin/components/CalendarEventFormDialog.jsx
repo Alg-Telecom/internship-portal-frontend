@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,16 +7,21 @@ import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import DatePicker from '../../../components/ui/DatePicker';
 import Button from '../../../components/ui/Button';
-import { CalendarEventType, CALENDAR_EVENT_TYPE_LABEL } from '../../../domain/enums';
+import { CalendarEventType } from '../../../domain/enums';
 import { toDateInputValue } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
-const schema = z.object({
-  title: z.string().min(1, 'Title is required.'),
-  date: z.string().min(1, 'Date is required.'),
-  type: z.string().min(1, 'Type is required.'),
-});
+function makeSchema(t) {
+  return z.object({
+    title: z.string().min(1, t('admin.calendarEventForm.titleRequired')),
+    date: z.string().min(1, t('admin.calendarEventForm.dateRequired')),
+    type: z.string().min(1, t('admin.calendarEventForm.typeRequired')),
+  });
+}
 
 export default function CalendarEventFormDialog({ open, onClose, onSubmit, defaultDate }) {
+  const { t } = useLanguage();
+  const schema = useMemo(() => makeSchema(t), [t]);
   const {
     register,
     handleSubmit,
@@ -44,23 +49,23 @@ export default function CalendarEventFormDialog({ open, onClose, onSubmit, defau
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title="New Calendar Event">
+    <Dialog open={open} onClose={onClose} title={t('admin.calendarEventForm.title')}>
       <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-4">
-        <Input id="event-title" label="Title" required placeholder="e.g. Mid-internship review meeting" error={errors.title?.message} {...register('title')} />
-        <DatePicker id="event-date" label="Date" required value={date} onChange={(v) => setValue('date', v, { shouldValidate: true })} error={errors.date?.message} />
-        <Select id="event-type" label="Type" required error={errors.type?.message} {...register('type')}>
+        <Input id="event-title" label={t('admin.calendarEventForm.titleField')} required placeholder={t('admin.calendarEventForm.titlePlaceholder')} error={errors.title?.message} {...register('title')} />
+        <DatePicker id="event-date" label={t('admin.calendarEventForm.date')} required value={date} onChange={(v) => setValue('date', v, { shouldValidate: true })} error={errors.date?.message} />
+        <Select id="event-type" label={t('admin.calendarEventForm.type')} required error={errors.type?.message} {...register('type')}>
           {Object.values(CalendarEventType).map((value) => (
             <option key={value} value={value}>
-              {CALENDAR_EVENT_TYPE_LABEL[value]}
+              {t(`common.calendarEventType.${value}`)}
             </option>
           ))}
         </Select>
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" isLoading={isSubmitting}>
-            Add event
+            {t('admin.calendarEventForm.addEvent')}
           </Button>
         </div>
       </form>

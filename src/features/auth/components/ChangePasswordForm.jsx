@@ -1,23 +1,28 @@
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { WarningCircle } from '@phosphor-icons/react';
-import { useState } from 'react';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
+import { useLanguage } from '../../../context/LanguageContext';
 
-const schema = z
-  .object({
-    currentPassword: z.string().min(1, 'Current password is required.'),
-    newPassword: z.string().min(8, 'New password must be at least 8 characters.'),
-    confirmPassword: z.string().min(1, 'Please confirm your new password.'),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Passwords do not match.',
-  });
+function makeSchema(t) {
+  return z
+    .object({
+      currentPassword: z.string().min(1, t('settings.currentPasswordRequired')),
+      newPassword: z.string().min(8, t('settings.newPasswordMin')),
+      confirmPassword: z.string().min(1, t('settings.confirmPasswordRequired')),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      path: ['confirmPassword'],
+      message: t('settings.passwordsDontMatch'),
+    });
+}
 
 export default function ChangePasswordForm({ onSubmit }) {
+  const { t } = useLanguage();
+  const schema = useMemo(() => makeSchema(t), [t]);
   const [formError, setFormError] = useState('');
   const {
     register,
@@ -32,7 +37,7 @@ export default function ChangePasswordForm({ onSubmit }) {
       await onSubmit(values);
       reset();
     } catch (error) {
-      setFormError(error.message || 'Something went wrong. Please try again.');
+      setFormError(error.message || t('common.somethingWentWrong'));
     }
   }
 
@@ -44,20 +49,20 @@ export default function ChangePasswordForm({ onSubmit }) {
           {formError}
         </div>
       )}
-      <Input id="currentPassword" type="password" label="Current password" required autoComplete="current-password" error={errors.currentPassword?.message} {...register('currentPassword')} />
+      <Input id="currentPassword" type="password" label={t('settings.currentPassword')} required autoComplete="current-password" error={errors.currentPassword?.message} {...register('currentPassword')} />
       <Input
         id="newPassword"
         type="password"
-        label="New password"
+        label={t('settings.newPassword')}
         required
         autoComplete="new-password"
-        helperText={!errors.newPassword ? 'At least 8 characters.' : undefined}
+        helperText={!errors.newPassword ? t('settings.passwordHelper') : undefined}
         error={errors.newPassword?.message}
         {...register('newPassword')}
       />
-      <Input id="confirmPassword" type="password" label="Confirm new password" required autoComplete="new-password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
+      <Input id="confirmPassword" type="password" label={t('settings.confirmNewPassword')} required autoComplete="new-password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
       <Button type="submit" isLoading={isSubmitting} className="mt-2 self-start">
-        Update password
+        {t('settings.updatePassword')}
       </Button>
     </form>
   );

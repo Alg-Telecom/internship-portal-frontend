@@ -15,9 +15,11 @@ import TeamOverviewCard from './components/TeamOverviewCard';
 import InternshipCalendar from '../../components/shared/InternshipCalendar';
 import CalendarEventFormDialog from './components/CalendarEventFormDialog';
 import * as calendarApi from '../../services/mockApi/calendarApi';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function DashboardPage() {
-  usePageHeader('Dashboard');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.dashboard.title'));
   const { teams, isLoading: teamsLoading } = useTeams();
   const { applications } = useApplications({ status: 'Pending' });
   const { interns } = useInterns();
@@ -29,7 +31,7 @@ export default function DashboardPage() {
 
   async function handleCreateEvent(values) {
     await calendarApi.createEvent(values);
-    showToast('Event added to the calendar.');
+    showToast(t('admin.dashboard.eventAdded'));
     refetchEvents();
   }
 
@@ -37,7 +39,7 @@ export default function DashboardPage() {
     setIsDeleting(true);
     try {
       await calendarApi.deleteEvent(deletingEvent.id);
-      showToast('Event deleted.', { type: 'info' });
+      showToast(t('admin.dashboard.eventDeleted'), { type: 'info' });
       setDeletingEvent(null);
       refetchEvents();
     } finally {
@@ -48,20 +50,20 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard icon={UsersThree} label="Active interns" value={interns.length} />
-        <StatCard icon={FileText} label="Pending applications" value={applications.length} tone="accent" />
-        <StatCard icon={ClockCounterClockwise} label="Internship teams" value={teams.length} />
+        <StatCard icon={UsersThree} label={t('admin.dashboard.activeInterns')} value={interns.length} />
+        <StatCard icon={FileText} label={t('admin.dashboard.pendingApplications')} value={applications.length} tone="accent" />
+        <StatCard icon={ClockCounterClockwise} label={t('admin.dashboard.internshipTeams')} value={teams.length} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Internship Teams</CardTitle>
+          <CardTitle>{t('admin.dashboard.teamsCardTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           {teamsLoading ? (
             <SkeletonRows rows={3} />
           ) : teams.length === 0 ? (
-            <EmptyState icon={UsersThree} title="No teams yet" description="Create a team to start assigning interns and supervisors." />
+            <EmptyState icon={UsersThree} title={t('admin.dashboard.noTeamsYet')} description={t('admin.dashboard.noTeamsDescription')} />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {teams.map((team) => (
@@ -74,7 +76,7 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Internship Calendar</CardTitle>
+          <CardTitle>{t('admin.dashboard.calendarCardTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <InternshipCalendar
@@ -97,8 +99,8 @@ export default function DashboardPage() {
         onClose={() => setDeletingEvent(null)}
         onConfirm={confirmDeleteEvent}
         isLoading={isDeleting}
-        title="Delete event"
-        description={deletingEvent ? `This permanently removes "${deletingEvent.title}" from the calendar. This cannot be undone.` : ''}
+        title={t('admin.dashboard.deleteEventTitle')}
+        description={deletingEvent ? t('admin.dashboard.deleteEventDescription', { title: deletingEvent.title }) : ''}
       />
     </div>
   );

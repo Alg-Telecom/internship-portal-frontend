@@ -5,6 +5,7 @@ import Dialog from '../../../components/ui/Dialog';
 import Textarea from '../../../components/ui/Textarea';
 import DocumentLink from '../../../components/shared/DocumentLink';
 import { formatDateTime } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 /**
  * Shows the latest uploaded document for a request, with Approve/Reject
@@ -13,12 +14,13 @@ import { formatDateTime } from '../../../lib/utils';
  * outcome, so a second badge next to it would just repeat the same info.
  */
 export default function SubmittedDocumentPreview({ document, onApprove, onReject }) {
+  const { t } = useLanguage();
   const [isRejecting, setIsRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!document) {
-    return <p className="text-sm text-muted-foreground">No document submitted yet.</p>;
+    return <p className="text-sm text-muted-foreground">{t('admin.review.noDocumentYet')}</p>;
   }
 
   async function confirmReject() {
@@ -38,7 +40,7 @@ export default function SubmittedDocumentPreview({ document, onApprove, onReject
         <div>
           <DocumentLink fileName={document.fileName} url={document.fileUrl} />
           <p className="mt-0.5 text-xs text-muted-foreground">
-            v{document.version} · Uploaded {formatDateTime(document.uploadDate)}
+            {t('admin.review.versionUploaded', { version: document.version, date: formatDateTime(document.uploadDate) })}
           </p>
         </div>
       </div>
@@ -53,14 +55,14 @@ export default function SubmittedDocumentPreview({ document, onApprove, onReject
         </div>
       )}
 
-      <Dialog open={isRejecting} onClose={() => setIsRejecting(false)} title="Reject document">
-        <Textarea id="doc-reject-reason" label="Rejection reason" required value={reason} onChange={(e) => setReason(e.target.value)} />
+      <Dialog open={isRejecting} onClose={() => setIsRejecting(false)} title={t('admin.review.rejectDocumentTitle')}>
+        <Textarea id="doc-reject-reason" label={t('admin.review.rejectionReason')} required value={reason} onChange={(e) => setReason(e.target.value)} />
         <div className="mt-4 flex justify-end gap-3">
           <Button variant="outline" onClick={() => setIsRejecting(false)} disabled={isSubmitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="destructive" onClick={confirmReject} isLoading={isSubmitting} disabled={!reason.trim()}>
-            Confirm rejection
+            {t('admin.review.confirmRejection')}
           </Button>
         </div>
       </Dialog>

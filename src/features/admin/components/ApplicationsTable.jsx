@@ -2,12 +2,17 @@ import DataTable from '../../../components/shared/DataTable';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import Avatar from '../../../components/ui/Avatar';
 import { formatDate, fullName } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
+import { useTeams } from '../../../hooks/useTeams';
 
 export default function ApplicationsTable({ applications, isLoading, onReview }) {
+  const { t, tTeam } = useLanguage();
+  const { teams } = useTeams();
+  const teamsByName = Object.fromEntries(teams.map((team) => [team.name, team]));
   const columns = [
     {
       key: 'candidate',
-      header: 'Candidate',
+      header: t('admin.applications.candidate'),
       render: (row) => (
         <div className="flex items-center gap-3">
           <Avatar firstName={row.firstName} lastName={row.lastName} size="sm" />
@@ -18,10 +23,10 @@ export default function ApplicationsTable({ applications, isLoading, onReview })
         </div>
       ),
     },
-    { key: 'university', header: 'University', render: (row) => row.university },
-    { key: 'teamPreference', header: 'Team preference', render: (row) => row.teamPreference },
-    { key: 'submissionDate', header: 'Submitted', render: (row) => formatDate(row.submissionDate) },
-    { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+    { key: 'university', header: t('admin.applications.university'), render: (row) => row.university },
+    { key: 'teamPreference', header: t('admin.applications.teamPreference'), render: (row) => tTeam(teamsByName[row.teamPreference] || row.teamPreference) },
+    { key: 'submissionDate', header: t('admin.applications.submitted'), render: (row) => formatDate(row.submissionDate) },
+    { key: 'status', header: t('common.status'), render: (row) => <StatusBadge status={row.status} /> },
     {
       key: 'actions',
       header: '',
@@ -36,7 +41,7 @@ export default function ApplicationsTable({ applications, isLoading, onReview })
           }}
           className="cursor-pointer text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
-          Review
+          {t('admin.applications.review')}
         </button>
       ),
     },
@@ -47,8 +52,8 @@ export default function ApplicationsTable({ applications, isLoading, onReview })
       columns={columns}
       rows={applications}
       isLoading={isLoading}
-      emptyTitle="No applications found"
-      emptyDescription="Try adjusting your search or status filter."
+      emptyTitle={t('admin.applications.noneFound')}
+      emptyDescription={t('admin.applications.adjustSearch')}
       onRowClick={onReview}
     />
   );

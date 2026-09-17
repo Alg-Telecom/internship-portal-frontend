@@ -3,16 +3,18 @@ import DataTable from '../../../components/shared/DataTable';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import Badge from '../../../components/ui/Badge';
 import { formatDate, fullName } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const PRIORITY_TONE = { Low: 'muted', Medium: 'warning', High: 'destructive' };
 
 export default function AssignmentsTable({ assignments, isLoading, internsById, onSelect, onEdit }) {
+  const { t } = useLanguage();
   const columns = [
-    { key: 'title', header: 'Assignment', render: (row) => <span className="font-medium text-foreground">{row.title}</span> },
-    { key: 'intern', header: 'Intern', render: (row) => (internsById[row.internId] ? fullName(internsById[row.internId]) : '—') },
-    { key: 'deadline', header: 'Deadline', render: (row) => formatDate(row.deadline) },
-    { key: 'priority', header: 'Priority', render: (row) => <Badge tone={PRIORITY_TONE[row.priority]}>{row.priority}</Badge> },
-    { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+    { key: 'title', header: t('common.field.assignment'), render: (row) => <span className="font-medium text-foreground">{row.title}</span> },
+    { key: 'intern', header: t('supervisor.assignments.intern'), render: (row) => (internsById[row.internId] ? fullName(internsById[row.internId]) : '—') },
+    { key: 'deadline', header: t('common.field.deadline'), render: (row) => formatDate(row.deadline) },
+    { key: 'priority', header: t('common.field.priority'), render: (row) => <Badge tone={PRIORITY_TONE[row.priority]}>{t(`common.priority.${row.priority}`)}</Badge> },
+    { key: 'status', header: t('common.field.status'), render: (row) => <StatusBadge status={row.status} /> },
     {
       key: 'actions',
       header: '',
@@ -25,7 +27,7 @@ export default function AssignmentsTable({ assignments, isLoading, internsById, 
             e.stopPropagation();
             onEdit(row);
           }}
-          aria-label={`Edit ${row.title}`}
+          aria-label={t('supervisor.assignments.editAria', { title: row.title })}
           className="cursor-pointer text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
           <PencilSimple className="h-4 w-4" aria-hidden="true" />
@@ -34,5 +36,5 @@ export default function AssignmentsTable({ assignments, isLoading, internsById, 
     },
   ];
 
-  return <DataTable columns={columns} rows={assignments} isLoading={isLoading} emptyTitle="No assignments yet" onRowClick={onSelect} />;
+  return <DataTable columns={columns} rows={assignments} isLoading={isLoading} emptyTitle={t('supervisor.assignments.noneYet')} onRowClick={onSelect} />;
 }

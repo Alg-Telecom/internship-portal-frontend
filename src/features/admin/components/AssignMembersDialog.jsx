@@ -6,8 +6,10 @@ import { useInterns, useSupervisors } from '../../../hooks/useUsers';
 import { useTeams } from '../../../hooks/useTeams';
 import { fullName } from '../../../lib/utils';
 import * as teamsApi from '../../../services/mockApi/teamsApi';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function AssignMembersDialog({ open, onClose, team, onChanged }) {
+  const { t, tTeam } = useLanguage();
   const { interns, refetch: refetchInterns } = useInterns();
   const { supervisors } = useSupervisors();
   // A supervisor can manage several teams at once — showing how many they
@@ -42,29 +44,29 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title={`Members — ${team.name}`} description="Assign a supervisor and choose which interns belong to this team." className="max-w-lg">
+    <Dialog open={open} onClose={onClose} title={t('admin.assignMembers.title', { team: tTeam(team) })} description={t('admin.assignMembers.description')} className="max-w-lg">
       <div className="flex flex-col gap-5">
         <Select
           id="team-supervisor"
-          label="Supervisor"
+          label={t('admin.assignMembers.supervisor')}
           value={supervisorId}
           onChange={(e) => handleSupervisorChange(e.target.value)}
-          placeholder="Select a supervisor"
-          helperText="A supervisor can manage more than one team — the count below shows their other assignments."
+          placeholder={t('admin.assignMembers.selectSupervisor')}
+          helperText={t('admin.assignMembers.supervisorHelper')}
         >
           {supervisors.map((s) => {
-            const otherTeams = teams.filter((t) => t.supervisorId === s.id && t.id !== team.id).length;
+            const otherTeams = teams.filter((tm) => tm.supervisorId === s.id && tm.id !== team.id).length;
             return (
               <option key={s.id} value={s.id}>
                 {fullName(s)}
-                {otherTeams > 0 ? ` — already supervises ${otherTeams} other team${otherTeams > 1 ? 's' : ''}` : ''}
+                {otherTeams > 0 ? t('admin.assignMembers.alreadySupervises', { count: otherTeams, plural: otherTeams > 1 ? 's' : '' }) : ''}
               </option>
             );
           })}
         </Select>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-foreground">Interns</p>
+          <p className="mb-2 text-sm font-medium text-foreground">{t('admin.assignMembers.interns')}</p>
           <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border border-border p-2">
             {interns.map((intern) => (
               <label key={intern.id} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-muted">
@@ -76,7 +78,7 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
                   className="h-4 w-4 rounded border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
                 <span className="text-foreground">{fullName(intern)}</span>
-                {intern.teamId && intern.teamId !== team.id && <span className="text-xs text-muted-foreground">(in another team)</span>}
+                {intern.teamId && intern.teamId !== team.id && <span className="text-xs text-muted-foreground">{t('admin.assignMembers.inAnotherTeam')}</span>}
               </label>
             ))}
           </div>
@@ -84,7 +86,7 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
 
         <div className="flex justify-end">
           <Button type="button" onClick={onClose}>
-            Done
+            {t('admin.assignMembers.done')}
           </Button>
         </div>
       </div>

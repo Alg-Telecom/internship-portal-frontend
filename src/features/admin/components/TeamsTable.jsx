@@ -2,14 +2,16 @@ import { UsersThree, PencilSimple, TrashSimple } from '@phosphor-icons/react';
 import DataTable from '../../../components/shared/DataTable';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import { fullName, formatDate } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, onDelete }) {
+  const { t, tTeam } = useLanguage();
   const columns = [
-    { key: 'name', header: 'Team', render: (row) => <span className="font-medium text-foreground">{row.name}</span> },
-    { key: 'supervisor', header: 'Supervisor', render: (row) => (row.supervisor ? fullName(row.supervisor) : '—') },
-    { key: 'internCount', header: 'Interns', render: (row) => row.internCount },
-    { key: 'dates', header: 'Dates', render: (row) => `${formatDate(row.startDate)} → ${formatDate(row.endDate)}` },
-    { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+    { key: 'name', header: t('admin.teams.team'), render: (row) => <span className="font-medium text-foreground">{tTeam(row)}</span> },
+    { key: 'supervisor', header: t('admin.teams.supervisor'), render: (row) => (row.supervisor ? fullName(row.supervisor) : '—') },
+    { key: 'internCount', header: t('admin.teams.interns'), render: (row) => row.internCount },
+    { key: 'dates', header: t('admin.teams.dates'), render: (row) => `${formatDate(row.startDate)} → ${formatDate(row.endDate)}` },
+    { key: 'status', header: t('common.status'), render: (row) => <StatusBadge status={row.status} /> },
     {
       key: 'actions',
       header: '',
@@ -23,12 +25,12 @@ export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, 
             className="flex cursor-pointer items-center gap-1 text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <UsersThree className="h-4 w-4" aria-hidden="true" />
-            Members
+            {t('admin.teams.members')}
           </button>
           <button
             type="button"
             onClick={() => onEdit(row)}
-            aria-label={`Edit ${row.name}`}
+            aria-label={t('admin.teams.editAria', { name: row.name })}
             className="cursor-pointer text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <PencilSimple className="h-4 w-4" aria-hidden="true" />
@@ -36,7 +38,7 @@ export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, 
           <button
             type="button"
             onClick={() => onDelete(row)}
-            aria-label={`Delete ${row.name}`}
+            aria-label={t('admin.teams.deleteAria', { name: row.name })}
             className="cursor-pointer text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <TrashSimple className="h-4 w-4" aria-hidden="true" />
@@ -46,5 +48,5 @@ export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, 
     },
   ];
 
-  return <DataTable columns={columns} rows={teams} isLoading={isLoading} emptyTitle="No teams yet" />;
+  return <DataTable columns={columns} rows={teams} isLoading={isLoading} emptyTitle={t('admin.teams.noneYet')} />;
 }

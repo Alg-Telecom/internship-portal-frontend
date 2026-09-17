@@ -1,6 +1,8 @@
 import Card, { CardContent, CardHeader, CardTitle } from '../../../components/ui/Card';
 import Avatar from '../../../components/ui/Avatar';
 import { formatDate, fullName } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
+import { useTeams } from '../../../hooks/useTeams';
 
 function Field({ label, value }) {
   return (
@@ -12,6 +14,12 @@ function Field({ label, value }) {
 }
 
 export default function CandidateProfileSummary({ application }) {
+  const { t, tTeam } = useLanguage();
+  const { teams } = useTeams();
+  // Prefer the live team record (so a team's own French/Arabic name, set
+  // after this application was submitted, still applies) — fall back to
+  // the seeded-name lookup for a team that's since been deleted.
+  const preferredTeam = teams.find((team) => team.name === application.teamPreference);
   return (
     <Card>
       <CardHeader>
@@ -24,15 +32,15 @@ export default function CandidateProfileSummary({ application }) {
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <Field label="Personal ID" value={application.personalId} />
-        <Field label="Phone" value={application.phone} />
-        <Field label="Birthday" value={formatDate(application.birthday)} />
-        <Field label="University" value={application.university} />
-        <Field label="Major" value={application.major} />
-        <Field label="Grade" value={application.grade} />
-        <Field label="Team preference" value={application.teamPreference} />
-        <Field label="Internship dates" value={`${formatDate(application.startDate)} → ${formatDate(application.endDate)}`} />
-        <Field label="Submitted" value={formatDate(application.submissionDate)} />
+        <Field label={t('admin.candidateProfile.personalId')} value={application.personalId} />
+        <Field label={t('admin.candidateProfile.phone')} value={application.phone} />
+        <Field label={t('admin.candidateProfile.birthday')} value={formatDate(application.birthday)} />
+        <Field label={t('admin.candidateProfile.university')} value={application.university} />
+        <Field label={t('admin.candidateProfile.major')} value={application.major} />
+        <Field label={t('admin.candidateProfile.grade')} value={application.grade} />
+        <Field label={t('admin.candidateProfile.teamPreference')} value={tTeam(preferredTeam || application.teamPreference)} />
+        <Field label={t('admin.candidateProfile.internshipDates')} value={`${formatDate(application.startDate)} → ${formatDate(application.endDate)}`} />
+        <Field label={t('admin.candidateProfile.submitted')} value={formatDate(application.submissionDate)} />
       </CardContent>
     </Card>
   );

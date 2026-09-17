@@ -7,7 +7,7 @@ import { ADMIN_NAV, SUPERVISOR_NAV, INTERN_NAV } from '../components/layout/navC
 import { Role } from '../domain/enums';
 
 import LoginPage from '../features/auth/LoginPage';
-import ChangePasswordPage from '../features/auth/ChangePasswordPage';
+import SettingsPage from '../features/auth/SettingsPage';
 import ApplyPage from '../features/application/ApplyPage';
 import ApplicationSuccessPage from '../features/application/ApplicationSuccessPage';
 
@@ -48,7 +48,7 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleRoute role={Role.ADMIN} />}>
-          <Route element={<AppShell navItems={ADMIN_NAV} roleLabel="Administrator" changePasswordPath="/admin/change-password" />}>
+          <Route element={<AppShell navItems={ADMIN_NAV} roleLabel="Administrator" settingsPath="/admin/change-password" />}>
             <Route path="/admin" element={<AdminDashboardPage />} />
             <Route path="/admin/applications" element={<ApplicationsListPage />} />
             <Route path="/admin/applications/:id" element={<ApplicationReviewPage />} />
@@ -58,29 +58,29 @@ export default function AppRoutes() {
             <Route path="/admin/users" element={<UsersPage />} />
             <Route path="/admin/document-requests" element={<DocumentRequestsPage />} />
             <Route path="/admin/document-requests/:id" element={<DocumentRequestDetailPage />} />
-            <Route path="/admin/change-password" element={<ChangePasswordPage />} />
+            <Route path="/admin/change-password" element={<SettingsPage />} />
           </Route>
         </Route>
 
         <Route element={<RoleRoute role={Role.SUPERVISOR} />}>
-          <Route element={<AppShell navItems={SUPERVISOR_NAV} roleLabel="Supervisor" changePasswordPath="/supervisor/change-password" />}>
+          <Route element={<AppShell navItems={SUPERVISOR_NAV} roleLabel="Supervisor" settingsPath="/supervisor/change-password" />}>
             <Route path="/supervisor" element={<SupervisorDashboardPage />} />
             <Route path="/supervisor/team" element={<TeamPage />} />
             <Route path="/supervisor/assignments" element={<SupervisorAssignmentsPage />} />
             <Route path="/supervisor/assignments/:id" element={<SupervisorAssignmentDetailPage />} />
             <Route path="/supervisor/attendance" element={<SupervisorAttendancePage />} />
-            <Route path="/supervisor/change-password" element={<ChangePasswordPage />} />
+            <Route path="/supervisor/change-password" element={<SettingsPage />} />
           </Route>
         </Route>
 
         <Route element={<RoleRoute role={Role.INTERN} />}>
-          <Route element={<AppShell navItems={INTERN_NAV} roleLabel="Intern" changePasswordPath="/intern/change-password" />}>
+          <Route element={<AppShell navItems={INTERN_NAV} roleLabel="Intern" settingsPath="/intern/change-password" />}>
             <Route path="/intern" element={<ProfilePage />} />
             <Route path="/intern/assignments" element={<InternAssignmentsPage />} />
             <Route path="/intern/assignments/:id" element={<InternAssignmentDetailPage />} />
             <Route path="/intern/attendance" element={<InternAttendancePage />} />
             <Route path="/intern/documents" element={<DocumentsPage />} />
-            <Route path="/intern/change-password" element={<ChangePasswordPage />} />
+            <Route path="/intern/change-password" element={<SettingsPage />} />
           </Route>
         </Route>
       </Route>

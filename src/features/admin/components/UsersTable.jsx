@@ -3,17 +3,19 @@ import DataTable from '../../../components/shared/DataTable';
 import Badge from '../../../components/ui/Badge';
 import Avatar from '../../../components/ui/Avatar';
 import { fullName } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const ROLE_TONE = { admin: 'primary', supervisor: 'accent', intern: 'info' };
 
 export default function UsersTable({ users, isLoading, currentUserId, onDeactivate, onActivate, onDelete }) {
+  const { t } = useLanguage();
   const columns = [
     {
       key: 'name',
-      header: 'User',
+      header: t('admin.users.user'),
       render: (row) => (
         <div className="flex items-center gap-3">
-          <Avatar firstName={row.firstName} lastName={row.lastName} size="sm" />
+          <Avatar firstName={row.firstName} lastName={row.lastName} photoUrl={row.profilePhotoUrl} size="sm" />
           <div>
             <p className="font-medium text-foreground">{fullName(row)}</p>
             <p className="text-xs text-muted-foreground">{row.email}</p>
@@ -21,9 +23,13 @@ export default function UsersTable({ users, isLoading, currentUserId, onDeactiva
         </div>
       ),
     },
-    { key: 'role', header: 'Role', render: (row) => <Badge tone={ROLE_TONE[row.role]}>{row.role}</Badge> },
-    { key: 'phoneNumber', header: 'Phone', render: (row) => row.phoneNumber || '—' },
-    { key: 'status', header: 'Status', render: (row) => <Badge tone={row.isActive ? 'success' : 'muted'}>{row.isActive ? 'Active' : 'Inactive'}</Badge> },
+    { key: 'role', header: t('admin.users.role'), render: (row) => <Badge tone={ROLE_TONE[row.role]}>{t(`admin.users.role${row.role.charAt(0).toUpperCase()}${row.role.slice(1)}`)}</Badge> },
+    { key: 'phoneNumber', header: t('admin.users.phone'), render: (row) => row.phoneNumber || '—' },
+    {
+      key: 'status',
+      header: t('admin.users.status'),
+      render: (row) => <Badge tone={row.isActive ? 'success' : 'muted'}>{row.isActive ? t('admin.users.active') : t('admin.users.inactive')}</Badge>,
+    },
     {
       key: 'actions',
       header: '',
@@ -33,7 +39,7 @@ export default function UsersTable({ users, isLoading, currentUserId, onDeactiva
         // Never let an admin deactivate or delete their own account —
         // that would lock them out with no other way back in.
         if (row.id === currentUserId) {
-          return <span className="text-xs text-muted-foreground">(you)</span>;
+          return <span className="text-xs text-muted-foreground">{t('admin.users.you')}</span>;
         }
         return (
           <div className="flex justify-end gap-3">
@@ -41,8 +47,8 @@ export default function UsersTable({ users, isLoading, currentUserId, onDeactiva
               <button
                 type="button"
                 onClick={() => onDeactivate(row)}
-                aria-label={`Deactivate ${fullName(row)}`}
-                title="Deactivate"
+                aria-label={t('admin.users.deactivateAria', { name: fullName(row) })}
+                title={t('admin.users.deactivate')}
                 className="cursor-pointer text-muted-foreground hover:text-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 <Prohibit className="h-4 w-4" aria-hidden="true" />
@@ -51,8 +57,8 @@ export default function UsersTable({ users, isLoading, currentUserId, onDeactiva
               <button
                 type="button"
                 onClick={() => onActivate(row)}
-                aria-label={`Activate ${fullName(row)}`}
-                title="Activate"
+                aria-label={t('admin.users.activateAria', { name: fullName(row) })}
+                title={t('admin.users.activate')}
                 className="cursor-pointer text-muted-foreground hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 <CheckCircle className="h-4 w-4" aria-hidden="true" />
@@ -61,8 +67,8 @@ export default function UsersTable({ users, isLoading, currentUserId, onDeactiva
             <button
               type="button"
               onClick={() => onDelete(row)}
-              aria-label={`Delete ${fullName(row)}`}
-              title="Delete"
+              aria-label={t('admin.users.deleteAria', { name: fullName(row) })}
+              title={t('admin.users.delete')}
               className="cursor-pointer text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
             >
               <TrashSimple className="h-4 w-4" aria-hidden="true" />
@@ -73,5 +79,5 @@ export default function UsersTable({ users, isLoading, currentUserId, onDeactiva
     },
   ];
 
-  return <DataTable columns={columns} rows={users} isLoading={isLoading} emptyTitle="No users found" />;
+  return <DataTable columns={columns} rows={users} isLoading={isLoading} emptyTitle={t('admin.users.noneFound')} />;
 }

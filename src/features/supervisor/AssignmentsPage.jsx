@@ -12,9 +12,11 @@ import AssignmentCalendar from '../../components/shared/AssignmentCalendar';
 import AssignmentsTable from './components/AssignmentsTable';
 import AssignmentFormDialog from './components/AssignmentFormDialog';
 import * as assignmentsApi from '../../services/mockApi/assignmentsApi';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function AssignmentsPage() {
-  usePageHeader('Assignments');
+  const { t } = useLanguage();
+  usePageHeader(t('supervisor.assignments.title'));
   const navigate = useNavigate();
   const { user } = useAuth();
   const { assignments, isLoading, refetch } = useAssignments({ supervisorId: user.id });
@@ -27,10 +29,10 @@ export default function AssignmentsPage() {
   async function handleSubmit(values) {
     if (editingAssignment) {
       await assignmentsApi.updateAssignment(editingAssignment.id, values);
-      showToast('Assignment updated.');
+      showToast(t('supervisor.assignments.updated'));
     } else {
       await assignmentsApi.createAssignment(values);
-      showToast('Assignment created and assigned to the intern.');
+      showToast(t('supervisor.assignments.created'));
     }
     refetch();
   }
@@ -43,7 +45,7 @@ export default function AssignmentsPage() {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Deadlines</CardTitle>
+          <CardTitle>{t('supervisor.assignments.deadlines')}</CardTitle>
         </CardHeader>
         <div className="px-5 py-4">
           <AssignmentCalendar assignments={assignments} internsById={internsById} onSelectAssignment={goToAssignment} />
@@ -52,10 +54,10 @@ export default function AssignmentsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Assignments</CardTitle>
+          <CardTitle>{t('supervisor.assignments.title')}</CardTitle>
           <Button size="sm" onClick={() => setEditingAssignment(null)}>
             <Plus className="h-4 w-4" aria-hidden="true" />
-            New assignment
+            {t('supervisor.assignments.newAssignment')}
           </Button>
         </CardHeader>
         <AssignmentsTable

@@ -10,9 +10,12 @@ import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import UsersTable from './components/UsersTable';
 import UserFormDialog from './components/UserFormDialog';
 import * as usersApi from '../../services/mockApi/usersApi';
+import { useLanguage } from '../../context/LanguageContext';
+import { fullName } from '../../lib/utils';
 
 export default function UsersPage() {
-  usePageHeader('Users');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.users.title'));
   const { user: currentUser } = useAuth();
   const { users, isLoading, refetch } = useUsers();
   const { showToast } = useToast();
@@ -22,19 +25,19 @@ export default function UsersPage() {
 
   async function handleCreate(values) {
     await usersApi.createUser(values);
-    showToast('User created. A temporary password was generated.');
+    showToast(t('admin.users.created'));
     refetch();
   }
 
   async function handleDeactivate(targetUser) {
     await usersApi.deactivateUser(targetUser.id);
-    showToast(`${targetUser.firstName} ${targetUser.lastName} has been deactivated.`, { type: 'info' });
+    showToast(t('admin.users.deactivated', { name: fullName(targetUser) }), { type: 'info' });
     refetch();
   }
 
   async function handleActivate(targetUser) {
     await usersApi.updateUser(targetUser.id, { isActive: true });
-    showToast(`${targetUser.firstName} ${targetUser.lastName} has been reactivated.`);
+    showToast(t('admin.users.reactivated', { name: fullName(targetUser) }));
     refetch();
   }
 
@@ -42,7 +45,7 @@ export default function UsersPage() {
     setIsDeleting(true);
     try {
       await usersApi.deleteUser(deletingUser.id);
-      showToast(`${deletingUser.firstName} ${deletingUser.lastName} has been deleted.`, { type: 'info' });
+      showToast(t('admin.users.deleted', { name: fullName(deletingUser) }), { type: 'info' });
       setDeletingUser(null);
       refetch();
     } finally {
@@ -53,10 +56,10 @@ export default function UsersPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Users</CardTitle>
+        <CardTitle>{t('admin.users.title')}</CardTitle>
         <Button size="sm" onClick={() => setIsCreating(true)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
-          New user
+          {t('admin.users.newUser')}
         </Button>
       </CardHeader>
       <UsersTable
@@ -74,9 +77,9 @@ export default function UsersPage() {
         onClose={() => setDeletingUser(null)}
         onConfirm={confirmDelete}
         isLoading={isDeleting}
-        title="Delete user"
-        description={deletingUser ? `This permanently deletes ${deletingUser.firstName} ${deletingUser.lastName}'s account. This cannot be undone.` : ''}
-        confirmLabel="Delete user"
+        title={t('admin.users.deleteTitle')}
+        description={deletingUser ? t('admin.users.deleteDescription', { name: fullName(deletingUser) }) : ''}
+        confirmLabel={t('admin.users.deleteConfirmLabel')}
       />
     </Card>
   );

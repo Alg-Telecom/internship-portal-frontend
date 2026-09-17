@@ -4,6 +4,7 @@ import { formatDate, fullName } from '../../lib/utils';
 import StatusBadge from './StatusBadge';
 import Badge from '../ui/Badge';
 import EmptyState from './EmptyState';
+import { useLanguage } from '../../context/LanguageContext';
 
 /**
  * Assignments due on the selected calendar day — the deadline-view
@@ -12,10 +13,11 @@ import EmptyState from './EmptyState';
  * interns and each row should say whose it is.
  */
 export default function AssignmentDayList({ assignments, selectedDate, internsById, onSelect }) {
+  const { t } = useLanguage();
   const dayAssignments = assignments.filter((a) => isSameDay(new Date(a.deadline + 'T00:00:00'), selectedDate));
 
   if (dayAssignments.length === 0) {
-    return <EmptyState icon={ClipboardText} title="No deadlines" description={`Nothing due on ${formatDate(selectedDate)}.`} />;
+    return <EmptyState icon={ClipboardText} title={t('common.noDeadlines')} description={t('common.nothingDue', { date: formatDate(selectedDate) })} />;
   }
 
   return (
@@ -32,9 +34,9 @@ export default function AssignmentDayList({ assignments, selectedDate, internsBy
               <StatusBadge status={assignment.status} />
             </div>
             <div className="mt-1 flex items-center gap-2">
-              <Badge>{assignment.priority}</Badge>
+              <Badge>{t(`common.priority.${assignment.priority}`)}</Badge>
               {internsById && (
-                <p className="text-xs text-muted-foreground">{fullName(internsById[assignment.internId]) || 'Unknown intern'}</p>
+                <p className="text-xs text-muted-foreground">{fullName(internsById[assignment.internId]) || t('common.unknownIntern')}</p>
               )}
             </div>
           </button>

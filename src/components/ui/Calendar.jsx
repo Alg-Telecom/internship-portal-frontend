@@ -6,6 +6,7 @@ import {
   endOfWeek,
   eachDayOfInterval,
   format,
+  addDays,
   addMonths,
   subMonths,
   setMonth,
@@ -17,9 +18,8 @@ import {
 } from 'date-fns';
 import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { cn } from '../../lib/utils';
+import { useLanguage } from '../../context/LanguageContext';
 
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-const MONTH_NAMES = Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), 'MMMM'));
 const CURRENT_YEAR = new Date().getFullYear();
 // Generous range for a birthday field (up to 80 years back), still bounded.
 const YEAR_OPTIONS = Array.from({ length: 86 }, (_, i) => CURRENT_YEAR + 5 - i);
@@ -35,12 +35,16 @@ const YEAR_OPTIONS = Array.from({ length: 86 }, (_, i) => CURRENT_YEAR + 5 - i);
  * `markers`: [{ date: Date, tone: 'primary'|'accent'|'warning'|'destructive' }]
  */
 export default function Calendar({ mode = 'view', selected, onSelect, markers = [], month, onMonthChange, renderDay }) {
+  const { t, dateLocale } = useLanguage();
   // Open on the already-selected date's month/year (e.g. reopening a
   // Birthday picker after choosing 1998 should land back on 1998, not
   // jump to today) rather than always defaulting to the current month.
   const initialMonth = month || (mode === 'range' ? selected?.from : selected) || new Date();
   const [internalMonth, setInternalMonth] = useState(initialMonth);
   const visibleMonth = month || internalMonth;
+
+  const weekdays = Array.from({ length: 7 }, (_, i) => format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), i), 'EEEEEE', { locale: dateLocale }));
+  const monthNames = Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), 'MMMM', { locale: dateLocale }));
 
   function changeMonth(next) {
     if (onMonthChange) onMonthChange(next);
@@ -89,26 +93,26 @@ export default function Calendar({ mode = 'view', selected, onSelect, markers = 
         <button
           type="button"
           onClick={() => changeMonth(subMonths(visibleMonth, 1))}
-          aria-label="Previous month"
+          aria-label={t('calendar.previousMonth')}
           className="shrink-0 cursor-pointer rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <CaretLeft className="h-4 w-4" aria-hidden="true" />
         </button>
         <div className="flex min-w-0 flex-1 items-center gap-1">
           <select
-            aria-label="Month"
+            aria-label={t('calendar.month')}
             value={visibleMonth.getMonth()}
             onChange={(e) => changeMonth(setMonth(visibleMonth, Number(e.target.value)))}
             className="min-w-0 flex-1 cursor-pointer rounded-md border border-border bg-card py-1 pl-1.5 pr-1 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            {MONTH_NAMES.map((name, index) => (
+            {monthNames.map((name, index) => (
               <option key={name} value={index}>
                 {name}
               </option>
             ))}
           </select>
           <select
-            aria-label="Year"
+            aria-label={t('calendar.year')}
             value={visibleMonth.getFullYear()}
             onChange={(e) => changeMonth(setYear(visibleMonth, Number(e.target.value)))}
             className="w-[4.5rem] shrink-0 cursor-pointer rounded-md border border-border bg-card py-1 pl-1.5 pr-1 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -123,15 +127,15 @@ export default function Calendar({ mode = 'view', selected, onSelect, markers = 
         <button
           type="button"
           onClick={() => changeMonth(addMonths(visibleMonth, 1))}
-          aria-label="Next month"
+          aria-label={t('calendar.nextMonth')}
           className="shrink-0 cursor-pointer rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <CaretRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">
-        {WEEKDAYS.map((day) => (
-          <div key={day} className="py-1">
+        {weekdays.map((day, i) => (
+          <div key={i} className="py-1">
             {day}
           </div>
         ))}

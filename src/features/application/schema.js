@@ -5,47 +5,69 @@ import { z } from 'zod';
  * validated independently with react-hook-form's `trigger(fieldsForStep)`
  * before advancing. Wrapped in `.refine` (rather than plain `.object`) so
  * we can cross-check password === confirmPassword.
+ *
+ * Built as a factory taking `t` so validation messages follow the current
+ * language — call it inside the component (memoized on `t`), never at
+ * module scope, since the language can change after the schema exists.
  */
-export const applicationSchema = z
-  .object({
-    // Step 1 — Personal Information
-    firstName: z.string().min(1, 'First name is required.'),
-    lastName: z.string().min(1, 'Last name is required.'),
-    personalId: z.string().min(1, 'Personal ID is required.'),
-    email: z.string().min(1, 'Email is required.').email('Enter a valid email address.'),
-    phone: z.string().min(10, 'Enter a valid phone number.'),
-    birthday: z.string().min(1, 'Birthday is required.'),
-    // This becomes the intern's login password once the application is
-    // accepted (see applicationsApi.decideApplication) — set here rather
-    // than emailed later, so the applicant picks it themselves up front.
-    password: z.string().min(8, 'Password must be at least 8 characters.'),
-    confirmPassword: z.string().min(1, 'Please confirm your password.'),
+export function makeApplicationSchema(t) {
+  return z
+    .object({
+      // Step 1 — Personal Information
+      firstName: z.string().min(1, t('apply.errors.firstNameRequired')),
+      lastName: z.string().min(1, t('apply.errors.lastNameRequired')),
+      personalId: z.string().min(1, t('apply.errors.personalIdRequired')),
+      email: z.string().min(1, t('apply.errors.emailRequired')).email(t('apply.errors.emailInvalid')),
+      phone: z.string().min(10, t('apply.errors.phoneInvalid')),
+      birthday: z.string().min(1, t('apply.errors.birthdayRequired')),
+      // This becomes the intern's login password once the application is
+      // accepted (see applicationsApi.decideApplication) — set here rather
+      // than emailed later, so the applicant picks it themselves up front.
+      password: z.string().min(8, t('apply.errors.passwordMin')),
+      confirmPassword: z.string().min(1, t('apply.errors.confirmPasswordRequired')),
 
-    // Step 2 — Education
-    university: z.string().min(1, 'University is required.'),
-    major: z.string().min(1, 'Major is required.'),
-    grade: z.string().min(1, 'Please select your academic level.'),
-    teamPreference: z.string().min(1, 'Please select a preferred team.'),
-    startDate: z.string().min(1, 'Start date is required.'),
-    endDate: z.string().min(1, 'End date is required.'),
+      // Step 2 — Education
+      university: z.string().min(1, t('apply.errors.universityRequired')),
+      major: z.string().min(1, t('apply.errors.majorRequired')),
+      grade: z.string().min(1, t('apply.errors.gradeRequired')),
+      teamPreference: z.string().min(1, t('apply.errors.teamRequired')),
+      startDate: z.string().min(1, t('apply.errors.startDateRequired')),
+      endDate: z.string().min(1, t('apply.errors.endDateRequired')),
 
-    // Step 3 — Uploads
-    cvFile: z.any().refine((file) => !!file, 'Please attach your CV.'),
-    photoFile: z.any().refine((file) => !!file, 'Please attach a personal photograph.'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Passwords do not match.',
-  });
+      // Step 3 — Uploads
+      cvFile: z.any().refine((file) => !!file, t('apply.errors.cvRequired')),
+      photoFile: z.any().refine((file) => !!file, t('apply.errors.photoRequired')),
+      agreementFile: z.any().refine((file) => !!file, t('apply.errors.agreementRequired')),
+      internshipRequestFile: z.any().refine((file) => !!file, t('apply.errors.internshipRequestRequired')),
+      // Extra documents beyond the required four (motivation letter, a
+      // recommendation, ...) — each needs a label saying what it is, but the
+      // list itself is optional and can stay empty.
+      otherDocuments: z
+        .array(
+          z.object({
+            label: z.string().min(1, t('apply.errors.documentNameRequired')),
+            file: z.any().refine((file) => !!file, t('apply.errors.fileRequired')),
+          })
+        )
+        .optional()
+        .default([]),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      path: ['confirmPassword'],
+      message: t('apply.errors.passwordsDontMatch'),
+    });
+}
 
 export const STEP_FIELDS = [
   ['firstName', 'lastName', 'personalId', 'email', 'phone', 'birthday', 'password', 'confirmPassword'],
   ['university', 'major', 'grade', 'teamPreference', 'startDate', 'endDate'],
-  ['cvFile', 'photoFile'],
+  ['cvFile', 'photoFile', 'agreementFile', 'internshipRequestFile', 'otherDocuments'],
 ];
 
-export const STEPS = [
-  { key: 'personal', label: 'Personal Information' },
-  { key: 'education', label: 'Education' },
-  { key: 'uploads', label: 'Uploads' },
-];
+export function makeSteps(t) {
+  return [
+    { key: 'personal', label: t('apply.steps.personal') },
+    { key: 'education', label: t('apply.steps.education') },
+    { key: 'uploads', label: t('apply.steps.uploads') },
+  ];
+}

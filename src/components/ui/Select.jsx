@@ -20,7 +20,13 @@ const Select = forwardRef(function Select(
 
   return (
     <Field id={id} label={label} required={required} error={error} helperText={helperText} className={wrapperClassName}>
-      <div className="relative">
+      {/* `className` carries width overrides (e.g. `sm:w-64`) meant for the
+          whole control — it has to land on this wrapper too, not just the
+          <select>, otherwise the wrapper stays full-width while the select
+          shrinks inside it, and the absolutely-positioned caret (anchored
+          to the wrapper) ends up stranded far to the right of the actual
+          dropdown instead of sitting against its edge. */}
+      <div className={cn('relative', className)}>
         <select
           ref={ref}
           id={id}

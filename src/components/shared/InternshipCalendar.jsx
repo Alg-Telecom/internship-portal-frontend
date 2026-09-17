@@ -4,6 +4,7 @@ import Calendar from '../ui/Calendar';
 import Button from '../ui/Button';
 import CalendarEventList from './CalendarEventList';
 import { useCalendarEvents } from '../../hooks/useCalendarEvents';
+import { useLanguage } from '../../context/LanguageContext';
 
 const TONE_BY_TYPE = { start: 'primary', end: 'accent', holiday: 'warning', event: 'accent' };
 
@@ -13,6 +14,7 @@ const TONE_BY_TYPE = { start: 'primary', end: 'accent', holiday: 'warning', even
  * admin calendar does, so every other usage is unaffected.
  */
 export default function InternshipCalendar({ events: eventsProp, isLoading, onAddEvent, onDeleteEvent }) {
+  const { t } = useLanguage();
   const fetched = useCalendarEvents();
   const events = eventsProp || fetched.events;
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -25,7 +27,7 @@ export default function InternshipCalendar({ events: eventsProp, isLoading, onAd
         <div className="flex justify-end">
           <Button size="sm" onClick={() => onAddEvent(selectedDate)}>
             <Plus className="h-4 w-4" aria-hidden="true" />
-            New event
+            {t('common.newEvent')}
           </Button>
         </div>
       )}

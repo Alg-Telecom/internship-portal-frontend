@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '../../lib/utils';
+import { useLanguage } from '../../context/LanguageContext';
 
-export default function SidebarNavItem({ to, end, icon: Icon, label, onNavigate }) {
+export default function SidebarNavItem({ to, end, icon: Icon, labelKey, onNavigate }) {
+  const { t } = useLanguage();
   return (
     <NavLink
       to={to}
@@ -16,7 +18,7 @@ export default function SidebarNavItem({ to, end, icon: Icon, label, onNavigate 
       }
     >
       <Icon className="h-5 w-5" aria-hidden="true" />
-      {label}
+      {t(labelKey)}
     </NavLink>
   );
 }

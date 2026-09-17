@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,14 +8,18 @@ import WizardNavButtons from './components/WizardNavButtons';
 import PersonalInfoStep from './components/steps/PersonalInfoStep';
 import EducationStep from './components/steps/EducationStep';
 import UploadsStep from './components/steps/UploadsStep';
-import { applicationSchema, STEP_FIELDS } from './schema';
+import { makeApplicationSchema, STEP_FIELDS } from './schema';
 import * as applicationsApi from '../../services/mockApi/applicationsApi';
 import { fileToDataUrl } from '../../lib/utils';
+import { useLanguage } from '../../context/LanguageContext';
+import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 
 export default function ApplyPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [stepIndex, setStepIndex] = useState(0);
   const [submitError, setSubmitError] = useState('');
+  const applicationSchema = useMemo(() => makeApplicationSchema(t), [t]);
 
   const form = useForm({
     resolver: zodResolver(applicationSchema),
@@ -37,6 +41,9 @@ export default function ApplyPage() {
       endDate: '',
       cvFile: null,
       photoFile: null,
+      agreementFile: null,
+      internshipRequestFile: null,
+      otherDocuments: [],
     },
   });
 
@@ -55,9 +62,18 @@ export default function ApplyPage() {
   async function onFormSubmit(values) {
     setSubmitError('');
     try {
-      const [cvFileUrl, photoFileUrl] = await Promise.all([
+      const [cvFileUrl, photoFileUrl, agreementFileUrl, internshipRequestFileUrl, otherDocuments] = await Promise.all([
         values.cvFile ? fileToDataUrl(values.cvFile) : '',
         values.photoFile ? fileToDataUrl(values.photoFile) : '',
+        values.agreementFile ? fileToDataUrl(values.agreementFile) : '',
+        values.internshipRequestFile ? fileToDataUrl(values.internshipRequestFile) : '',
+        Promise.all(
+          (values.otherDocuments || []).map(async (doc) => ({
+            label: doc.label,
+            fileName: doc.file?.name || '',
+            fileUrl: doc.file ? await fileToDataUrl(doc.file) : '',
+          }))
+        ),
       ]);
       await applicationsApi.submitApplication({
         firstName: values.firstName,
@@ -77,10 +93,15 @@ export default function ApplyPage() {
         cvFileUrl,
         photoFileName: values.photoFile?.name || '',
         photoFileUrl,
+        agreementFileName: values.agreementFile?.name || '',
+        agreementFileUrl,
+        internshipRequestFileName: values.internshipRequestFile?.name || '',
+        internshipRequestFileUrl,
+        otherDocuments,
       });
       navigate('/apply/success', { replace: true });
     } catch (error) {
-      setSubmitError(error.message || 'Something went wrong submitting your application. Please try again.');
+      setSubmitError(error.message || t('apply.errors.submitFailed'));
     }
   }
 
@@ -98,9 +119,12 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-primary">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4">
-          <img src={logo} alt="Algerie Telecom" className="h-9 w-9 rounded bg-white object-contain p-1" />
-          <h1 className="text-lg font-semibold text-white">Apply for an Internship</h1>
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="Algerie Telecom" className="h-9 w-9 rounded bg-white object-contain p-1" />
+            <h1 className="text-lg font-semibold text-white">{t('apply.headerTitle')}</h1>
+          </div>
+          <LanguageSwitcher variant="onDark" />
         </div>
       </header>
 

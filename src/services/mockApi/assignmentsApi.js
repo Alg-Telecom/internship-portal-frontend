@@ -36,8 +36,9 @@ export async function createAssignment(data) {
   insert('assignments', assignment);
   createNotification({
     userId: data.internId,
-    title: 'New assignment',
-    message: `A new assignment "${data.title}" has been created for you.`,
+    titleKey: 'notifications.newAssignment.title',
+    messageKey: 'notifications.newAssignment.message',
+    params: { title: data.title },
     notificationType: 'Assignment',
     link: `/intern/assignments/${id}`,
   });
@@ -71,8 +72,9 @@ export async function submitWork(assignmentId, { fileName, fileUrl, notes }) {
   update('assignments', Number(assignmentId), { status: AssignmentStatus.SUBMITTED });
   createNotification({
     userId: assignment.supervisorId,
-    title: 'Assignment submitted',
-    message: `A submission is ready for review: "${assignment.title}".`,
+    titleKey: 'notifications.assignmentSubmitted.title',
+    messageKey: 'notifications.assignmentSubmitted.message',
+    params: { title: assignment.title },
     notificationType: 'Assignment',
     link: `/supervisor/assignments/${assignment.id}`,
   });
@@ -94,8 +96,9 @@ export async function evaluateSubmission(submissionId, { grade, feedback }) {
 
   createNotification({
     userId: submission.internId,
-    title: 'Assignment graded',
-    message: `Your submission was graded: ${grade}/20.`,
+    titleKey: 'notifications.assignmentGraded.title',
+    messageKey: 'notifications.assignmentGraded.message',
+    params: { grade },
     notificationType: 'Evaluation',
     link: `/intern/assignments/${submission.assignmentId}`,
   });

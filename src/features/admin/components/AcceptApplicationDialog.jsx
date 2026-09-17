@@ -4,6 +4,7 @@ import Dialog from '../../../components/ui/Dialog';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import { useTeams } from '../../../hooks/useTeams';
+import { useLanguage } from '../../../context/LanguageContext';
 
 /**
  * Confirmation step before actually accepting an application — shows the
@@ -14,6 +15,7 @@ import { useTeams } from '../../../hooks/useTeams';
  * notified they didn't get the team they asked for.
  */
 export default function AcceptApplicationDialog({ open, onClose, application, onConfirm }) {
+  const { t, tTeam } = useLanguage();
   const { teams } = useTeams();
   const [teamId, setTeamId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,16 +42,16 @@ export default function AcceptApplicationDialog({ open, onClose, application, on
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title="Accept application" description="Confirm which team this intern will join.">
+    <Dialog open={open} onClose={onClose} title={t('admin.review.acceptDialogTitle')} description={t('admin.review.acceptDialogDescription')}>
       <div className="flex flex-col gap-4">
         <p className="text-sm text-foreground">
-          Preferred team: <span className="font-medium">{hasPreference ? application.teamPreference : 'No preference'}</span>
+          {t('admin.review.preferredTeam')} <span className="font-medium">{hasPreference ? tTeam(application.teamPreference) : t('admin.review.noPreference')}</span>
         </p>
 
-        <Select id="accept-team" label="Assign to team" value={teamId} onChange={(e) => setTeamId(e.target.value)} placeholder="Leave unassigned for now">
+        <Select id="accept-team" label={t('admin.review.assignToTeam')} value={teamId} onChange={(e) => setTeamId(e.target.value)} placeholder={t('admin.review.leaveUnassigned')}>
           {teams.map((team) => (
             <option key={team.id} value={team.id}>
-              {team.name}
+              {tTeam(team)}
             </option>
           ))}
         </Select>
@@ -57,16 +59,16 @@ export default function AcceptApplicationDialog({ open, onClose, application, on
         {isOverriding && (
           <p className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2.5 text-sm text-foreground">
             <WarningCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
-            This isn't their preferred team ("{application.teamPreference}") — they'll be notified they were assigned here instead.
+            {t('admin.review.overrideWarning', { team: tTeam(application.teamPreference) })}
           </p>
         )}
 
         <div className="mt-2 flex justify-end gap-3">
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="accent" onClick={confirm} isLoading={isSubmitting}>
-            Confirm &amp; accept
+            {t('admin.review.confirmAndAccept')}
           </Button>
         </div>
       </div>

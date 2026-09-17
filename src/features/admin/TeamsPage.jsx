@@ -10,9 +10,11 @@ import TeamsTable from './components/TeamsTable';
 import TeamFormDialog from './components/TeamFormDialog';
 import AssignMembersDialog from './components/AssignMembersDialog';
 import * as teamsApi from '../../services/mockApi/teamsApi';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function TeamsPage() {
-  usePageHeader('Teams');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.teams.title'));
   const { teams, isLoading, refetch } = useTeams();
   const { showToast } = useToast();
   const [editingTeam, setEditingTeam] = useState(undefined); // undefined = closed, null = create, object = edit
@@ -23,10 +25,10 @@ export default function TeamsPage() {
   async function handleSubmit(values) {
     if (editingTeam) {
       await teamsApi.updateTeam(editingTeam.id, values);
-      showToast('Team updated.');
+      showToast(t('admin.teams.updated'));
     } else {
       await teamsApi.createTeam(values);
-      showToast('Team created.');
+      showToast(t('admin.teams.created'));
     }
     refetch();
   }
@@ -35,7 +37,7 @@ export default function TeamsPage() {
     setIsDeleting(true);
     try {
       await teamsApi.deleteTeam(deletingTeam.id);
-      showToast(`"${deletingTeam.name}" has been deleted.`, { type: 'info' });
+      showToast(t('admin.teams.deleted', { name: deletingTeam.name }), { type: 'info' });
       setDeletingTeam(null);
       refetch();
     } finally {
@@ -46,10 +48,10 @@ export default function TeamsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Teams</CardTitle>
+        <CardTitle>{t('admin.teams.title')}</CardTitle>
         <Button size="sm" onClick={() => setEditingTeam(null)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
-          New team
+          {t('admin.teams.newTeam')}
         </Button>
       </CardHeader>
       <TeamsTable teams={teams} isLoading={isLoading} onEdit={setEditingTeam} onAssignMembers={setAssigningTeam} onDelete={setDeletingTeam} />
@@ -62,13 +64,16 @@ export default function TeamsPage() {
         onClose={() => setDeletingTeam(null)}
         onConfirm={confirmDelete}
         isLoading={isDeleting}
-        title="Delete team"
+        title={t('admin.teams.deleteTitle')}
         description={
           deletingTeam
-            ? `This permanently deletes "${deletingTeam.name}"${deletingTeam.internCount ? ` — ${deletingTeam.internCount} intern(s) currently assigned to it will need to be reassigned` : ''}. This cannot be undone.`
+            ? t('admin.teams.deleteDescription', {
+                name: deletingTeam.name,
+                internNote: deletingTeam.internCount ? t('admin.teams.deleteInternNote', { count: deletingTeam.internCount }) : '',
+              })
             : ''
         }
-        confirmLabel="Delete team"
+        confirmLabel={t('admin.teams.deleteConfirmLabel')}
       />
     </Card>
   );

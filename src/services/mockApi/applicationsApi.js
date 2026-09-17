@@ -14,14 +14,21 @@ export async function submitApplication(data) {
     rejectionReason: '',
     reviewedAt: null,
     internId: null,
-    // Per-document review state for the two files attached to the
-    // application itself (CV / photo) — mirrors the sequence diagram's
-    // document-validation ALT fragment, separate from the post-acceptance
-    // DocumentRequest workflow in documentsApi.js.
+    // Per-document review state for the four required files attached to
+    // the application itself (CV / photo / agreement letter / internship
+    // request letter) — mirrors the sequence diagram's document-validation
+    // ALT fragment, separate from the post-acceptance DocumentRequest
+    // workflow in documentsApi.js. `otherDocuments` (optional, arbitrary
+    // count) are informational only — nothing to gate acceptance on.
     cvStatus: 'Pending',
     cvRejectionReason: '',
     photoStatus: 'Pending',
     photoRejectionReason: '',
+    agreementStatus: 'Pending',
+    agreementRejectionReason: '',
+    internshipRequestStatus: 'Pending',
+    internshipRequestRejectionReason: '',
+    otherDocuments: data.otherDocuments || [],
   };
   insert('applications', application);
 
@@ -30,8 +37,9 @@ export async function submitApplication(data) {
   admins.forEach((admin) =>
     createNotification({
       userId: admin.id,
-      title: 'New internship application',
-      message: `${data.firstName} ${data.lastName} submitted an internship application.`,
+      titleKey: 'notifications.newApplication.title',
+      messageKey: 'notifications.newApplication.message',
+      params: { name: `${data.firstName} ${data.lastName}` },
       notificationType: 'Application',
       link: `/admin/applications/${application.id}`,
     })
@@ -153,19 +161,25 @@ export async function decideApplication(id, { status, rejectionReason = '', team
     // Team names in this app already end in "Team" (e.g. "Digital Services
     // Team"), so the message doesn't append its own "team" suffix — doing
     // so read as "...Digital Services Team team".
-    let message = 'Your internship application has been accepted. Welcome to Algerie Telecom!';
+    let messageKey = 'notifications.applicationAccepted.messageDefault';
+    const params = {};
     if (assignedTeam && preferredTeam && assignedTeam.id === preferredTeam.id) {
-      message += ` You've been assigned to your preferred team: ${assignedTeam.name}.`;
+      messageKey = 'notifications.applicationAccepted.messagePreferred';
+      params.team = assignedTeam.name;
     } else if (assignedTeam && preferredTeam) {
-      message += ` You've been assigned to ${assignedTeam.name} instead of your preferred ${preferredTeam.name}.`;
+      messageKey = 'notifications.applicationAccepted.messageOverridden';
+      params.team = assignedTeam.name;
+      params.preferredTeam = preferredTeam.name;
     } else if (assignedTeam) {
-      message += ` You've been assigned to ${assignedTeam.name}.`;
+      messageKey = 'notifications.applicationAccepted.messageAssigned';
+      params.team = assignedTeam.name;
     }
 
     createNotification({
       userId: internUser.id,
-      title: 'Application accepted',
-      message,
+      titleKey: 'notifications.applicationAccepted.title',
+      messageKey,
+      params,
       notificationType: 'Application',
       link: '/intern',
     });

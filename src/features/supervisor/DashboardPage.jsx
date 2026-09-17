@@ -8,9 +8,11 @@ import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import EmptyState from '../../components/shared/EmptyState';
 import TeamSnapshotCard from './components/TeamSnapshotCard';
 import InternshipCalendar from '../../components/shared/InternshipCalendar';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function DashboardPage() {
-  usePageHeader('Dashboard');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.dashboard.title'));
   const { user } = useAuth();
   const { teams } = useTeams();
   const { assignments } = useAssignments({ supervisorId: user.id });
@@ -22,18 +24,18 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard icon={UsersThree} label="Interns supervised" value={internCount} />
-        <StatCard icon={ClipboardText} label="Submissions to review" value={pendingReviews} tone="accent" />
-        <StatCard icon={CalendarCheck} label="Teams" value={myTeams.length} />
+        <StatCard icon={UsersThree} label={t('supervisor.dashboard.internsSupervised')} value={internCount} />
+        <StatCard icon={ClipboardText} label={t('supervisor.dashboard.submissionsToReview')} value={pendingReviews} tone="accent" />
+        <StatCard icon={CalendarCheck} label={t('supervisor.dashboard.teams')} value={myTeams.length} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>My Teams</CardTitle>
+          <CardTitle>{t('supervisor.dashboard.myTeams')}</CardTitle>
         </CardHeader>
         <CardContent>
           {myTeams.length === 0 ? (
-            <EmptyState icon={UsersThree} title="No team assigned yet" description="Ask an administrator to assign you to an internship team." />
+            <EmptyState icon={UsersThree} title={t('supervisor.dashboard.noTeamYet')} description={t('supervisor.dashboard.noTeamDescription')} />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {myTeams.map((team) => (
@@ -46,7 +48,7 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Calendar</CardTitle>
+          <CardTitle>{t('supervisor.dashboard.calendar')}</CardTitle>
         </CardHeader>
         <CardContent>
           <InternshipCalendar />

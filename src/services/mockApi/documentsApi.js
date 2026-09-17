@@ -32,8 +32,9 @@ export async function createDocumentRequest(data) {
   insert('documentRequests', request);
   createNotification({
     userId: data.internId,
-    title: 'New document request',
-    message: `A new document has been requested: "${data.title}".`,
+    titleKey: 'notifications.newDocumentRequest.title',
+    messageKey: 'notifications.newDocumentRequest.message',
+    params: { title: data.title },
     notificationType: 'Document',
     link: '/intern/documents',
   });
@@ -63,8 +64,9 @@ export async function uploadDocument(requestId, { fileName, fileUrl, documentTyp
 
   createNotification({
     userId: request.adminId,
-    title: 'Document submitted',
-    message: `A document was submitted for request "${request.title}".`,
+    titleKey: 'notifications.documentSubmitted.title',
+    messageKey: 'notifications.documentSubmitted.message',
+    params: { title: request.title },
     notificationType: 'Document',
     link: `/admin/document-requests/${request.id}`,
   });
@@ -78,8 +80,9 @@ export async function approveDocument(documentId) {
   update('documentRequests', document.requestId, { status: DocumentRequestStatus.APPROVED });
   createNotification({
     userId: document.internId,
-    title: 'Document approved',
-    message: `Your document "${document.fileName}" was approved.`,
+    titleKey: 'notifications.documentApproved.title',
+    messageKey: 'notifications.documentApproved.message',
+    params: { fileName: document.fileName },
     notificationType: 'Document',
     link: '/intern/documents',
   });
@@ -92,8 +95,9 @@ export async function rejectDocument(documentId, rejectionReason) {
   update('documentRequests', document.requestId, { status: DocumentRequestStatus.REJECTED, rejectionReason });
   createNotification({
     userId: document.internId,
-    title: 'Document rejected',
-    message: `Your document "${document.fileName}" was rejected: ${rejectionReason}`,
+    titleKey: 'notifications.documentRejected.title',
+    messageKey: 'notifications.documentRejected.message',
+    params: { fileName: document.fileName, reason: rejectionReason },
     notificationType: 'Document',
     link: '/intern/documents',
   });

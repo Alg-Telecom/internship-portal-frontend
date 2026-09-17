@@ -5,22 +5,24 @@ import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import Tabs from '../../components/ui/Tabs';
 import AttendanceCalendar from '../../components/shared/AttendanceCalendar';
 import AttendanceHistoryTable from '../../components/shared/AttendanceHistoryTable';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function AttendancePage() {
-  usePageHeader('My Attendance');
+  const { t } = useLanguage();
+  usePageHeader(t('intern.attendance.title'));
   const { user } = useAuth();
   const { records, isLoading } = useAttendance({ internId: user.id });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Attendance</CardTitle>
+        <CardTitle>{t('intern.attendance.attendance')}</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs
           tabs={[
-            { key: 'calendar', label: 'Calendar', content: <AttendanceCalendar records={records} /> },
-            { key: 'history', label: 'History', content: <AttendanceHistoryTable records={records} isLoading={isLoading} /> },
+            { key: 'calendar', label: t('intern.attendance.calendar'), content: <AttendanceCalendar records={records} /> },
+            { key: 'history', label: t('intern.attendance.history'), content: <AttendanceHistoryTable records={records} isLoading={isLoading} /> },
           ]}
         />
       </CardContent>

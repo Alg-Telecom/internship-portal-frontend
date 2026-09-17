@@ -11,9 +11,11 @@ import Button from '../../components/ui/Button';
 import DocumentRequestsTable from './components/DocumentRequestsTable';
 import DocumentRequestFormDialog from './components/DocumentRequestFormDialog';
 import * as documentsApi from '../../services/mockApi/documentsApi';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function DocumentRequestsPage() {
-  usePageHeader('Document Requests');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.documentRequests.title'));
   const navigate = useNavigate();
   const { user } = useAuth();
   const { requests, isLoading, refetch } = useDocumentRequests();
@@ -25,29 +27,29 @@ export default function DocumentRequestsPage() {
 
   async function handleCreate(values) {
     await documentsApi.createDocumentRequest({ ...values, adminId: user.id });
-    showToast('Document request sent to the intern.');
+    showToast(t('admin.documentRequests.requestSent'));
     refetch();
   }
 
   async function handleApprove(documentId) {
     await documentsApi.approveDocument(documentId);
-    showToast('Document approved.');
+    showToast(t('admin.documentRequests.approved'));
     refetch();
   }
 
   async function handleReject(documentId, reason) {
     await documentsApi.rejectDocument(documentId, reason);
-    showToast('Document rejected.', { type: 'info' });
+    showToast(t('admin.documentRequests.rejected'), { type: 'info' });
     refetch();
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Document Requests</CardTitle>
+        <CardTitle>{t('admin.documentRequests.title')}</CardTitle>
         <Button size="sm" onClick={() => setIsCreating(true)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
-          New request
+          {t('admin.documentRequests.newRequest')}
         </Button>
       </CardHeader>
       <DocumentRequestsTable

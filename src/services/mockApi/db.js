@@ -7,9 +7,29 @@ export function getCollection(name) {
   return raw ? JSON.parse(raw) : [];
 }
 
-/** The inverse: serializes an array to JSON and writes it to imp:<name>. Returns the same array back (useful for chaining). */
+/**
+ * The inverse: serializes an array to JSON and writes it to imp:<name>.
+ * Returns the same array back (useful for chaining).
+ *
+ * localStorage has a small, browser-enforced quota (commonly ~5MB total
+ * for the whole origin) — easy to blow through once uploaded files are
+ * stored as base64 data URLs (see lib/utils#fileToDataUrl). The raw
+ * QuotaExceededError the browser throws is not something a user can act
+ * on, so it's swapped for a message that actually explains what to do.
+ */
 export function setCollection(name, items) {
-  localStorage.setItem(STORAGE_PREFIX + name, JSON.stringify(items));
+  try {
+    localStorage.setItem(STORAGE_PREFIX + name, JSON.stringify(items));
+  } catch (err) {
+    if (err instanceof DOMException && (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+      const quotaError = new Error(
+        "Storage is full for this demo (browser local storage has a small limit). Try a smaller file, or ask an admin to clear old data."
+      );
+      quotaError.code = 'STORAGE_QUOTA_EXCEEDED';
+      throw quotaError;
+    }
+    throw err;
+  }
   return items;
 }
 

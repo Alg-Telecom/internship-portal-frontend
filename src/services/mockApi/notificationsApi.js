@@ -6,14 +6,21 @@ import { currentMaxId } from './seed';
  * `link` is the in-app route the notification should open when clicked
  * (e.g. `/admin/applications/12`) — optional, since a few notification
  * types (document request/approval) only make sense pointing at a list.
+ *
+ * `titleKey`/`messageKey` (translations.js dot-paths) + `params` are stored
+ * instead of pre-rendered English text, so NotificationBell can render the
+ * notification in whichever language is active when it's actually viewed —
+ * rendering the text once at creation time would freeze it in whatever
+ * language happened to be active at that moment, for every future viewer.
  */
-export function createNotification({ userId, title, message, notificationType, link = null }) {
+export function createNotification({ userId, titleKey, messageKey, params = {}, notificationType, link = null }) {
   const id = currentMaxId('notifications') + 1;
   return insert('notifications', {
     id,
     userId,
-    title,
-    message,
+    titleKey,
+    messageKey,
+    params,
     notificationType,
     link,
     creationDate: new Date().toISOString(),

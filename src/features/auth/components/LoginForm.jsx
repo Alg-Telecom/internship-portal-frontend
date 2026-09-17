@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeSlash, WarningCircle } from '@phosphor-icons/react';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
+import { useLanguage } from '../../../context/LanguageContext';
 
-const schema = z.object({
-  email: z.string().min(1, 'Email is required.').email('Enter a valid email address.'),
-  password: z.string().min(1, 'Password is required.'),
-});
+function makeSchema(t) {
+  return z.object({
+    email: z.string().min(1, t('login.emailRequired')).email(t('login.emailInvalid')),
+    password: z.string().min(1, t('login.passwordRequired')),
+  });
+}
 
 export default function LoginForm({ onSubmit }) {
+  const { t } = useLanguage();
+  const schema = useMemo(() => makeSchema(t), [t]);
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState('');
   const {
@@ -25,7 +30,7 @@ export default function LoginForm({ onSubmit }) {
     try {
       await onSubmit(values);
     } catch (error) {
-      setFormError(error.message || 'Something went wrong. Please try again.');
+      setFormError(error.message || t('common.somethingWentWrong'));
     }
   }
 
@@ -37,12 +42,12 @@ export default function LoginForm({ onSubmit }) {
           {formError}
         </div>
       )}
-      <Input id="email" type="email" label="Email" required autoComplete="username" error={errors.email?.message} {...register('email')} />
+      <Input id="email" type="email" label={t('login.email')} required autoComplete="username" error={errors.email?.message} {...register('email')} />
       <div className="relative">
         <Input
           id="password"
           type={showPassword ? 'text' : 'password'}
-          label="Password"
+          label={t('login.password')}
           required
           autoComplete="current-password"
           error={errors.password?.message}
@@ -51,14 +56,14 @@ export default function LoginForm({ onSubmit }) {
         <button
           type="button"
           onClick={() => setShowPassword((v) => !v)}
-          aria-label={showPassword ? 'Hide password' : 'Show password'}
-          className="absolute right-3 top-9 cursor-pointer text-muted-foreground hover:text-foreground"
+          aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+          className="absolute end-3 top-9 cursor-pointer text-muted-foreground hover:text-foreground"
         >
           {showPassword ? <EyeSlash className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
         </button>
       </div>
       <Button type="submit" isLoading={isSubmitting} className="mt-2 w-full">
-        Sign in
+        {t('login.signIn')}
       </Button>
     </form>
   );

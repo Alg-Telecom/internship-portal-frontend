@@ -6,9 +6,11 @@ import { useTeams } from '../../hooks/useTeams';
 import Card from '../../components/ui/Card';
 import InternsFilterBar from './components/InternsFilterBar';
 import InternsTable from './components/InternsTable';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function InternsListPage() {
-  usePageHeader('Interns');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.interns.title'));
   const navigate = useNavigate();
   const [teamId, setTeamId] = useState('');
   const { interns, isLoading } = useInterns({ teamId });

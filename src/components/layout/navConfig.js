@@ -7,31 +7,31 @@ import {
   FolderSimple,
   ClipboardText,
   CalendarCheck,
-  Key,
+  Gear,
 } from '@phosphor-icons/react';
 
 export const ADMIN_NAV = [
-  { label: 'Dashboard', to: '/admin', icon: SquaresFour, end: true },
-  { label: 'Applications', to: '/admin/applications', icon: FileText },
-  { label: 'Interns', to: '/admin/interns', icon: UsersThree },
-  { label: 'Teams', to: '/admin/teams', icon: UsersThree },
-  { label: 'Users', to: '/admin/users', icon: Users },
-  { label: 'Document Requests', to: '/admin/document-requests', icon: FolderSimple },
-  { label: 'Change Password', to: '/admin/change-password', icon: Key },
+  { labelKey: 'nav.dashboard', to: '/admin', icon: SquaresFour, end: true },
+  { labelKey: 'nav.applications', to: '/admin/applications', icon: FileText },
+  { labelKey: 'nav.interns', to: '/admin/interns', icon: UsersThree },
+  { labelKey: 'nav.teams', to: '/admin/teams', icon: UsersThree },
+  { labelKey: 'nav.users', to: '/admin/users', icon: Users },
+  { labelKey: 'nav.documentRequests', to: '/admin/document-requests', icon: FolderSimple },
+  { labelKey: 'nav.settings', to: '/admin/change-password', icon: Gear },
 ];
 
 export const SUPERVISOR_NAV = [
-  { label: 'Dashboard', to: '/supervisor', icon: SquaresFour, end: true },
-  { label: 'My Teams', to: '/supervisor/team', icon: UsersThree },
-  { label: 'Assignments', to: '/supervisor/assignments', icon: ClipboardText },
-  { label: 'Attendance', to: '/supervisor/attendance', icon: CalendarCheck },
-  { label: 'Change Password', to: '/supervisor/change-password', icon: Key },
+  { labelKey: 'nav.dashboard', to: '/supervisor', icon: SquaresFour, end: true },
+  { labelKey: 'nav.myTeams', to: '/supervisor/team', icon: UsersThree },
+  { labelKey: 'nav.assignments', to: '/supervisor/assignments', icon: ClipboardText },
+  { labelKey: 'nav.attendance', to: '/supervisor/attendance', icon: CalendarCheck },
+  { labelKey: 'nav.settings', to: '/supervisor/change-password', icon: Gear },
 ];
 
 export const INTERN_NAV = [
-  { label: 'Profile', to: '/intern', icon: UserCircle, end: true },
-  { label: 'Assignments', to: '/intern/assignments', icon: ClipboardText },
-  { label: 'Attendance', to: '/intern/attendance', icon: CalendarCheck },
-  { label: 'Documents', to: '/intern/documents', icon: FolderSimple },
-  { label: 'Change Password', to: '/intern/change-password', icon: Key },
+  { labelKey: 'nav.profile', to: '/intern', icon: UserCircle, end: true },
+  { labelKey: 'nav.assignments', to: '/intern/assignments', icon: ClipboardText },
+  { labelKey: 'nav.attendance', to: '/intern/attendance', icon: CalendarCheck },
+  { labelKey: 'nav.documents', to: '/intern/documents', icon: FolderSimple },
+  { labelKey: 'nav.settings', to: '/intern/change-password', icon: Gear },
 ];

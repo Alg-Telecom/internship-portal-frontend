@@ -23,7 +23,7 @@ export const DEMO_PASSWORD = "Password123";
  * visible effect until someone manually clears the browser's storage,
  * since the mock "database" lives in the browser, not on disk.
  */
-const SEED_VERSION = 3;
+const SEED_VERSION = 6;
 
 const today = new Date();
 const iso = (offsetDays = 0) => {
@@ -135,6 +135,8 @@ export function seedDatabase() {
     {
       id: 1,
       name: "Network Infrastructure Team",
+      nameFr: "Équipe Infrastructure Réseau",
+      nameAr: "فريق البنية التحتية للشبكات",
       description:
         "Interns working on network monitoring and infrastructure tooling.",
       startDate: iso(-60),
@@ -145,12 +147,26 @@ export function seedDatabase() {
     {
       id: 2,
       name: "Digital Services Team",
+      nameFr: "Équipe Services Numériques",
+      nameAr: "فريق الخدمات الرقمية",
       description:
         "Interns building internal digital-service web applications.",
       startDate: iso(-40),
       endDate: iso(80),
       status: TeamStatus.ACTIVE,
       supervisorId: 3,
+    },
+    {
+      id: 3,
+      name: "Development and Innovation Department",
+      nameFr: "Direction de Développement et d'Innovation",
+      nameAr: "إدارة التطوير والابتكار",
+      description:
+        "Interns working on R&D initiatives and new internal tooling for Algerie Telecom.",
+      startDate: iso(0),
+      endDate: iso(120),
+      status: TeamStatus.PLANNED,
+      supervisorId: null,
     },
   ];
 
@@ -171,6 +187,9 @@ export function seedDatabase() {
       endDate: iso(60),
       cvFileName: "mehdi_laribi_cv.pdf",
       photoFileName: "mehdi_laribi_photo.jpg",
+      agreementFileName: "mehdi_laribi_agreement.pdf",
+      internshipRequestFileName: "mehdi_laribi_internship_request.pdf",
+      otherDocuments: [],
       submissionDate: iso(-65),
       status: ApplicationStatus.ACCEPTED,
       rejectionReason: "",
@@ -180,6 +199,10 @@ export function seedDatabase() {
       cvRejectionReason: "",
       photoStatus: DocumentStatus.APPROVED,
       photoRejectionReason: "",
+      agreementStatus: DocumentStatus.APPROVED,
+      agreementRejectionReason: "",
+      internshipRequestStatus: DocumentStatus.APPROVED,
+      internshipRequestRejectionReason: "",
     },
     {
       id: 2,
@@ -197,6 +220,9 @@ export function seedDatabase() {
       endDate: iso(62),
       cvFileName: "kamel_laribi_cv.pdf",
       photoFileName: "kamel_laribi_photo.jpg",
+      agreementFileName: "kamel_laribi_agreement.pdf",
+      internshipRequestFileName: "kamel_laribi_internship_request.pdf",
+      otherDocuments: [],
       submissionDate: iso(-63),
       status: ApplicationStatus.ACCEPTED,
       rejectionReason: "",
@@ -206,6 +232,10 @@ export function seedDatabase() {
       cvRejectionReason: "",
       photoStatus: DocumentStatus.APPROVED,
       photoRejectionReason: "",
+      agreementStatus: DocumentStatus.APPROVED,
+      agreementRejectionReason: "",
+      internshipRequestStatus: DocumentStatus.APPROVED,
+      internshipRequestRejectionReason: "",
     },
     {
       id: 3,
@@ -223,6 +253,9 @@ export function seedDatabase() {
       endDate: iso(80),
       cvFileName: "radia_belkaid_cv.pdf",
       photoFileName: "radia_belkaid_photo.jpg",
+      agreementFileName: "radia_belkaid_agreement.pdf",
+      internshipRequestFileName: "radia_belkaid_internship_request.pdf",
+      otherDocuments: [],
       submissionDate: iso(-45),
       status: ApplicationStatus.ACCEPTED,
       rejectionReason: "",
@@ -232,6 +265,10 @@ export function seedDatabase() {
       cvRejectionReason: "",
       photoStatus: DocumentStatus.APPROVED,
       photoRejectionReason: "",
+      agreementStatus: DocumentStatus.APPROVED,
+      agreementRejectionReason: "",
+      internshipRequestStatus: DocumentStatus.APPROVED,
+      internshipRequestRejectionReason: "",
     },
     {
       id: 4,
@@ -249,6 +286,9 @@ export function seedDatabase() {
       endDate: iso(100),
       cvFileName: "ikram_nekkache_cv.pdf",
       photoFileName: "ikram_nekkache_photo.jpg",
+      agreementFileName: "ikram_nekkache_agreement.pdf",
+      internshipRequestFileName: "ikram_nekkache_internship_request.pdf",
+      otherDocuments: [],
       submissionDate: iso(-3),
       status: ApplicationStatus.PENDING,
       rejectionReason: "",
@@ -258,6 +298,10 @@ export function seedDatabase() {
       cvRejectionReason: "",
       photoStatus: DocumentStatus.PENDING,
       photoRejectionReason: "",
+      agreementStatus: DocumentStatus.PENDING,
+      agreementRejectionReason: "",
+      internshipRequestStatus: DocumentStatus.PENDING,
+      internshipRequestRejectionReason: "",
     },
     {
       id: 5,
@@ -275,6 +319,9 @@ export function seedDatabase() {
       endDate: iso(105),
       cvFileName: "amel_belkaid_cv.pdf",
       photoFileName: "amel_belkaid_photo.jpg",
+      agreementFileName: "amel_belkaid_agreement.pdf",
+      internshipRequestFileName: "amel_belkaid_internship_request.pdf",
+      otherDocuments: [{ label: "Motivation letter", fileName: "amel_belkaid_motivation_letter.pdf", fileUrl: "" }],
       submissionDate: iso(-1),
       status: ApplicationStatus.PENDING,
       rejectionReason: "",
@@ -284,6 +331,10 @@ export function seedDatabase() {
       cvRejectionReason: "",
       photoStatus: DocumentStatus.PENDING,
       photoRejectionReason: "",
+      agreementStatus: DocumentStatus.PENDING,
+      agreementRejectionReason: "",
+      internshipRequestStatus: DocumentStatus.PENDING,
+      internshipRequestRejectionReason: "",
     },
   ];
 

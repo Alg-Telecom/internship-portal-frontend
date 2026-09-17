@@ -5,8 +5,10 @@ import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import { DocumentType } from '../../../domain/enums';
 import { fileToDataUrl } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function UploadDocumentDialog({ open, onClose, request, onSubmit }) {
+  const { t } = useLanguage();
   const [file, setFile] = useState(null);
   const [documentType, setDocumentType] = useState(DocumentType.OTHER);
   const [error, setError] = useState('');
@@ -15,7 +17,7 @@ export default function UploadDocumentDialog({ open, onClose, request, onSubmit 
   async function handleSubmit(event) {
     event.preventDefault();
     if (!file) {
-      setError('Please attach a file to upload.');
+      setError(t('intern.documents.fileRequired'));
       return;
     }
     setError('');
@@ -25,28 +27,39 @@ export default function UploadDocumentDialog({ open, onClose, request, onSubmit 
       await onSubmit({ fileName: file.name, fileUrl, documentType });
       setFile(null);
       onClose();
+    } catch (err) {
+      setError(err.message || t('intern.documents.uploadFailed'));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title={request ? `Upload — ${request.title}` : 'Upload document'}>
+    <Dialog open={open} onClose={onClose} title={request ? t('intern.documents.uploadTitle', { title: request.title }) : t('intern.documents.uploadDialogTitle')}>
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-        <Select id="document-type" label="Document type" value={documentType} onChange={(e) => setDocumentType(e.target.value)}>
+        <Select id="document-type" label={t('intern.documents.documentType')} value={documentType} onChange={(e) => setDocumentType(e.target.value)}>
           {Object.values(DocumentType).map((value) => (
             <option key={value} value={value}>
-              {value.replace(/([a-z])([A-Z])/g, '$1 $2')}
+              {t(`common.documentType.${value}`)}
             </option>
           ))}
         </Select>
-        <FileDropzone id="document-file" label="File" required file={file} error={error} onChange={setFile} hint="PDF, image, or Word, max 10MB" />
+        <FileDropzone
+          id="document-file"
+          label={t('intern.documents.file')}
+          required
+          file={file}
+          error={error}
+          onChange={setFile}
+          hint={t('intern.documents.fileHint')}
+          maxSizeMB={3}
+        />
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" isLoading={isSubmitting}>
-            Upload
+            {t('intern.documents.upload')}
           </Button>
         </div>
       </form>

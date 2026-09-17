@@ -8,26 +8,28 @@ import CandidateProfileSummary from './components/CandidateProfileSummary';
 import CandidateDocumentsList from './components/CandidateDocumentsList';
 import ApplicationDecisionBar from './components/ApplicationDecisionBar';
 import * as applicationsApi from '../../services/mockApi/applicationsApi';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function ApplicationReviewPage() {
-  usePageHeader('Review Application');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.review.title'));
   const { id } = useParams();
   const { showToast } = useToast();
-  const { application, isLoading, refetch } = useApplication(id);
+  const { application, refetch } = useApplication(id);
 
   async function handleAccept(teamId) {
     await applicationsApi.decideApplication(id, { status: 'Accepted', teamId });
-    showToast('Application accepted. The intern account has been created.');
+    showToast(t('admin.review.accepted'));
     refetch();
   }
 
   async function handleReject(rejectionReason) {
     await applicationsApi.decideApplication(id, { status: 'Rejected', rejectionReason });
-    showToast('Application rejected.', { type: 'info' });
+    showToast(t('admin.review.rejected'), { type: 'info' });
     refetch();
   }
 
-  if (isLoading || !application) {
+  if (!application) {
     return <SkeletonRows rows={6} />;
   }
 
@@ -35,7 +37,7 @@ export default function ApplicationReviewPage() {
     <div className="flex flex-col gap-5 pb-24">
       <Link to="/admin/applications" className="flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">
         <CaretLeft className="h-4 w-4" aria-hidden="true" />
-        Back to applications
+        {t('admin.review.backToApplications')}
       </Link>
       <CandidateProfileSummary application={application} />
       <CandidateDocumentsList application={application} onChanged={refetch} />

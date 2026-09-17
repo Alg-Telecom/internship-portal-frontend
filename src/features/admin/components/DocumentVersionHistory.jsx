@@ -1,14 +1,16 @@
 import StatusBadge from '../../../components/shared/StatusBadge';
 import DocumentLink from '../../../components/shared/DocumentLink';
 import { formatDateTime } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 /**
  * Full upload history for a document request — every version the intern
  * has submitted, not just the latest one shown in the requests table.
  */
 export default function DocumentVersionHistory({ documents }) {
+  const { t } = useLanguage();
   if (!documents || documents.length === 0) {
-    return <p className="text-sm text-muted-foreground">No document submitted yet.</p>;
+    return <p className="text-sm text-muted-foreground">{t('admin.documentVersionHistory.noDocumentYet')}</p>;
   }
 
   return (
@@ -18,10 +20,10 @@ export default function DocumentVersionHistory({ documents }) {
           <div>
             <DocumentLink fileName={document.fileName} url={document.fileUrl} />
             <p className="mt-0.5 text-xs text-muted-foreground">
-              v{document.version} · Uploaded {formatDateTime(document.uploadDate)}
+              {t('admin.documentVersionHistory.versionUploaded', { version: document.version, date: formatDateTime(document.uploadDate) })}
             </p>
             {document.status === 'Rejected' && document.rejectionReason && (
-              <p className="mt-0.5 text-xs text-destructive">Rejected: {document.rejectionReason}</p>
+              <p className="mt-0.5 text-xs text-destructive">{t('admin.documentVersionHistory.rejected', { reason: document.rejectionReason })}</p>
             )}
           </div>
           <StatusBadge status={document.status} />

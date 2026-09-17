@@ -3,8 +3,10 @@ import { useAssignments } from '../../../hooks/useAssignments';
 import { useAttendance } from '../../../hooks/useAttendance';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import { formatDate, fullName } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function InternProgressDrawer({ intern, onClose }) {
+  const { t } = useLanguage();
   const { assignments } = useAssignments({ internId: intern?.id });
   const { records } = useAttendance({ internId: intern?.id });
 
@@ -16,22 +18,22 @@ export default function InternProgressDrawer({ intern, onClose }) {
       {intern && (
         <div className="flex flex-col gap-6">
           <section>
-            <h3 className="mb-2 text-sm font-semibold text-foreground">Attendance</h3>
+            <h3 className="mb-2 text-sm font-semibold text-foreground">{t('supervisor.team.attendance')}</h3>
             <p className="text-sm text-muted-foreground">
-              {attendanceRate != null ? `${attendanceRate}% present over the last ${records.length} recorded days.` : 'No attendance recorded yet.'}
+              {attendanceRate != null ? t('supervisor.team.attendanceRate', { rate: attendanceRate, count: records.length }) : t('supervisor.team.noAttendanceRecorded')}
             </p>
           </section>
           <section>
-            <h3 className="mb-2 text-sm font-semibold text-foreground">Assignments</h3>
+            <h3 className="mb-2 text-sm font-semibold text-foreground">{t('supervisor.team.assignments')}</h3>
             {assignments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No assignments yet.</p>
+              <p className="text-sm text-muted-foreground">{t('common.field.noAssignmentsYet')}</p>
             ) : (
               <ul className="flex flex-col gap-2">
                 {assignments.map((a) => (
                   <li key={a.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2">
                     <div>
                       <p className="text-sm font-medium text-foreground">{a.title}</p>
-                      <p className="text-xs text-muted-foreground">Due {formatDate(a.deadline)}</p>
+                      <p className="text-xs text-muted-foreground">{t('supervisor.team.due', { date: formatDate(a.deadline) })}</p>
                     </div>
                     <StatusBadge status={a.status} />
                   </li>

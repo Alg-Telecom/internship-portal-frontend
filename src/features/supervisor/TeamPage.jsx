@@ -10,9 +10,11 @@ import StatusBadge from '../../components/shared/StatusBadge';
 import EmptyState from '../../components/shared/EmptyState';
 import AssignedInternsTable from './components/AssignedInternsTable';
 import InternProgressDrawer from './components/InternProgressDrawer';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function TeamPage() {
-  usePageHeader('My Teams');
+  const { t, tTeam } = useLanguage();
+  usePageHeader(t('supervisor.team.title'));
   const { user } = useAuth();
   const { teams } = useTeams();
   const myTeams = teams.filter((t) => t.supervisorId === user.id);
@@ -34,7 +36,7 @@ export default function TeamPage() {
   if (myTeams.length === 0) {
     return (
       <Card>
-        <EmptyState icon={UsersThree} title="No team assigned yet" description="Ask an administrator to assign you to an internship team." />
+        <EmptyState icon={UsersThree} title={t('supervisor.dashboard.noTeamYet')} description={t('supervisor.dashboard.noTeamDescription')} />
       </Card>
     );
   }
@@ -47,9 +49,9 @@ export default function TeamPage() {
           <Card key={team.id}>
             <CardHeader>
               <div>
-                <CardTitle>{team.name}</CardTitle>
+                <CardTitle>{tTeam(team)}</CardTitle>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {teamInterns.length} intern{teamInterns.length === 1 ? '' : 's'}
+                  {t('supervisor.team.interns', { count: teamInterns.length, plural: teamInterns.length === 1 ? '' : 's' })}
                 </p>
               </div>
               <StatusBadge status={team.status} />

@@ -10,26 +10,28 @@ import DocumentVersionHistory from './components/DocumentVersionHistory';
 import SubmittedDocumentPreview from './components/SubmittedDocumentPreview';
 import { formatDate } from '../../lib/utils';
 import * as documentsApi from '../../services/mockApi/documentsApi';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function DocumentRequestDetailPage() {
-  usePageHeader('Document Request');
+  const { t } = useLanguage();
+  usePageHeader(t('admin.documentRequestDetail.title'));
   const { id } = useParams();
   const { showToast } = useToast();
-  const { request, isLoading, refetch } = useDocumentRequest(id);
+  const { request, refetch } = useDocumentRequest(id);
 
   async function handleApprove() {
     await documentsApi.approveDocument(request.latestDocument.id);
-    showToast('Document approved.');
+    showToast(t('admin.documentRequestDetail.approved'));
     refetch();
   }
 
   async function handleReject(reason) {
     await documentsApi.rejectDocument(request.latestDocument.id, reason);
-    showToast('Document rejected.', { type: 'info' });
+    showToast(t('admin.documentRequestDetail.rejected'), { type: 'info' });
     refetch();
   }
 
-  if (isLoading || !request) {
+  if (!request) {
     return <SkeletonRows rows={6} />;
   }
 
@@ -37,14 +39,14 @@ export default function DocumentRequestDetailPage() {
     <div className="flex flex-col gap-5 pb-24">
       <Link to="/admin/document-requests" className="flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">
         <CaretLeft className="h-4 w-4" aria-hidden="true" />
-        Back to document requests
+        {t('admin.documentRequestDetail.backToRequests')}
       </Link>
 
       <Card>
         <CardHeader>
           <div>
             <CardTitle>{request.title}</CardTitle>
-            <p className="mt-0.5 text-sm text-muted-foreground">Deadline: {formatDate(request.deadline)}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{t('admin.documentRequestDetail.deadline', { date: formatDate(request.deadline) })}</p>
           </div>
           <StatusBadge status={request.status} />
         </CardHeader>
@@ -53,7 +55,7 @@ export default function DocumentRequestDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{request.latestDocument?.status === 'Pending' ? 'Review latest submission' : 'Latest submission'}</CardTitle>
+          <CardTitle>{request.latestDocument?.status === 'Pending' ? t('admin.documentRequestDetail.reviewLatest') : t('admin.documentRequestDetail.latestSubmission')}</CardTitle>
         </CardHeader>
         <div className="px-5 pb-5">
           <SubmittedDocumentPreview document={request.latestDocument} onApprove={handleApprove} onReject={handleReject} />
@@ -63,7 +65,7 @@ export default function DocumentRequestDetailPage() {
       {request.documents.length > 1 && (
         <Card>
           <CardHeader>
-            <CardTitle>Previous versions</CardTitle>
+            <CardTitle>{t('admin.documentRequestDetail.previousVersions')}</CardTitle>
           </CardHeader>
           <div className="px-5 pb-5">
             <DocumentVersionHistory documents={request.documents.slice(1)} />

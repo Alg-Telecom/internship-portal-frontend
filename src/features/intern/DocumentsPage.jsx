@@ -9,9 +9,11 @@ import { FolderSimple } from "@phosphor-icons/react";
 import DocumentRequestCard from "./components/DocumentRequestCard";
 import UploadDocumentDialog from "./components/UploadDocumentDialog";
 import * as documentsApi from "../../services/mockApi/documentsApi";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function DocumentsPage() {
-  usePageHeader("Documents");
+  const { t } = useLanguage();
+  usePageHeader(t('intern.documents.title'));
   const { user } = useAuth();
   const { requests, isLoading, refetch } = useDocumentRequests({
     internId: user.id,
@@ -26,7 +28,7 @@ export default function DocumentsPage() {
       documentType,
       internId: user.id,
     });
-    showToast("Document submitted for review.");
+    showToast(t('intern.documents.submitted'));
     refetch();
   }
 
@@ -37,8 +39,8 @@ export default function DocumentsPage() {
       {requests.length === 0 ? (
         <EmptyState
           icon={FolderSimple}
-          title="No document requests"
-          description="Requests from the administration will appear here."
+          title={t('intern.documents.noRequests')}
+          description={t('intern.documents.noRequestsDescription')}
         />
       ) : (
         requests.map((request) => (

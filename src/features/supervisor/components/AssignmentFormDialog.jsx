@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,14 +13,17 @@ import { useInterns } from '../../../hooks/useUsers';
 import { useTeams } from '../../../hooks/useTeams';
 import { AssignmentPriority } from '../../../domain/enums';
 import { fullName } from '../../../lib/utils';
+import { useLanguage } from '../../../context/LanguageContext';
 
-const schema = z.object({
-  internId: z.string().min(1, 'Please select an intern.'),
-  title: z.string().min(1, 'Title is required.'),
-  description: z.string().min(1, 'Description is required.'),
-  priority: z.string().min(1, 'Priority is required.'),
-  deadline: z.string().min(1, 'Deadline is required.'),
-});
+function makeSchema(t) {
+  return z.object({
+    internId: z.string().min(1, t('supervisor.assignments.internRequired')),
+    title: z.string().min(1, t('supervisor.assignments.titleRequired')),
+    description: z.string().min(1, t('supervisor.assignments.descriptionRequired')),
+    priority: z.string().min(1, t('supervisor.assignments.priorityRequired')),
+    deadline: z.string().min(1, t('supervisor.assignments.deadlineRequired')),
+  });
+}
 
 /**
  * Create AND edit share this one dialog, same pattern as TeamFormDialog —
@@ -29,6 +32,8 @@ const schema = z.object({
  * omit it to create a new one.
  */
 export default function AssignmentFormDialog({ open, onClose, onSubmit, assignment }) {
+  const { t } = useLanguage();
+  const schema = useMemo(() => makeSchema(t), [t]);
   const { user } = useAuth();
   const { teams } = useTeams();
   const myTeamIds = teams.filter((t) => t.supervisorId === user.id).map((t) => t.id);
@@ -70,12 +75,12 @@ export default function AssignmentFormDialog({ open, onClose, onSubmit, assignme
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title={assignment ? 'Edit Assignment' : 'New Assignment'}>
+    <Dialog open={open} onClose={onClose} title={assignment ? t('supervisor.assignments.editTitle') : t('supervisor.assignments.newTitle')}>
       <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-4">
         {assignment ? (
-          <Input id="assignment-intern-readonly" label="Intern" value={assignedIntern ? fullName(assignedIntern) : ''} disabled readOnly />
+          <Input id="assignment-intern-readonly" label={t('supervisor.assignments.intern')} value={assignedIntern ? fullName(assignedIntern) : ''} disabled readOnly />
         ) : (
-          <Select id="assignment-intern" label="Intern" required placeholder="Select an intern" error={errors.internId?.message} {...register('internId')}>
+          <Select id="assignment-intern" label={t('supervisor.assignments.intern')} required placeholder={t('supervisor.assignments.selectIntern')} error={errors.internId?.message} {...register('internId')}>
             {myInterns.map((intern) => (
               <option key={intern.id} value={intern.id}>
                 {fullName(intern)}
@@ -83,24 +88,24 @@ export default function AssignmentFormDialog({ open, onClose, onSubmit, assignme
             ))}
           </Select>
         )}
-        <Input id="assignment-title" label="Title" required error={errors.title?.message} {...register('title')} />
-        <Textarea id="assignment-description" label="Description" required error={errors.description?.message} {...register('description')} />
+        <Input id="assignment-title" label={t('supervisor.assignments.titleField')} required error={errors.title?.message} {...register('title')} />
+        <Textarea id="assignment-description" label={t('supervisor.assignments.description')} required error={errors.description?.message} {...register('description')} />
         <div className="grid grid-cols-2 gap-4">
-          <Select id="assignment-priority" label="Priority" required error={errors.priority?.message} {...register('priority')}>
+          <Select id="assignment-priority" label={t('supervisor.assignments.priority')} required error={errors.priority?.message} {...register('priority')}>
             {Object.values(AssignmentPriority).map((value) => (
               <option key={value} value={value}>
-                {value}
+                {t(`common.priority.${value}`)}
               </option>
             ))}
           </Select>
-          <DatePicker id="assignment-deadline" label="Deadline" required value={deadline} onChange={(v) => setValue('deadline', v, { shouldValidate: true })} error={errors.deadline?.message} />
+          <DatePicker id="assignment-deadline" label={t('supervisor.assignments.deadline')} required value={deadline} onChange={(v) => setValue('deadline', v, { shouldValidate: true })} error={errors.deadline?.message} />
         </div>
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" isLoading={isSubmitting}>
-            {assignment ? 'Save changes' : 'Create assignment'}
+            {assignment ? t('supervisor.assignments.saveChanges') : t('supervisor.assignments.createAssignment')}
           </Button>
         </div>
       </form>
