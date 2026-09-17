@@ -4,7 +4,6 @@ import FileDropzone from '../../../components/ui/FileDropzone';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import { DocumentType } from '../../../domain/enums';
-import { fileToDataUrl } from '../../../lib/utils';
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function UploadDocumentDialog({ open, onClose, request, onSubmit }) {
@@ -23,8 +22,7 @@ export default function UploadDocumentDialog({ open, onClose, request, onSubmit 
     setError('');
     setIsSubmitting(true);
     try {
-      const fileUrl = await fileToDataUrl(file);
-      await onSubmit({ fileName: file.name, fileUrl, documentType });
+      await onSubmit({ file, documentType });
       setFile(null);
       onClose();
     } catch (err) {

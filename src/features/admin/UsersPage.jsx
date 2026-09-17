@@ -24,8 +24,16 @@ export default function UsersPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleCreate(values) {
-    await usersApi.createUser(values);
-    showToast(t('admin.users.created'));
+    const created = await usersApi.createUser(values);
+    if (created.temporaryPassword) {
+      // No password field in this form - the backend generated one (and
+      // tried to email it). Show it once here too, since SMTP may not be
+      // configured yet (see backend/docs/SETUP.md) and this is the only
+      // chance to see/copy it - it's never returned again after this.
+      showToast(t('admin.users.createdWithPassword', { password: created.temporaryPassword }), { duration: 0 });
+    } else {
+      showToast(t('admin.users.created'));
+    }
     refetch();
   }
 

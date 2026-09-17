@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ function makeSchema(t) {
 export default function UserFormDialog({ open, onClose, onSubmit }) {
   const { t } = useLanguage();
   const schema = useMemo(() => makeSchema(t), [t]);
+  const [submitError, setSubmitError] = useState('');
   const {
     register,
     handleSubmit,
@@ -30,14 +31,29 @@ export default function UserFormDialog({ open, onClose, onSubmit }) {
   } = useForm({ resolver: zodResolver(schema), defaultValues: { firstName: '', lastName: '', email: '', phoneNumber: '', role: Role.SUPERVISOR } });
 
   async function submit(values) {
-    await onSubmit(values);
-    reset();
+    setSubmitError('');
+    try {
+      await onSubmit(values);
+      reset();
+      onClose();
+    } catch (error) {
+      setSubmitError(error.message || t('admin.userForm.createFailed'));
+    }
+  }
+
+  function handleClose() {
+    setSubmitError('');
     onClose();
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title={t('admin.userForm.createTitle')} description={t('admin.userForm.createDescription')}>
+    <Dialog open={open} onClose={handleClose} title={t('admin.userForm.createTitle')} description={t('admin.userForm.createDescription')}>
       <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-4">
+        {submitError && (
+          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+            {submitError}
+          </p>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <Input id="user-firstName" label={t('admin.userForm.firstName')} required error={errors.firstName?.message} {...register('firstName')} />
           <Input id="user-lastName" label={t('admin.userForm.lastName')} required error={errors.lastName?.message} {...register('lastName')} />
@@ -49,7 +65,7 @@ export default function UserFormDialog({ open, onClose, onSubmit }) {
           <option value={Role.SUPERVISOR}>{t('admin.userForm.supervisor')}</option>
         </Select>
         <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
             {t('common.cancel')}
           </Button>
           <Button type="submit" isLoading={isSubmitting}>

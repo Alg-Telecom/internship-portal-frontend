@@ -21,13 +21,8 @@ export default function DocumentsPage() {
   const { showToast } = useToast();
   const [uploadingRequest, setUploadingRequest] = useState(null);
 
-  async function handleUpload({ fileName, fileUrl, documentType }) {
-    await documentsApi.uploadDocument(uploadingRequest.id, {
-      fileName,
-      fileUrl,
-      documentType,
-      internId: user.id,
-    });
+  async function handleUpload({ file, documentType }) {
+    await documentsApi.uploadDocument(uploadingRequest.id, { file, documentType });
     showToast(t('intern.documents.submitted'));
     refetch();
   }

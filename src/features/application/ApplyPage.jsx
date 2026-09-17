@@ -10,7 +10,6 @@ import EducationStep from './components/steps/EducationStep';
 import UploadsStep from './components/steps/UploadsStep';
 import { makeApplicationSchema, STEP_FIELDS } from './schema';
 import * as applicationsApi from '../../services/mockApi/applicationsApi';
-import { fileToDataUrl } from '../../lib/utils';
 import { useLanguage } from '../../context/LanguageContext';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 
@@ -47,12 +46,35 @@ export default function ApplyPage() {
     },
   });
 
-  const { register, control, handleSubmit, watch, setValue, trigger, formState } = form;
+  const { register, control, handleSubmit, watch, setValue, trigger, getValues, setError, formState } = form;
   const { errors, isSubmitting } = formState;
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
   async function goNext() {
     const valid = await trigger(STEP_FIELDS[stepIndex]);
-    if (valid) setStepIndex((i) => Math.min(i + 1, STEP_FIELDS.length - 1));
+    if (!valid) return;
+
+    // Catch "you already have an account" right after personal info (step 1)
+    // instead of only at final submit, after education details and file
+    // uploads have already been filled in for nothing.
+    if (stepIndex === 0) {
+      setIsCheckingEmail(true);
+      try {
+        const exists = await applicationsApi.checkEmailExists(getValues('email'));
+        if (exists) {
+          setError('email', { type: 'manual', message: t('apply.errors.emailAlreadyExists') });
+          return;
+        }
+      } catch {
+        // If the check itself fails (e.g. a network hiccup), don't block
+        // the applicant here - submitApplication() still enforces this
+        // server-side as the source of truth.
+      } finally {
+        setIsCheckingEmail(false);
+      }
+    }
+
+    setStepIndex((i) => Math.min(i + 1, STEP_FIELDS.length - 1));
   }
 
   function goPrevious() {
@@ -62,19 +84,6 @@ export default function ApplyPage() {
   async function onFormSubmit(values) {
     setSubmitError('');
     try {
-      const [cvFileUrl, photoFileUrl, agreementFileUrl, internshipRequestFileUrl, otherDocuments] = await Promise.all([
-        values.cvFile ? fileToDataUrl(values.cvFile) : '',
-        values.photoFile ? fileToDataUrl(values.photoFile) : '',
-        values.agreementFile ? fileToDataUrl(values.agreementFile) : '',
-        values.internshipRequestFile ? fileToDataUrl(values.internshipRequestFile) : '',
-        Promise.all(
-          (values.otherDocuments || []).map(async (doc) => ({
-            label: doc.label,
-            fileName: doc.file?.name || '',
-            fileUrl: doc.file ? await fileToDataUrl(doc.file) : '',
-          }))
-        ),
-      ]);
       await applicationsApi.submitApplication({
         firstName: values.firstName,
         lastName: values.lastName,
@@ -89,15 +98,11 @@ export default function ApplyPage() {
         teamPreference: values.teamPreference,
         startDate: values.startDate,
         endDate: values.endDate,
-        cvFileName: values.cvFile?.name || '',
-        cvFileUrl,
-        photoFileName: values.photoFile?.name || '',
-        photoFileUrl,
-        agreementFileName: values.agreementFile?.name || '',
-        agreementFileUrl,
-        internshipRequestFileName: values.internshipRequestFile?.name || '',
-        internshipRequestFileUrl,
-        otherDocuments,
+        cvFile: values.cvFile,
+        photoFile: values.photoFile,
+        agreementFile: values.agreementFile,
+        internshipRequestFile: values.internshipRequestFile,
+        otherDocuments: values.otherDocuments || [],
       });
       navigate('/apply/success', { replace: true });
     } catch (error) {
@@ -142,7 +147,7 @@ export default function ApplyPage() {
             {stepIndex === 1 && <EducationStep {...stepProps} />}
             {stepIndex === 2 && <UploadsStep {...stepProps} />}
 
-            <WizardNavButtons stepIndex={stepIndex} totalSteps={STEP_FIELDS.length} onPrevious={goPrevious} isSubmitting={isSubmitting} />
+            <WizardNavButtons stepIndex={stepIndex} totalSteps={STEP_FIELDS.length} onPrevious={goPrevious} isSubmitting={isSubmitting || isCheckingEmail} />
           </form>
         </div>
       </main>

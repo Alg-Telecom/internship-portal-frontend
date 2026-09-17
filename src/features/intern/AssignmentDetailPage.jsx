@@ -22,8 +22,8 @@ export default function AssignmentDetailPage() {
   const { showToast } = useToast();
   const { assignment, refetch } = useAssignment(id);
 
-  async function handleSubmitWork({ fileName, fileUrl, notes }) {
-    await assignmentsApi.submitWork(assignment.id, { fileName, fileUrl, notes });
+  async function handleSubmitWork({ file, notes }) {
+    await assignmentsApi.submitWork(assignment.id, { file, notes });
     showToast(t('intern.assignments.submitted'));
     refetch();
   }

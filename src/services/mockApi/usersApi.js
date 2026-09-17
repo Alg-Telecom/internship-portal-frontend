@@ -1,6 +1,8 @@
 import { Role } from '../../domain/enums';
 import { getCollection, insert, update, remove, findById, delay } from './db';
 import { currentMaxId } from './seed';
+import { fileToDataUrl } from '../../lib/utils';
+import { getSession } from './authApi';
 
 function sanitize(user) {
   if (!user) return null;
@@ -57,4 +59,28 @@ export async function listInterns(filters = {}) {
 
 export async function listSupervisors() {
   return listUsers({ role: Role.SUPERVISOR });
+}
+
+/**
+ * Current user editing their own name. Mirrors the real backend's
+ * PATCH /users/me (see services/api/usersApi.js#updateOwnProfile) - here
+ * "who am I" comes from the mock session instead of a JWT.
+ */
+export async function updateOwnProfile({ firstName, lastName }) {
+  const session = await getSession();
+  if (!session) throw new Error('Not authenticated.');
+  return updateUser(session.id, { firstName, lastName });
+}
+
+/**
+ * Current user uploading their own profile photo. Mirrors the real
+ * backend's POST /users/me/photo (multipart, saved to disk by multer) -
+ * the mock equivalent of "save the file somewhere and store its URL" is
+ * reading it into a base64 data: URL, same as every other mock upload.
+ */
+export async function uploadOwnPhoto(file) {
+  const session = await getSession();
+  if (!session) throw new Error('Not authenticated.');
+  const profilePhotoUrl = file ? await fileToDataUrl(file) : '';
+  return updateUser(session.id, { profilePhotoUrl });
 }

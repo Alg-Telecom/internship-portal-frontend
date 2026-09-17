@@ -2,6 +2,7 @@ import { AssignmentStatus, SubmissionStatus } from '../../domain/enums';
 import { getCollection, insert, update, findById, delay } from './db';
 import { currentMaxId } from './seed';
 import { createNotification } from './notificationsApi';
+import { fileToDataUrl } from '../../lib/utils';
 
 function attachSubmission(assignment) {
   const submission = getCollection('submissions').find((s) => s.assignmentId === assignment.id) || null;
@@ -50,17 +51,26 @@ export async function updateAssignment(id, patch) {
   return update('assignments', Number(id), patch);
 }
 
-export async function submitWork(assignmentId, { fileName, fileUrl, notes }) {
+/**
+ * Accepts the raw `File` the intern picked and reads it into a base64
+ * data: URL itself — the mock's equivalent of the real backend's multer
+ * middleware saving the upload to disk and returning its URL (see
+ * services/api/assignmentsApi.js#submitWork). The caller
+ * (features/intern/AssignmentDetailPage) never has to know which one is
+ * happening.
+ */
+export async function submitWork(assignmentId, { file, notes }) {
   await delay(500);
   const id = currentMaxId('submissions') + 1;
   const assignment = findById('assignments', Number(assignmentId));
+  if (!assignment) throw new Error('Assignment not found.');
+  const fileUrl = file ? await fileToDataUrl(file) : '';
   const submission = {
     id,
     assignmentId: Number(assignmentId),
     internId: assignment.internId,
-    fileName,
-    // Object URL for this tab session only — see components/shared/DocumentLink.
-    fileUrl: fileUrl || '',
+    fileName: file?.name || '',
+    fileUrl,
     notes: notes || '',
     submissionDate: new Date().toISOString(),
     version: 1,

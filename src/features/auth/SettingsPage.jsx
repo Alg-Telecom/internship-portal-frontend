@@ -1,4 +1,7 @@
+import { SignOut } from '@phosphor-icons/react';
+import { useNavigate } from 'react-router-dom';
 import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
 import ProfilePhotoField from './components/ProfilePhotoField';
 import ProfileNameForm from './components/ProfileNameForm';
 import ChangePasswordForm from './components/ChangePasswordForm';
@@ -12,17 +15,23 @@ import * as usersApi from '../../services/mockApi/usersApi';
 export default function SettingsPage() {
   const { t } = useLanguage();
   usePageHeader(t('topbar.settings'));
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
-  async function handleSavePhoto(profilePhotoUrl) {
-    await usersApi.updateUser(user.id, { profilePhotoUrl });
-    refreshUser({ profilePhotoUrl });
+  async function handleLogout() {
+    await logout();
+    navigate('/login', { replace: true });
+  }
+
+  async function handleSavePhoto(file) {
+    const updated = await usersApi.uploadOwnPhoto(file);
+    refreshUser({ profilePhotoUrl: updated.profilePhotoUrl });
     showToast(t('settings.photoUpdated'));
   }
 
   async function handleSaveName({ firstName, lastName }) {
-    await usersApi.updateUser(user.id, { firstName, lastName });
+    await usersApi.updateOwnProfile({ firstName, lastName });
     refreshUser({ firstName, lastName });
     showToast(t('settings.nameUpdated'));
   }
@@ -60,6 +69,17 @@ export default function SettingsPage() {
           <ChangePasswordForm onSubmit={handleChangePassword} />
         </CardContent>
       </Card>
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="self-start bg-white text-destructive hover:bg-destructive/5 hover:text-destructive"
+        onClick={handleLogout}
+      >
+        <SignOut className="h-4 w-4" aria-hidden="true" />
+        {t('topbar.logout')}
+      </Button>
     </div>
   );
 }

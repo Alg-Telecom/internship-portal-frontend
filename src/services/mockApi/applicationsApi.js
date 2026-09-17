@@ -2,13 +2,77 @@ import { ApplicationStatus, Role } from '../../domain/enums';
 import { getCollection, insert, update, findById, delay } from './db';
 import { currentMaxId } from './seed';
 import { createNotification } from './notificationsApi';
+import { fileToDataUrl } from '../../lib/utils';
 
+/**
+ * Used by the apply wizard right after step 1 to warn about an existing
+ * account early, instead of only at final submit. Mirrors the real
+ * backend's GET /applications/check-email (see
+ * services/api/applicationsApi.js#checkEmailExists) - true if the email
+ * already belongs to a user account or to an application that's still
+ * pending/accepted.
+ */
+export async function checkEmailExists(email) {
+  await delay(200);
+  const normalized = (email || '').toLowerCase();
+  if (!normalized) return false;
+  const hasUser = getCollection('users').some((u) => u.email.toLowerCase() === normalized);
+  const hasActiveApplication = getCollection('applications').some(
+    (a) => a.email.toLowerCase() === normalized && a.status !== ApplicationStatus.REJECTED && a.status !== ApplicationStatus.CANCELLED
+  );
+  return hasUser || hasActiveApplication;
+}
+
+/**
+ * Accepts the raw `File` objects the apply wizard collects (cvFile,
+ * photoFile, agreementFile, internshipRequestFile, otherDocuments[].file)
+ * and reads them into base64 data: URLs itself - this is the mock's
+ * equivalent of the real backend's multer middleware saving the upload to
+ * disk and returning its URL (see services/api/applicationsApi.js). The
+ * caller (ApplyPage) never has to know which one is happening.
+ */
 export async function submitApplication(data) {
   await delay(500);
+
+  const [cvFileUrl, photoFileUrl, agreementFileUrl, internshipRequestFileUrl, otherDocuments] = await Promise.all([
+    data.cvFile ? fileToDataUrl(data.cvFile) : '',
+    data.photoFile ? fileToDataUrl(data.photoFile) : '',
+    data.agreementFile ? fileToDataUrl(data.agreementFile) : '',
+    data.internshipRequestFile ? fileToDataUrl(data.internshipRequestFile) : '',
+    Promise.all(
+      (data.otherDocuments || []).map(async (doc) => ({
+        label: doc.label,
+        fileName: doc.file?.name || '',
+        fileUrl: doc.file ? await fileToDataUrl(doc.file) : '',
+      }))
+    ),
+  ]);
+
   const id = currentMaxId('applications') + 1;
   const application = {
     id,
-    ...data,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    personalId: data.personalId,
+    email: data.email,
+    phone: data.phone,
+    birthday: data.birthday,
+    password: data.password,
+    university: data.university,
+    major: data.major,
+    grade: data.grade,
+    teamPreference: data.teamPreference,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    cvFileName: data.cvFile?.name || '',
+    cvFileUrl,
+    photoFileName: data.photoFile?.name || '',
+    photoFileUrl,
+    agreementFileName: data.agreementFile?.name || '',
+    agreementFileUrl,
+    internshipRequestFileName: data.internshipRequestFile?.name || '',
+    internshipRequestFileUrl,
+    otherDocuments,
     submissionDate: new Date().toISOString().slice(0, 10),
     status: ApplicationStatus.PENDING,
     rejectionReason: '',
@@ -18,8 +82,7 @@ export async function submitApplication(data) {
     // the application itself (CV / photo / agreement letter / internship
     // request letter) — mirrors the sequence diagram's document-validation
     // ALT fragment, separate from the post-acceptance DocumentRequest
-    // workflow in documentsApi.js. `otherDocuments` (optional, arbitrary
-    // count) are informational only — nothing to gate acceptance on.
+    // workflow in documentsApi.js.
     cvStatus: 'Pending',
     cvRejectionReason: '',
     photoStatus: 'Pending',
@@ -28,7 +91,6 @@ export async function submitApplication(data) {
     agreementRejectionReason: '',
     internshipRequestStatus: 'Pending',
     internshipRequestRejectionReason: '',
-    otherDocuments: data.otherDocuments || [],
   };
   insert('applications', application);
 

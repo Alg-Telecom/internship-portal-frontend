@@ -19,12 +19,16 @@ export default function AcceptApplicationDialog({ open, onClose, application, on
   const { teams } = useTeams();
   const [teamId, setTeamId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const hasPreference = application?.teamPreference && application.teamPreference !== 'No preference';
   const preferredTeam = hasPreference ? teams.find((t) => t.name === application.teamPreference) : null;
 
   useEffect(() => {
-    if (open) setTeamId(preferredTeam ? String(preferredTeam.id) : '');
+    if (open) {
+      setTeamId(preferredTeam ? String(preferredTeam.id) : '');
+      setSubmitError('');
+    }
   }, [open, preferredTeam]);
 
   if (!application) return null;
@@ -32,10 +36,13 @@ export default function AcceptApplicationDialog({ open, onClose, application, on
   const isOverriding = hasPreference && teamId !== String(preferredTeam?.id ?? '');
 
   async function confirm() {
+    setSubmitError('');
     setIsSubmitting(true);
     try {
       await onConfirm(teamId || null);
       onClose();
+    } catch (error) {
+      setSubmitError(error.message || t('admin.review.acceptFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -44,6 +51,11 @@ export default function AcceptApplicationDialog({ open, onClose, application, on
   return (
     <Dialog open={open} onClose={onClose} title={t('admin.review.acceptDialogTitle')} description={t('admin.review.acceptDialogDescription')}>
       <div className="flex flex-col gap-4">
+        {submitError && (
+          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+            {submitError}
+          </p>
+        )}
         <p className="text-sm text-foreground">
           {t('admin.review.preferredTeam')} <span className="font-medium">{hasPreference ? tTeam(application.teamPreference) : t('admin.review.noPreference')}</span>
         </p>

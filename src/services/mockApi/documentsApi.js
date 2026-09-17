@@ -2,6 +2,7 @@ import { DocumentRequestStatus, DocumentStatus } from '../../domain/enums';
 import { getCollection, insert, update, findById, delay } from './db';
 import { currentMaxId } from './seed';
 import { createNotification } from './notificationsApi';
+import { fileToDataUrl } from '../../lib/utils';
 
 function attachDocuments(request) {
   const documents = getCollection('documents')
@@ -41,18 +42,27 @@ export async function createDocumentRequest(data) {
   return request;
 }
 
-export async function uploadDocument(requestId, { fileName, fileUrl, documentType, internId }) {
+/**
+ * Accepts the raw `File` the intern picked and reads it into a base64
+ * data: URL itself — the mock's equivalent of the real backend's multer
+ * middleware saving the upload to disk and returning its URL (see
+ * services/api/documentsApi.js#uploadDocument). `internId` is no longer a
+ * required argument: it's read off the document request itself (the real
+ * backend infers it from the logged-in intern's session instead).
+ */
+export async function uploadDocument(requestId, { file, documentType }) {
   await delay(500);
   const request = findById('documentRequests', Number(requestId));
+  if (!request) throw new Error('Document request not found.');
   const previousVersions = getCollection('documents').filter((d) => d.requestId === Number(requestId));
   const id = currentMaxId('documents') + 1;
+  const fileUrl = file ? await fileToDataUrl(file) : '';
   const document = {
     id,
     requestId: Number(requestId),
-    internId,
-    fileName,
-    // Object URL for this tab session only — see components/shared/DocumentLink.
-    fileUrl: fileUrl || '',
+    internId: request.internId,
+    fileName: file?.name || '',
+    fileUrl,
     documentType,
     uploadDate: new Date().toISOString(),
     version: previousVersions.length + 1,

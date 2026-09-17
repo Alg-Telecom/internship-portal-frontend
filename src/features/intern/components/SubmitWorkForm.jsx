@@ -2,7 +2,6 @@ import { useState } from 'react';
 import FileDropzone from '../../../components/ui/FileDropzone';
 import Textarea from '../../../components/ui/Textarea';
 import Button from '../../../components/ui/Button';
-import { fileToDataUrl } from '../../../lib/utils';
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function SubmitWorkForm({ onSubmit }) {
@@ -21,8 +20,7 @@ export default function SubmitWorkForm({ onSubmit }) {
     setError('');
     setIsSubmitting(true);
     try {
-      const fileUrl = await fileToDataUrl(file);
-      await onSubmit({ fileName: file.name, fileUrl, notes });
+      await onSubmit({ file, notes });
     } catch (err) {
       setError(err.message || t('intern.assignments.submitFailed'));
     } finally {

@@ -1,7 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Avatar from '../../../components/ui/Avatar';
 import Button from '../../../components/ui/Button';
-import { fileToDataUrl } from '../../../lib/utils';
 import { useLanguage } from '../../../context/LanguageContext';
 
 const MAX_PHOTO_MB = 2;
@@ -10,15 +9,28 @@ const MAX_PHOTO_MB = 2;
  * The current photo (or the initials fallback) is always shown first —
  * picking a new one only swaps in a preview, never applies it straight
  * away, so there's always a "before" to compare against before Save.
+ *
+ * The preview uses a local object: URL (not the base64 approach this used
+ * before the real backend existed) - it only needs to last until Save/Cancel,
+ * and `onSave` uploads the actual `File` to the server (see
+ * services/api/usersApi.js#uploadOwnPhoto), which returns the real,
+ * persistent `/uploads/...` URL.
  */
 export default function ProfilePhotoField({ user, onSave }) {
   const { t } = useLanguage();
   const inputRef = useRef(null);
+  const [previewFile, setPreviewFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  async function handleFile(file) {
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  function handleFile(file) {
     if (!file) return;
     if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
       setError(
@@ -27,21 +39,28 @@ export default function ProfilePhotoField({ user, onSave }) {
       return;
     }
     setError('');
-    setPreviewUrl(await fileToDataUrl(file));
+    setPreviewFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+
+  function clearPreview() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewFile(null);
+    setPreviewUrl(null);
   }
 
   async function handleSave() {
     setIsSaving(true);
     try {
-      await onSave(previewUrl);
-      setPreviewUrl(null);
+      await onSave(previewFile);
+      clearPreview();
     } finally {
       setIsSaving(false);
     }
   }
 
   function handleCancel() {
-    setPreviewUrl(null);
+    clearPreview();
     setError('');
   }
 
