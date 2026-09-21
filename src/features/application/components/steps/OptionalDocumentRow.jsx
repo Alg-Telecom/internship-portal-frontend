@@ -3,7 +3,7 @@ import Input from '../../../../components/ui/Input';
 import FileDropzone from '../../../../components/ui/FileDropzone';
 import { useLanguage } from '../../../../context/LanguageContext';
 
-const MAX_OTHER_DOCUMENT_MB = 2;
+const MAX_OTHER_DOCUMENT_MB = 20;
 
 /** One row of the optional "other documents" list — a name plus a file, and a way to remove the whole row. */
 export default function OptionalDocumentRow({ index, value, error, onChange, onRemove }) {

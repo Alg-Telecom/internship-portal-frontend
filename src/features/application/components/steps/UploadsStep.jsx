@@ -4,7 +4,7 @@ import Button from '../../../../components/ui/Button';
 import OptionalDocumentRow from './OptionalDocumentRow';
 import { useLanguage } from '../../../../context/LanguageContext';
 
-const MAX_REQUIRED_DOCUMENT_MB = 2;
+const MAX_REQUIRED_DOCUMENT_MB = 10;
 
 export default function UploadsStep({ errors, watch, setValue }) {
   const { t } = useLanguage();
