@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link } from 'react-router-dom';
-import { Eye, EyeSlash, WarningCircle } from '@phosphor-icons/react';
+import { WarningCircle, CheckCircle } from '@phosphor-icons/react';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -11,15 +10,14 @@ import { useLanguage } from '../../../context/LanguageContext';
 function makeSchema(t) {
   return z.object({
     email: z.string().min(1, t('login.emailRequired')).email(t('login.emailInvalid')),
-    password: z.string().min(1, t('login.passwordRequired')),
   });
 }
 
-export default function LoginForm({ onSubmit }) {
+export default function ForgotPasswordForm({ onSubmit }) {
   const { t } = useLanguage();
   const schema = useMemo(() => makeSchema(t), [t]);
-  const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState('');
+  const [sent, setSent] = useState(false);
   const {
     register,
     handleSubmit,
@@ -30,9 +28,19 @@ export default function LoginForm({ onSubmit }) {
     setFormError('');
     try {
       await onSubmit(values);
+      setSent(true);
     } catch (error) {
       setFormError(error.message || t('common.somethingWentWrong'));
     }
+  }
+
+  if (sent) {
+    return (
+      <div role="status" className="flex items-start gap-2 rounded-md border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground">
+        <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+        {t('login.forgotPassword.sent')}
+      </div>
+    );
   }
 
   return (
@@ -44,32 +52,8 @@ export default function LoginForm({ onSubmit }) {
         </div>
       )}
       <Input id="email" type="email" label={t('login.email')} required autoComplete="username" error={errors.email?.message} {...register('email')} />
-      <div className="relative">
-        <Input
-          id="password"
-          type={showPassword ? 'text' : 'password'}
-          label={t('login.password')}
-          required
-          autoComplete="current-password"
-          error={errors.password?.message}
-          {...register('password')}
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword((v) => !v)}
-          aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
-          className="absolute end-3 top-9 cursor-pointer text-muted-foreground hover:text-foreground"
-        >
-          {showPassword ? <EyeSlash className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
-        </button>
-      </div>
-      <div className="flex justify-end">
-        <Link to="/forgot-password" className="text-sm font-medium text-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">
-          {t('login.forgotPasswordLink')}
-        </Link>
-      </div>
-      <Button type="submit" isLoading={isSubmitting} className="w-full">
-        {t('login.signIn')}
+      <Button type="submit" isLoading={isSubmitting} className="mt-2 w-full">
+        {t('login.forgotPassword.submit')}
       </Button>
     </form>
   );

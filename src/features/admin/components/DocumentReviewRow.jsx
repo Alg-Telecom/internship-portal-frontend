@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, X } from '@phosphor-icons/react';
+import { X } from '@phosphor-icons/react';
 import Button from '../../../components/ui/Button';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import Dialog from '../../../components/ui/Dialog';
@@ -8,9 +8,12 @@ import DocumentLink from '../../../components/shared/DocumentLink';
 import { useLanguage } from '../../../context/LanguageContext';
 
 /**
- * One row in CandidateDocumentsList — Accept/Reject a single document
- * (CV or photo), per the sequence diagram's document-validation ALT
- * fragment. Rejecting requires a reason.
+ * One row in CandidateDocumentsList — Reject a single document (CV,
+ * photo, ...), per the sequence diagram's document-validation ALT
+ * fragment. Rejecting requires a reason. `onAccept` is optional: the real
+ * backend has no per-document approve action (a document is only ever
+ * approved automatically when the whole application is accepted), so the
+ * Accept button only renders when a caller actually passes one.
  */
 export default function DocumentReviewRow({ label, fileName, fileUrl, status, rejectionReason, actionable = true, onAccept, onReject }) {
   const { t } = useLanguage();
@@ -46,10 +49,11 @@ export default function DocumentReviewRow({ label, fileName, fileUrl, status, re
               <X className="h-4 w-4" aria-hidden="true" />
               {t('common.reject')}
             </Button>
-            <Button size="sm" variant="accent" onClick={onAccept}>
-              <Check className="h-4 w-4" aria-hidden="true" />
-              {t('common.accept')}
-            </Button>
+            {onAccept && (
+              <Button size="sm" variant="accent" onClick={onAccept}>
+                {t('common.accept')}
+              </Button>
+            )}
           </>
         )}
       </div>

@@ -1,13 +1,25 @@
 import Card, { CardContent, CardHeader, CardTitle } from '../../../components/ui/Card';
 import DocumentReviewRow from './DocumentReviewRow';
 import DocumentLink from '../../../components/shared/DocumentLink';
-import * as applicationsApi from '../../../services/mockApi/applicationsApi';
+import * as applicationsApi from '../../../services/api/applicationsApi';
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function CandidateDocumentsList({ application, onChanged }) {
   const { t } = useLanguage();
-  async function review(field, status, rejectionReason = '') {
-    await applicationsApi.reviewDocument(application.id, field, { status, rejectionReason });
+
+  // Both actions map onto real backend routes now:
+  // - accept -> POST /applications/:id/approve-document {field}
+  // - reject -> POST /applications/:id/reject {rejectionReason, rejectedField}
+  //   (rejecting any one document rejects the whole application, per the
+  //   backend controller — accept has no such side effect, it only marks
+  //   that one document Approved).
+  async function accept(field) {
+    await applicationsApi.approveApplicationDocument(application.id, field);
+    onChanged();
+  }
+
+  async function reject(field, reason) {
+    await applicationsApi.rejectApplication(application.id, reason, field);
     onChanged();
   }
 
@@ -31,8 +43,8 @@ export default function CandidateDocumentsList({ application, onChanged }) {
           status={application.cvStatus}
           rejectionReason={application.cvRejectionReason}
           actionable={!isDecided}
-          onAccept={() => review('cv', 'Approved')}
-          onReject={(reason) => review('cv', 'Rejected', reason)}
+          onAccept={() => accept('cv')}
+          onReject={(reason) => reject('cv', reason)}
         />
         <DocumentReviewRow
           label={t('admin.review.photo')}
@@ -41,8 +53,8 @@ export default function CandidateDocumentsList({ application, onChanged }) {
           status={application.photoStatus}
           rejectionReason={application.photoRejectionReason}
           actionable={!isDecided}
-          onAccept={() => review('photo', 'Approved')}
-          onReject={(reason) => review('photo', 'Rejected', reason)}
+          onAccept={() => accept('photo')}
+          onReject={(reason) => reject('photo', reason)}
         />
         <DocumentReviewRow
           label={t('admin.review.agreement')}
@@ -51,8 +63,8 @@ export default function CandidateDocumentsList({ application, onChanged }) {
           status={application.agreementStatus}
           rejectionReason={application.agreementRejectionReason}
           actionable={!isDecided}
-          onAccept={() => review('agreement', 'Approved')}
-          onReject={(reason) => review('agreement', 'Rejected', reason)}
+          onAccept={() => accept('agreement')}
+          onReject={(reason) => reject('agreement', reason)}
         />
         <DocumentReviewRow
           label={t('admin.review.internshipRequest')}
@@ -61,8 +73,8 @@ export default function CandidateDocumentsList({ application, onChanged }) {
           status={application.internshipRequestStatus}
           rejectionReason={application.internshipRequestRejectionReason}
           actionable={!isDecided}
-          onAccept={() => review('internshipRequest', 'Approved')}
-          onReject={(reason) => review('internshipRequest', 'Rejected', reason)}
+          onAccept={() => accept('internshipRequest')}
+          onReject={(reason) => reject('internshipRequest', reason)}
         />
 
         {otherDocuments.length > 0 && (

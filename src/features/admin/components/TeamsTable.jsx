@@ -1,10 +1,10 @@
-import { UsersThree, PencilSimple, TrashSimple } from '@phosphor-icons/react';
+import { UsersThree, PencilSimple } from '@phosphor-icons/react';
 import DataTable from '../../../components/shared/DataTable';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import { fullName, formatDate } from '../../../lib/utils';
 import { useLanguage } from '../../../context/LanguageContext';
 
-export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, onDelete }) {
+export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers }) {
   const { t, tTeam } = useLanguage();
   const columns = [
     { key: 'name', header: t('admin.teams.team'), render: (row) => <span className="font-medium text-foreground">{tTeam(row)}</span> },
@@ -34,14 +34,6 @@ export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, 
             className="cursor-pointer text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <PencilSimple className="h-4 w-4" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(row)}
-            aria-label={t('admin.teams.deleteAria', { name: row.name })}
-            className="cursor-pointer text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
-          >
-            <TrashSimple className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       ),

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isSameDay } from 'date-fns';
 import { usePageHeader } from '../../context/PageTitleContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTeams } from '../../hooks/useTeams';
@@ -6,30 +7,36 @@ import { useInterns } from '../../hooks/useUsers';
 import { useAttendance } from '../../hooks/useAttendance';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import Tabs from '../../components/ui/Tabs';
-import DatePicker from '../../components/ui/DatePicker';
-import AttendanceRecorderGrid from './components/AttendanceRecorderGrid';
 import AttendanceCalendar from '../../components/shared/AttendanceCalendar';
+import AttendanceDayList from './components/AttendanceDayList';
+import AttendanceEditDialog from './components/AttendanceEditDialog';
 import AttendanceHistoryTable from '../../components/shared/AttendanceHistoryTable';
+import { toDateInputValue } from '../../lib/utils';
 import { useLanguage } from '../../context/LanguageContext';
-
-function todayIso() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export default function AttendancePage() {
   const { t } = useLanguage();
   usePageHeader(t('supervisor.attendance.title'));
   const { user } = useAuth();
   const { teams } = useTeams();
-  const myTeamIds = teams.filter((t) => t.supervisorId === user.id).map((t) => t.id);
+  const myTeamIds = teams.filter((tm) => tm.supervisorId === user.id).map((tm) => tm.id);
   const { interns } = useInterns();
   const myInterns = interns.filter((i) => myTeamIds.includes(i.teamId));
 
-  const [date, setDate] = useState(todayIso());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editingIntern, setEditingIntern] = useState(null);
   const { records, isLoading, refetch } = useAttendance({ supervisorId: user.id });
 
-  const todaysRecords = records.filter((r) => r.date === date);
-  const recordsByInternId = Object.fromEntries(todaysRecords.map((r) => [r.internId, r]));
+  // Records for whichever day is selected on the calendar — compared as
+  // actual dates, not strings, since the backend returns full ISO
+  // datetimes.
+  const dayRecords = records.filter((r) => isSameDay(new Date(r.date), selectedDate));
+  const recordsByInternId = Object.fromEntries(dayRecords.map((r) => [r.internId, r]));
+  const selectedDateIso = toDateInputValue(selectedDate);
+  // History mixes records from every intern the supervisor has — pass this
+  // so AttendanceHistoryTable adds an Intern column instead of showing a
+  // wall of dates with no way to tell whose record is whose.
+  const internsById = Object.fromEntries(myInterns.map((i) => [i.id, i]));
 
   return (
     <Card>
@@ -40,28 +47,35 @@ export default function AttendancePage() {
         <Tabs
           tabs={[
             {
-              key: 'record',
-              label: t('supervisor.attendance.record'),
+              key: 'calendar',
+              label: t('supervisor.attendance.calendar'),
               content: (
-                <div className="flex flex-col gap-4">
-                  <DatePicker id="attendance-date" label={t('supervisor.attendance.date')} value={date} onChange={setDate} />
-                  <AttendanceRecorderGrid interns={myInterns} supervisorId={user.id} date={date} recordsByInternId={recordsByInternId} onSaved={refetch} />
+                <div className="flex flex-col gap-5 sm:flex-row">
+                  <AttendanceCalendar records={records} selected={selectedDate} onSelect={setSelectedDate} />
+                  <div className="min-w-0 flex-1 sm:border-l sm:border-border sm:pl-5">
+                    <AttendanceDayList interns={myInterns} recordsByInternId={recordsByInternId} onUpdate={setEditingIntern} />
+                  </div>
                 </div>
               ),
             },
             {
-              key: 'calendar',
-              label: t('supervisor.attendance.calendar'),
-              content: <AttendanceCalendar records={records} />,
-            },
-            {
               key: 'history',
               label: t('supervisor.attendance.history'),
-              content: <AttendanceHistoryTable records={records} isLoading={isLoading} />,
+              content: <AttendanceHistoryTable records={records} isLoading={isLoading} internsById={internsById} />,
             },
           ]}
         />
       </CardContent>
+
+      <AttendanceEditDialog
+        open={!!editingIntern}
+        onClose={() => setEditingIntern(null)}
+        intern={editingIntern}
+        supervisorId={user.id}
+        date={selectedDateIso}
+        existingRecord={editingIntern ? recordsByInternId[editingIntern.id] : null}
+        onSaved={refetch}
+      />
     </Card>
   );
 }

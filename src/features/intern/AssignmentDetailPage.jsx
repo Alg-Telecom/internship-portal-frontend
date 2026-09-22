@@ -10,7 +10,7 @@ import Badge from '../../components/ui/Badge';
 import SubmitWorkForm from './components/SubmitWorkForm';
 import FeedbackPanel from './components/FeedbackPanel';
 import { formatDate } from '../../lib/utils';
-import * as assignmentsApi from '../../services/mockApi/assignmentsApi';
+import * as assignmentsApi from '../../services/api/assignmentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 const CAN_SUBMIT_STATUSES = ['Pending', 'InProgress', 'Late'];
@@ -23,7 +23,7 @@ export default function AssignmentDetailPage() {
   const { assignment, refetch } = useAssignment(id);
 
   async function handleSubmitWork({ file, notes }) {
-    await assignmentsApi.submitWork(assignment.id, { file, notes });
+    await assignmentsApi.submitWork(assignment.id, file, notes);
     showToast(t('intern.assignments.submitted'));
     refetch();
   }

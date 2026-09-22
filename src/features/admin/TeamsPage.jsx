@@ -5,11 +5,10 @@ import { useTeams } from '../../hooks/useTeams';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import TeamsTable from './components/TeamsTable';
 import TeamFormDialog from './components/TeamFormDialog';
 import AssignMembersDialog from './components/AssignMembersDialog';
-import * as teamsApi from '../../services/mockApi/teamsApi';
+import * as teamsApi from '../../services/api/teamsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function TeamsPage() {
@@ -19,8 +18,12 @@ export default function TeamsPage() {
   const { showToast } = useToast();
   const [editingTeam, setEditingTeam] = useState(undefined); // undefined = closed, null = create, object = edit
   const [assigningTeam, setAssigningTeam] = useState(null);
-  const [deletingTeam, setDeletingTeam] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  // NOTE: the real backend has no "delete team" endpoint (only
+  // GET/GET/POST/PATCH on /teams — see backend/src/routes/teamsRoutes.js),
+  // so the delete button/confirm dialog that the mock version had is
+  // removed here rather than left pointing at an API call that doesn't
+  // exist. Teams can still be edited (e.g. marked inactive via status).
 
   async function handleSubmit(values) {
     if (editingTeam) {
@@ -33,18 +36,6 @@ export default function TeamsPage() {
     refetch();
   }
 
-  async function confirmDelete() {
-    setIsDeleting(true);
-    try {
-      await teamsApi.deleteTeam(deletingTeam.id);
-      showToast(t('admin.teams.deleted', { name: deletingTeam.name }), { type: 'info' });
-      setDeletingTeam(null);
-      refetch();
-    } finally {
-      setIsDeleting(false);
-    }
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -54,27 +45,10 @@ export default function TeamsPage() {
           {t('admin.teams.newTeam')}
         </Button>
       </CardHeader>
-      <TeamsTable teams={teams} isLoading={isLoading} onEdit={setEditingTeam} onAssignMembers={setAssigningTeam} onDelete={setDeletingTeam} />
+      <TeamsTable teams={teams} isLoading={isLoading} onEdit={setEditingTeam} onAssignMembers={setAssigningTeam} />
 
       <TeamFormDialog open={editingTeam !== undefined} onClose={() => setEditingTeam(undefined)} onSubmit={handleSubmit} team={editingTeam} />
       <AssignMembersDialog open={!!assigningTeam} onClose={() => setAssigningTeam(null)} team={assigningTeam} onChanged={refetch} />
-
-      <ConfirmDialog
-        open={!!deletingTeam}
-        onClose={() => setDeletingTeam(null)}
-        onConfirm={confirmDelete}
-        isLoading={isDeleting}
-        title={t('admin.teams.deleteTitle')}
-        description={
-          deletingTeam
-            ? t('admin.teams.deleteDescription', {
-                name: deletingTeam.name,
-                internNote: deletingTeam.internCount ? t('admin.teams.deleteInternNote', { count: deletingTeam.internCount }) : '',
-              })
-            : ''
-        }
-        confirmLabel={t('admin.teams.deleteConfirmLabel')}
-      />
     </Card>
   );
 }

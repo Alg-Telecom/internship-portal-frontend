@@ -13,7 +13,8 @@ import SubmissionViewer from './components/SubmissionViewer';
 import GradeForm from './components/GradeForm';
 import AssignmentFormDialog from './components/AssignmentFormDialog';
 import { formatDate } from '../../lib/utils';
-import * as assignmentsApi from '../../services/mockApi/assignmentsApi';
+import * as assignmentsApi from '../../services/api/assignmentsApi';
+import * as submissionsApi from '../../services/api/submissionsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function AssignmentDetailPage() {
@@ -25,7 +26,9 @@ export default function AssignmentDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
 
   async function handleGrade({ grade, feedback }) {
-    await assignmentsApi.evaluateSubmission(assignment.submission.id, { grade, feedback });
+    // Evaluating a submission is its own route/controller on the real
+    // backend (PATCH /submissions/:id/evaluate), separate from assignments.
+    await submissionsApi.evaluateSubmission(assignment.submission.id, grade, feedback);
     showToast(t('supervisor.assignments.gradeSubmitted'));
     refetch();
   }

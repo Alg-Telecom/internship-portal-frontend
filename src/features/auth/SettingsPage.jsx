@@ -9,8 +9,8 @@ import { usePageHeader } from '../../context/PageTitleContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
-import * as authApi from '../../services/mockApi/authApi';
-import * as usersApi from '../../services/mockApi/usersApi';
+import * as authApi from '../../services/api/authApi';
+import * as usersApi from '../../services/api/usersApi';
 
 export default function SettingsPage() {
   const { t } = useLanguage();
@@ -37,7 +37,7 @@ export default function SettingsPage() {
   }
 
   async function handleChangePassword({ currentPassword, newPassword }) {
-    await authApi.changePassword(user.id, { currentPassword, newPassword });
+    await authApi.changePassword(currentPassword, newPassword);
     showToast(t('settings.passwordUpdated'));
   }
 

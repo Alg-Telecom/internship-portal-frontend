@@ -4,20 +4,19 @@ import { Plus } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
 import { useDocumentRequests } from '../../hooks/useDocuments';
 import { useInterns } from '../../hooks/useUsers';
-import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import DocumentRequestsTable from './components/DocumentRequestsTable';
 import DocumentRequestFormDialog from './components/DocumentRequestFormDialog';
-import * as documentsApi from '../../services/mockApi/documentsApi';
+import * as documentRequestsApi from '../../services/api/documentRequestsApi';
+import * as documentsApi from '../../services/api/documentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function DocumentRequestsPage() {
   const { t } = useLanguage();
   usePageHeader(t('admin.documentRequests.title'));
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { requests, isLoading, refetch } = useDocumentRequests();
   const { interns } = useInterns();
   const { showToast } = useToast();
@@ -25,8 +24,17 @@ export default function DocumentRequestsPage() {
 
   const internsById = Object.fromEntries(interns.map((i) => [i.id, i]));
 
+  // The table (and the admin below) expect each row to carry a
+  // `latestDocument` - the real backend only gives us the raw `documents`
+  // array, so compute it here the same way the detail page does (highest
+  // `version` wins).
+  const requestsWithLatest = requests.map((request) => {
+    const sorted = [...(request.documents || [])].sort((a, b) => b.version - a.version);
+    return { ...request, latestDocument: sorted[0] || null };
+  });
+
   async function handleCreate(values) {
-    await documentsApi.createDocumentRequest({ ...values, adminId: user.id });
+    await documentRequestsApi.createDocumentRequest(values);
     showToast(t('admin.documentRequests.requestSent'));
     refetch();
   }
@@ -53,7 +61,7 @@ export default function DocumentRequestsPage() {
         </Button>
       </CardHeader>
       <DocumentRequestsTable
-        requests={requests}
+        requests={requestsWithLatest}
         isLoading={isLoading}
         internsById={internsById}
         onApprove={handleApprove}

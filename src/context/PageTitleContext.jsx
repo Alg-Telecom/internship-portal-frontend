@@ -1,15 +1,22 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from "react";
 
 const PageTitleContext = createContext(null);
 
 export function PageTitleProvider({ children }) {
-  const [title, setTitle] = useState('');
-  return <PageTitleContext.Provider value={{ title, setTitle }}>{children}</PageTitleContext.Provider>;
+  const [title, setTitle] = useState("");
+  return (
+    <PageTitleContext.Provider value={{ title, setTitle }}>
+      {children}
+    </PageTitleContext.Provider>
+  );
 }
 
 function usePageTitleContext() {
   const ctx = useContext(PageTitleContext);
-  if (!ctx) throw new Error('usePageTitleContext must be used within a PageTitleProvider.');
+  if (!ctx)
+    throw new Error(
+      "usePageTitleContext must be used within a PageTitleProvider.",
+    );
   return ctx;
 }
 
@@ -23,6 +30,6 @@ export function usePageHeader(title) {
   const { setTitle } = usePageTitleContext();
   useEffect(() => {
     setTitle(title);
-    document.title = title ? `${title} — IMP` : 'IMP';
+    document.title = title ? `${title} — IMP` : "IMP";
   }, [title, setTitle]);
 }

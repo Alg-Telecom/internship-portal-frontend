@@ -11,7 +11,7 @@ import Button from '../../components/ui/Button';
 import AssignmentCalendar from '../../components/shared/AssignmentCalendar';
 import AssignmentsTable from './components/AssignmentsTable';
 import AssignmentFormDialog from './components/AssignmentFormDialog';
-import * as assignmentsApi from '../../services/mockApi/assignmentsApi';
+import * as assignmentsApi from '../../services/api/assignmentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function AssignmentsPage() {

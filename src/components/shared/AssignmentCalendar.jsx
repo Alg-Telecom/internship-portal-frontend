@@ -12,7 +12,7 @@ const TONE_BY_PRIORITY = { Low: 'primary', Medium: 'warning', High: 'destructive
 export default function AssignmentCalendar({ assignments, internsById, onSelectAssignment }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const markers = assignments.map((a) => ({ date: new Date(a.deadline + 'T00:00:00'), tone: TONE_BY_PRIORITY[a.priority] }));
+  const markers = assignments.map((a) => ({ date: new Date(a.deadline), tone: TONE_BY_PRIORITY[a.priority] }));
 
   return (
     <div className="flex flex-col gap-5 sm:flex-row">

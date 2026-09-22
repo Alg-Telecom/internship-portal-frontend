@@ -14,7 +14,7 @@ import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import TeamOverviewCard from './components/TeamOverviewCard';
 import InternshipCalendar from '../../components/shared/InternshipCalendar';
 import CalendarEventFormDialog from './components/CalendarEventFormDialog';
-import * as calendarApi from '../../services/mockApi/calendarApi';
+import * as calendarEventsApi from '../../services/api/calendarEventsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function DashboardPage() {
@@ -30,7 +30,7 @@ export default function DashboardPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleCreateEvent(values) {
-    await calendarApi.createEvent(values);
+    await calendarEventsApi.createCalendarEvent(values);
     showToast(t('admin.dashboard.eventAdded'));
     refetchEvents();
   }
@@ -38,7 +38,7 @@ export default function DashboardPage() {
   async function confirmDeleteEvent() {
     setIsDeleting(true);
     try {
-      await calendarApi.deleteEvent(deletingEvent.id);
+      await calendarEventsApi.deleteCalendarEvent(deletingEvent.id);
       showToast(t('admin.dashboard.eventDeleted'), { type: 'info' });
       setDeletingEvent(null);
       refetchEvents();

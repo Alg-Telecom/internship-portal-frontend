@@ -7,6 +7,8 @@ import { ADMIN_NAV, SUPERVISOR_NAV, INTERN_NAV } from '../components/layout/navC
 import { Role } from '../domain/enums';
 
 import LoginPage from '../features/auth/LoginPage';
+import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import SettingsPage from '../features/auth/SettingsPage';
 import ApplyPage from '../features/application/ApplyPage';
 import ApplicationSuccessPage from '../features/application/ApplicationSuccessPage';
@@ -45,6 +47,8 @@ export default function AppRoutes() {
       <Route path="/apply" element={<ApplyPage />} />
       <Route path="/apply/success" element={<ApplicationSuccessPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleRoute role={Role.ADMIN} />}>

@@ -7,7 +7,7 @@ import { useLanguage } from '../../context/LanguageContext';
 /** `onDelete(event)` is optional — pass it only where deleting events makes sense (admin). */
 export default function CalendarEventList({ events, selectedDate, onDelete }) {
   const { t } = useLanguage();
-  const dayEvents = events.filter((e) => isSameDay(new Date(e.date + 'T00:00:00'), selectedDate));
+  const dayEvents = events.filter((e) => isSameDay(new Date(e.date), selectedDate));
 
   if (dayEvents.length === 0) {
     return <EmptyState icon={CalendarBlank} title={t('common.calendarEventList.noEvents')} description={t('common.calendarEventList.nothingScheduled', { date: formatDate(selectedDate) })} />;

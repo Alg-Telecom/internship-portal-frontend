@@ -8,7 +8,7 @@ import { SkeletonRows } from "../../components/ui/Skeleton";
 import { FolderSimple } from "@phosphor-icons/react";
 import DocumentRequestCard from "./components/DocumentRequestCard";
 import UploadDocumentDialog from "./components/UploadDocumentDialog";
-import * as documentsApi from "../../services/mockApi/documentsApi";
+import * as documentRequestsApi from "../../services/api/documentRequestsApi";
 import { useLanguage } from "../../context/LanguageContext";
 
 export default function DocumentsPage() {
@@ -22,7 +22,7 @@ export default function DocumentsPage() {
   const [uploadingRequest, setUploadingRequest] = useState(null);
 
   async function handleUpload({ file, documentType }) {
-    await documentsApi.uploadDocument(uploadingRequest.id, { file, documentType });
+    await documentRequestsApi.uploadDocument(uploadingRequest.id, file, documentType);
     showToast(t('intern.documents.submitted'));
     refetch();
   }

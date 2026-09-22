@@ -9,7 +9,7 @@ import StatusBadge from '../../components/shared/StatusBadge';
 import DocumentVersionHistory from './components/DocumentVersionHistory';
 import SubmittedDocumentPreview from './components/SubmittedDocumentPreview';
 import { formatDate } from '../../lib/utils';
-import * as documentsApi from '../../services/mockApi/documentsApi';
+import * as documentsApi from '../../services/api/documentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function DocumentRequestDetailPage() {
@@ -19,14 +19,23 @@ export default function DocumentRequestDetailPage() {
   const { showToast } = useToast();
   const { request, refetch } = useDocumentRequest(id);
 
+  // The real backend only returns `documents` (every uploaded version, in
+  // whatever order Prisma gives them) - it doesn't compute a "latest" one
+  // for us like the mock backend used to. Each document's own `version`
+  // number (see backend/src/controllers/documentRequestsController.js)
+  // tells us which is newest.
+  const sortedDocuments = request ? [...request.documents].sort((a, b) => b.version - a.version) : [];
+  const latestDocument = sortedDocuments[0] || null;
+  const previousDocuments = sortedDocuments.slice(1);
+
   async function handleApprove() {
-    await documentsApi.approveDocument(request.latestDocument.id);
+    await documentsApi.approveDocument(latestDocument.id);
     showToast(t('admin.documentRequestDetail.approved'));
     refetch();
   }
 
   async function handleReject(reason) {
-    await documentsApi.rejectDocument(request.latestDocument.id, reason);
+    await documentsApi.rejectDocument(latestDocument.id, reason);
     showToast(t('admin.documentRequestDetail.rejected'), { type: 'info' });
     refetch();
   }
@@ -55,20 +64,20 @@ export default function DocumentRequestDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{request.latestDocument?.status === 'Pending' ? t('admin.documentRequestDetail.reviewLatest') : t('admin.documentRequestDetail.latestSubmission')}</CardTitle>
+          <CardTitle>{latestDocument?.status === 'Pending' ? t('admin.documentRequestDetail.reviewLatest') : t('admin.documentRequestDetail.latestSubmission')}</CardTitle>
         </CardHeader>
         <div className="px-5 pb-5">
-          <SubmittedDocumentPreview document={request.latestDocument} onApprove={handleApprove} onReject={handleReject} />
+          <SubmittedDocumentPreview document={latestDocument} onApprove={handleApprove} onReject={handleReject} />
         </div>
       </Card>
 
-      {request.documents.length > 1 && (
+      {previousDocuments.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>{t('admin.documentRequestDetail.previousVersions')}</CardTitle>
           </CardHeader>
           <div className="px-5 pb-5">
-            <DocumentVersionHistory documents={request.documents.slice(1)} />
+            <DocumentVersionHistory documents={previousDocuments} />
           </div>
         </Card>
       )}

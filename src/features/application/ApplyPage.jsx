@@ -9,9 +9,14 @@ import PersonalInfoStep from './components/steps/PersonalInfoStep';
 import EducationStep from './components/steps/EducationStep';
 import UploadsStep from './components/steps/UploadsStep';
 import { makeApplicationSchema, STEP_FIELDS } from './schema';
-import * as applicationsApi from '../../services/mockApi/applicationsApi';
+import * as applicationsApi from '../../services/api/applicationsApi';
 import { useLanguage } from '../../context/LanguageContext';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
+
+function toDateValue(value) {
+  if (!value) return '';
+  return value instanceof Date ? value.toISOString() : value;
+}
 
 export default function ApplyPage() {
   const navigate = useNavigate();
@@ -81,29 +86,37 @@ export default function ApplyPage() {
     setStepIndex((i) => Math.max(i - 1, 0));
   }
 
+  // The real backend (POST /applications) expects a multipart/form-data
+  // request — text fields plus up to five file fields — not a plain JS
+  // object. Build the FormData here, where the raw File objects from the
+  // form live, then hand it to applicationsApi.submitApplication as-is
+  // (see services/api/applicationsApi.js).
   async function onFormSubmit(values) {
     setSubmitError('');
     try {
-      await applicationsApi.submitApplication({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        personalId: values.personalId,
-        email: values.email,
-        phone: values.phone,
-        birthday: values.birthday,
-        password: values.password,
-        university: values.university,
-        major: values.major,
-        grade: values.grade,
-        teamPreference: values.teamPreference,
-        startDate: values.startDate,
-        endDate: values.endDate,
-        cvFile: values.cvFile,
-        photoFile: values.photoFile,
-        agreementFile: values.agreementFile,
-        internshipRequestFile: values.internshipRequestFile,
-        otherDocuments: values.otherDocuments || [],
+      const formData = new FormData();
+      formData.append('firstName', values.firstName);
+      formData.append('lastName', values.lastName);
+      formData.append('personalId', values.personalId);
+      formData.append('email', values.email);
+      formData.append('phone', values.phone);
+      formData.append('birthday', toDateValue(values.birthday));
+      formData.append('password', values.password);
+      formData.append('university', values.university);
+      formData.append('major', values.major);
+      formData.append('grade', values.grade);
+      formData.append('teamPreference', values.teamPreference);
+      formData.append('startDate', toDateValue(values.startDate));
+      formData.append('endDate', toDateValue(values.endDate));
+      if (values.cvFile) formData.append('cvFile', values.cvFile);
+      if (values.photoFile) formData.append('photoFile', values.photoFile);
+      if (values.agreementFile) formData.append('agreementFile', values.agreementFile);
+      if (values.internshipRequestFile) formData.append('internshipRequestFile', values.internshipRequestFile);
+      (values.otherDocuments || []).forEach((doc) => {
+        if (doc.file) formData.append('otherDocuments', doc.file);
       });
+
+      await applicationsApi.submitApplication(formData);
       navigate('/apply/success', { replace: true });
     } catch (error) {
       setSubmitError(error.message || t('apply.errors.submitFailed'));

@@ -3,7 +3,7 @@ import { Popover } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, BellSimple } from '@phosphor-icons/react';
 import { useNotifications } from '../../hooks/useNotifications';
-import * as notificationsApi from '../../services/mockApi/notificationsApi';
+import * as notificationsApi from '../../services/api/notificationsApi';
 import { useAuth } from '../../context/AuthContext';
 import { formatDateTime, cn } from '../../lib/utils';
 import EmptyState from './EmptyState';
@@ -32,7 +32,7 @@ export default function NotificationBell() {
   }
 
   async function handleMarkAllRead() {
-    await notificationsApi.markAllAsRead(user.id);
+    await notificationsApi.markAllNotificationsAsRead();
     refetch();
   }
 
@@ -41,7 +41,7 @@ export default function NotificationBell() {
   async function handleSelect(notification, closePopover) {
     closePopover();
     if (!notification.isRead) {
-      await notificationsApi.markAsRead(notification.id);
+      await notificationsApi.markNotificationAsRead(notification.id);
       refetch();
     }
     if (notification.link) navigate(notification.link);

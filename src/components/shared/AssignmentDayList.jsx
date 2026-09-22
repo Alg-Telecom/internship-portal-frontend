@@ -14,7 +14,7 @@ import { useLanguage } from '../../context/LanguageContext';
  */
 export default function AssignmentDayList({ assignments, selectedDate, internsById, onSelect }) {
   const { t } = useLanguage();
-  const dayAssignments = assignments.filter((a) => isSameDay(new Date(a.deadline + 'T00:00:00'), selectedDate));
+  const dayAssignments = assignments.filter((a) => isSameDay(new Date(a.deadline), selectedDate));
 
   if (dayAssignments.length === 0) {
     return <EmptyState icon={ClipboardText} title={t('common.noDeadlines')} description={t('common.nothingDue', { date: formatDate(selectedDate) })} />;

@@ -6,11 +6,13 @@ import Button from '../../../components/ui/Button';
 import Avatar from '../../../components/ui/Avatar';
 import { AttendanceStatus } from '../../../domain/enums';
 import { fullName } from '../../../lib/utils';
-import * as attendanceApi from '../../../services/mockApi/attendanceApi';
+import * as attendanceApi from '../../../services/api/attendanceApi';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useToast } from '../../../context/ToastContext';
 
 function InternRow({ intern, supervisorId, date, existingRecord, onSaved }) {
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const [status, setStatus] = useState(existingRecord?.status || AttendanceStatus.PRESENT);
   const [arrivalTime, setArrivalTime] = useState(existingRecord?.arrivalTime || '08:30');
   const [departureTime, setDepartureTime] = useState(existingRecord?.departureTime || '16:30');
@@ -26,7 +28,9 @@ function InternRow({ intern, supervisorId, date, existingRecord, onSaved }) {
   async function handleSave() {
     setIsSaving(true);
     try {
-      await attendanceApi.recordAttendance({
+      // Real backend upserts on internId+date, same as the mock did — the
+      // function is just named markAttendance instead of recordAttendance.
+      await attendanceApi.markAttendance({
         internId: intern.id,
         supervisorId,
         date,
@@ -37,6 +41,8 @@ function InternRow({ intern, supervisorId, date, existingRecord, onSaved }) {
       });
       setRemarks('');
       onSaved();
+    } catch (err) {
+      showToast(err.message, { type: 'error' });
     } finally {
       setIsSaving(false);
     }

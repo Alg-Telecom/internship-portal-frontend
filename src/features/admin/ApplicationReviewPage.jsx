@@ -7,7 +7,7 @@ import { SkeletonRows } from '../../components/ui/Skeleton';
 import CandidateProfileSummary from './components/CandidateProfileSummary';
 import CandidateDocumentsList from './components/CandidateDocumentsList';
 import ApplicationDecisionBar from './components/ApplicationDecisionBar';
-import * as applicationsApi from '../../services/mockApi/applicationsApi';
+import * as applicationsApi from '../../services/api/applicationsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function ApplicationReviewPage() {
@@ -18,13 +18,13 @@ export default function ApplicationReviewPage() {
   const { application, refetch } = useApplication(id);
 
   async function handleAccept(teamId) {
-    await applicationsApi.decideApplication(id, { status: 'Accepted', teamId });
+    await applicationsApi.acceptApplication(id, teamId);
     showToast(t('admin.review.accepted'));
     refetch();
   }
 
   async function handleReject(rejectionReason) {
-    await applicationsApi.decideApplication(id, { status: 'Rejected', rejectionReason });
+    await applicationsApi.rejectApplication(id, rejectionReason);
     showToast(t('admin.review.rejected'), { type: 'info' });
     refetch();
   }

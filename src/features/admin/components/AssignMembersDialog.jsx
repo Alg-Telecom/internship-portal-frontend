@@ -5,7 +5,8 @@ import Button from '../../../components/ui/Button';
 import { useInterns, useSupervisors } from '../../../hooks/useUsers';
 import { useTeams } from '../../../hooks/useTeams';
 import { fullName } from '../../../lib/utils';
-import * as teamsApi from '../../../services/mockApi/teamsApi';
+import * as teamsApi from '../../../services/api/teamsApi';
+import * as usersApi from '../../../services/api/usersApi';
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function AssignMembersDialog({ open, onClose, team, onChanged }) {
@@ -27,7 +28,9 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
 
   async function handleSupervisorChange(value) {
     setSupervisorId(value);
-    await teamsApi.assignSupervisorToTeam(team.id, value);
+    // Real backend has no dedicated "assign supervisor" route — a team's
+    // supervisor is just a field updated via PATCH /teams/:id.
+    await teamsApi.updateTeam(team.id, { supervisorId: value || null });
     await refetchTeams();
     onChanged();
   }
@@ -35,7 +38,10 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
   async function toggleIntern(intern, checked) {
     setIsSaving(true);
     try {
-      await teamsApi.assignInternToTeam(intern.id, checked ? team.id : null);
+      // Likewise, an intern's team is just their own `teamId` field
+      // (see backend/prisma/schema.prisma: User.teamId), updated via
+      // PATCH /users/:id — there's no separate "assign intern" endpoint.
+      await usersApi.updateUser(intern.id, { teamId: checked ? team.id : null });
       await refetchInterns();
       onChanged();
     } finally {

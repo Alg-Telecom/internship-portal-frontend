@@ -19,7 +19,7 @@ export default function InternshipCalendar({ events: eventsProp, isLoading, onAd
   const events = eventsProp || fetched.events;
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const markers = events.map((e) => ({ date: new Date(e.date + 'T00:00:00'), tone: TONE_BY_TYPE[e.type] }));
+  const markers = events.map((e) => ({ date: new Date(e.date), tone: TONE_BY_TYPE[e.type] }));
 
   return (
     <div className="flex flex-col gap-4">
