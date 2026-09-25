@@ -27,6 +27,22 @@ function flatten(obj, prefix = '', out = {}) {
 }
 
 const en = {
+  upload: {
+    type: 'Submission type',
+    types: {
+      File: 'Single file',
+      Archive: 'Compressed folder',
+      Link: 'Link (GitHub, Google Docs...)',
+    },
+    attachArchive: 'Attach your compressed folder',
+    archiveHint: 'ZIP, RAR, 7Z, TAR or GZ, max 20MB',
+    fileRequired: 'Please attach a file before submitting.',
+    archiveRequired: 'Please attach your compressed folder before submitting.',
+    archiveInvalid: 'Please choose a compressed folder (.zip, .rar, .7z, .tar, .gz).',
+    link: 'Link to your work',
+    linkHint: 'e.g. a GitHub repository or a shared Google Doc',
+    linkInvalid: 'Please enter a valid link starting with http:// or https://.',
+  },
   common: {
     save: 'Save',
     cancel: 'Cancel',
@@ -220,6 +236,8 @@ const en = {
     hidePassword: 'Hide password',
     applyingPrompt: 'Applying for an internship?',
     submitApplication: 'Submit an application',
+    cancelApplicationPrompt: 'Already applied and need to withdraw?',
+    cancelApplicationLink: 'Cancel your application',
     emailRequired: 'Email is required.',
     emailInvalid: 'Enter a valid email address.',
     passwordRequired: 'Password is required.',
@@ -267,6 +285,14 @@ const en = {
     photoUpdated: 'Your profile photo has been updated.',
     nameUpdated: 'Your name has been updated.',
     passwordUpdated: 'Your password has been updated.',
+    cancelInternship: {
+      title: 'Cancel my internship',
+      description: 'This deactivates your account. You will be signed out immediately and will no longer be able to log in.',
+      button: 'Cancel my internship',
+      confirmTitle: 'Cancel your internship?',
+      confirmDescription: 'Your account will be deactivated and you will be signed out right away. An administrator can reactivate it later if needed.',
+      confirmButton: 'Yes, cancel my internship',
+    },
   },
   status: {
     Pending: 'Pending',
@@ -353,6 +379,15 @@ const en = {
       title: 'You have successfully applied!',
       body: "Our team will review your application. We will inform you by email — don't forget to check your spam folder.",
       backToSignIn: 'Back to Sign in',
+      cancelPrompt: 'Changed your mind?',
+      cancelLink: 'Cancel your application',
+    },
+    cancel: {
+      title: 'Cancel your application',
+      subtitle: "Enter the email you applied with. If it still has a pending application, we'll cancel it.",
+      submit: 'Cancel application',
+      success: 'Your application has been cancelled.',
+      notFound: 'No pending application was found for that email.',
     },
     errors: {
       firstNameRequired: 'First name is required.',
@@ -500,6 +535,7 @@ const en = {
       title: 'Review Application',
       accepted: 'Application accepted. The intern account has been created.',
       rejected: 'Application rejected.',
+      cancelled: 'Application cancelled.',
       reason: 'Reason: {reason}',
       rejectTitle: 'Reject {label}',
       rejectDescription: 'Explain what the candidate needs to correct.',
@@ -510,6 +546,10 @@ const en = {
       requiredDocsWarning: 'Accept all required documents (CV, photo, agreement letter, internship request letter) before deciding on this application.',
       rejectApplication: 'Reject Application',
       acceptApplication: 'Accept Application',
+      cancelApplication: 'Cancel Application',
+      cancelApplicationTitle: 'Cancel this application?',
+      cancelApplicationDescription: 'The candidate will need to re-apply if they change their mind. This cannot be undone.',
+      confirmCancel: 'Yes, cancel application',
       rejectApplicationTitle: 'Reject application',
       rejectApplicationDescription: 'This will be recorded as the reason for rejection.',
       acceptDialogTitle: 'Accept application',
@@ -578,6 +618,7 @@ const en = {
       done: 'Done',
     },
     documentRequestForm: {
+      sendFailed: 'Something went wrong sending the request. Please try again.',
       title: 'New Document Request',
       intern: 'Intern',
       selectIntern: 'Select an intern',
@@ -763,6 +804,22 @@ const en = {
 };
 
 const fr = {
+  upload: {
+    type: 'Type de soumission',
+    types: {
+      File: 'Fichier unique',
+      Archive: 'Dossier compressé',
+      Link: 'Lien (GitHub, Google Docs...)',
+    },
+    attachArchive: 'Joindre votre dossier compressé',
+    archiveHint: 'ZIP, RAR, 7Z, TAR ou GZ, max 20 Mo',
+    fileRequired: 'Veuillez joindre un fichier avant de soumettre.',
+    archiveRequired: 'Veuillez joindre votre dossier compressé avant de soumettre.',
+    archiveInvalid: 'Veuillez choisir un dossier compressé (.zip, .rar, .7z, .tar, .gz).',
+    link: 'Lien vers votre travail',
+    linkHint: 'ex. un dépôt GitHub ou un Google Doc partagé',
+    linkInvalid: 'Veuillez saisir un lien valide commençant par http:// ou https://.',
+  },
   common: {
     save: 'Enregistrer',
     cancel: 'Annuler',
@@ -956,6 +1013,8 @@ const fr = {
     hidePassword: 'Masquer le mot de passe',
     applyingPrompt: 'Vous postulez pour un stage ?',
     submitApplication: 'Soumettre une candidature',
+    cancelApplicationPrompt: 'Vous avez déjà postulé et souhaitez annuler ?',
+    cancelApplicationLink: 'Annuler votre candidature',
     emailRequired: "L'e-mail est requis.",
     emailInvalid: 'Saisissez une adresse e-mail valide.',
     passwordRequired: 'Le mot de passe est requis.',
@@ -1003,6 +1062,14 @@ const fr = {
     photoUpdated: 'Votre photo de profil a été mise à jour.',
     nameUpdated: 'Votre nom a été mis à jour.',
     passwordUpdated: 'Votre mot de passe a été mis à jour.',
+    cancelInternship: {
+      title: 'Annuler mon stage',
+      description: 'Cela désactive votre compte. Vous serez déconnecté immédiatement et ne pourrez plus vous connecter.',
+      button: 'Annuler mon stage',
+      confirmTitle: 'Annuler votre stage ?',
+      confirmDescription: 'Votre compte sera désactivé et vous serez déconnecté immédiatement. Un administrateur pourra le réactiver plus tard si nécessaire.',
+      confirmButton: 'Oui, annuler mon stage',
+    },
   },
   status: {
     Pending: 'En attente',
@@ -1089,6 +1156,15 @@ const fr = {
       title: 'Votre candidature a bien été envoyée !',
       body: "Notre équipe va examiner votre candidature. Nous vous informerons par e-mail — pensez à vérifier vos courriers indésirables.",
       backToSignIn: 'Retour à la connexion',
+      cancelPrompt: 'Vous avez changé d\'avis ?',
+      cancelLink: 'Annuler votre candidature',
+    },
+    cancel: {
+      title: 'Annuler votre candidature',
+      subtitle: "Entrez l'e-mail utilisé pour postuler. S'il existe encore une candidature en attente, nous l'annulerons.",
+      submit: 'Annuler la candidature',
+      success: 'Votre candidature a été annulée.',
+      notFound: 'Aucune candidature en attente trouvée pour cet e-mail.',
     },
     errors: {
       firstNameRequired: 'Le prénom est requis.',
@@ -1236,6 +1312,7 @@ const fr = {
       title: 'Examiner la candidature',
       accepted: "Candidature acceptée. Le compte du stagiaire a été créé.",
       rejected: 'Candidature rejetée.',
+      cancelled: 'Candidature annulée.',
       reason: 'Motif : {reason}',
       rejectTitle: 'Rejeter {label}',
       rejectDescription: 'Expliquez ce que le candidat doit corriger.',
@@ -1246,6 +1323,10 @@ const fr = {
       requiredDocsWarning: 'Approuvez tous les documents obligatoires (CV, photo, lettre d’engagement, demande de stage) avant de statuer sur cette candidature.',
       rejectApplication: 'Rejeter la candidature',
       acceptApplication: 'Accepter la candidature',
+      cancelApplication: 'Annuler la candidature',
+      cancelApplicationTitle: 'Annuler cette candidature ?',
+      cancelApplicationDescription: "Le candidat devra repostuler s'il change d'avis. Cette action est irréversible.",
+      confirmCancel: 'Oui, annuler la candidature',
       rejectApplicationTitle: 'Rejeter la candidature',
       rejectApplicationDescription: 'Ceci sera enregistré comme motif de rejet.',
       acceptDialogTitle: 'Accepter la candidature',
@@ -1314,6 +1395,7 @@ const fr = {
       done: 'Terminé',
     },
     documentRequestForm: {
+      sendFailed: "Une erreur s'est produite lors de l'envoi de la demande. Veuillez réessayer.",
       title: 'Nouvelle demande de document',
       intern: 'Stagiaire',
       selectIntern: 'Sélectionnez un stagiaire',
@@ -1499,6 +1581,22 @@ const fr = {
 };
 
 const ar = {
+  upload: {
+    type: 'نوع الإرسال',
+    types: {
+      File: 'ملف واحد',
+      Archive: 'مجلد مضغوط',
+      Link: 'رابط (GitHub، Google Docs...)',
+    },
+    attachArchive: 'أرفق مجلدك المضغوط',
+    archiveHint: 'ZIP أو RAR أو 7Z أو TAR أو GZ، الحد الأقصى 20 ميغابايت',
+    fileRequired: 'يرجى إرفاق ملف قبل الإرسال.',
+    archiveRequired: 'يرجى إرفاق مجلدك المضغوط قبل الإرسال.',
+    archiveInvalid: 'يرجى اختيار مجلد مضغوط (.zip، .rar، .7z، .tar، .gz).',
+    link: 'رابط عملك',
+    linkHint: 'مثلاً مستودع GitHub أو مستند Google مشترك',
+    linkInvalid: 'يرجى إدخال رابط صالح يبدأ بـ http:// أو https://.',
+  },
   common: {
     save: 'حفظ',
     cancel: 'إلغاء',
@@ -1692,6 +1790,8 @@ const ar = {
     hidePassword: 'إخفاء كلمة المرور',
     applyingPrompt: 'هل تتقدم بطلب تربص؟',
     submitApplication: 'إرسال طلب ترشح',
+    cancelApplicationPrompt: 'هل قدمت طلبًا بالفعل وتريد إلغاءه؟',
+    cancelApplicationLink: 'إلغاء طلبك',
     emailRequired: 'البريد الإلكتروني مطلوب.',
     emailInvalid: 'أدخل عنوان بريد إلكتروني صحيح.',
     passwordRequired: 'كلمة المرور مطلوبة.',
@@ -1739,6 +1839,14 @@ const ar = {
     photoUpdated: 'تم تحديث صورتك الشخصية.',
     nameUpdated: 'تم تحديث اسمك.',
     passwordUpdated: 'تم تحديث كلمة مرورك.',
+    cancelInternship: {
+      title: 'إلغاء تدريبي',
+      description: 'سيؤدي هذا إلى إلغاء تفعيل حسابك. سيتم تسجيل خروجك فورًا ولن تتمكن بعد الآن من تسجيل الدخول.',
+      button: 'إلغاء تدريبي',
+      confirmTitle: 'هل تريد إلغاء تدريبك؟',
+      confirmDescription: 'سيتم إلغاء تفعيل حسابك وتسجيل خروجك فورًا. يمكن للمسؤول إعادة تفعيله لاحقًا إذا لزم الأمر.',
+      confirmButton: 'نعم، إلغاء تدريبي',
+    },
   },
   status: {
     Pending: 'قيد الانتظار',
@@ -1825,6 +1933,15 @@ const ar = {
       title: 'تم إرسال طلبك بنجاح!',
       body: 'سيقوم فريقنا بمراجعة طلبك. سنعلمك عبر البريد الإلكتروني — لا تنسَ التحقق من مجلد الرسائل غير المرغوب فيها.',
       backToSignIn: 'العودة لتسجيل الدخول',
+      cancelPrompt: 'هل غيّرت رأيك؟',
+      cancelLink: 'إلغاء طلبك',
+    },
+    cancel: {
+      title: 'إلغاء طلبك',
+      subtitle: 'أدخل البريد الإلكتروني الذي استخدمته للتقديم. إذا كان لا يزال هناك طلب قيد الانتظار، سنقوم بإلغائه.',
+      submit: 'إلغاء الطلب',
+      success: 'تم إلغاء طلبك.',
+      notFound: 'لم يتم العثور على طلب قيد الانتظار لهذا البريد الإلكتروني.',
     },
     errors: {
       firstNameRequired: 'الاسم الأول مطلوب.',
@@ -1972,6 +2089,7 @@ const ar = {
       title: 'مراجعة الطلب',
       accepted: 'تم قبول الطلب. تم إنشاء حساب المتربص.',
       rejected: 'تم رفض الطلب.',
+      cancelled: 'تم إلغاء الطلب.',
       reason: 'السبب: {reason}',
       rejectTitle: 'رفض {label}',
       rejectDescription: 'اشرح ما يحتاج المرشح إلى تصحيحه.',
@@ -1982,6 +2100,10 @@ const ar = {
       requiredDocsWarning: 'وافق على جميع الوثائق المطلوبة (السيرة الذاتية، الصورة، رسالة الاتفاقية، رسالة طلب التربص) قبل البت في هذا الطلب.',
       rejectApplication: 'رفض الطلب',
       acceptApplication: 'قبول الطلب',
+      cancelApplication: 'إلغاء الطلب',
+      cancelApplicationTitle: 'هل تريد إلغاء هذا الطلب؟',
+      cancelApplicationDescription: 'سيحتاج المرشح إلى التقديم مرة أخرى إذا غيّر رأيه. لا يمكن التراجع عن هذا الإجراء.',
+      confirmCancel: 'نعم، إلغاء الطلب',
       rejectApplicationTitle: 'رفض الطلب',
       rejectApplicationDescription: 'سيتم تسجيل هذا كسبب للرفض.',
       acceptDialogTitle: 'قبول الطلب',
@@ -2050,6 +2172,7 @@ const ar = {
       done: 'تم',
     },
     documentRequestForm: {
+      sendFailed: 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.',
       title: 'طلب وثيقة جديد',
       intern: 'المتربص',
       selectIntern: 'اختر متربصًا',

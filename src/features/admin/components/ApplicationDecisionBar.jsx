@@ -1,18 +1,21 @@
 import { useState } from 'react';
-import { Check, X, WarningCircle } from '@phosphor-icons/react';
+import { Check, X, Prohibit, WarningCircle } from '@phosphor-icons/react';
 import Button from '../../../components/ui/Button';
 import Dialog from '../../../components/ui/Dialog';
 import Textarea from '../../../components/ui/Textarea';
 import StatusBadge from '../../../components/shared/StatusBadge';
+import ConfirmDialog from '../../../components/shared/ConfirmDialog';
 import AcceptApplicationDialog from './AcceptApplicationDialog';
 import { useLanguage } from '../../../context/LanguageContext';
 
-export default function ApplicationDecisionBar({ application, onAccept, onReject }) {
+export default function ApplicationDecisionBar({ application, onAccept, onReject, onCancel }) {
   const { t } = useLanguage();
   const [isAccepting, setIsAccepting] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCancelSubmitting, setIsCancelSubmitting] = useState(false);
 
   const documentsReady =
     application.cvStatus === 'Approved' &&
@@ -28,6 +31,16 @@ export default function ApplicationDecisionBar({ application, onAccept, onReject
       setIsRejecting(false);
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function confirmCancel() {
+    setIsCancelSubmitting(true);
+    try {
+      await onCancel();
+      setIsCancelling(false);
+    } finally {
+      setIsCancelSubmitting(false);
     }
   }
 
@@ -49,6 +62,10 @@ export default function ApplicationDecisionBar({ application, onAccept, onReject
         </p>
       )}
       <div className="flex justify-end gap-3 sm:ml-auto">
+        <Button variant="outline" onClick={() => setIsCancelling(true)}>
+          <Prohibit className="h-4 w-4" aria-hidden="true" />
+          {t('admin.review.cancelApplication')}
+        </Button>
         <Button variant="outline" onClick={() => setIsRejecting(true)}>
           <X className="h-4 w-4" aria-hidden="true" />
           {t('admin.review.rejectApplication')}
@@ -60,6 +77,16 @@ export default function ApplicationDecisionBar({ application, onAccept, onReject
       </div>
 
       <AcceptApplicationDialog open={isAccepting} onClose={() => setIsAccepting(false)} application={application} onConfirm={onAccept} />
+
+      <ConfirmDialog
+        open={isCancelling}
+        onClose={() => setIsCancelling(false)}
+        onConfirm={confirmCancel}
+        title={t('admin.review.cancelApplicationTitle')}
+        description={t('admin.review.cancelApplicationDescription')}
+        confirmLabel={t('admin.review.confirmCancel')}
+        isLoading={isCancelSubmitting}
+      />
 
       <Dialog open={isRejecting} onClose={() => setIsRejecting(false)} title={t('admin.review.rejectApplicationTitle')} description={t('admin.review.rejectApplicationDescription')}>
         <Textarea id="application-reject-reason" label={t('admin.review.rejectionReason')} required value={reason} onChange={(e) => setReason(e.target.value)} />

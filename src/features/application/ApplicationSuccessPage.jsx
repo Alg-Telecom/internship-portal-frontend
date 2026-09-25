@@ -22,6 +22,12 @@ export default function ApplicationSuccessPage() {
         >
           {t('apply.success.backToSignIn')}
         </Link>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t('apply.success.cancelPrompt')}{' '}
+          <Link to="/apply/cancel" className="font-medium text-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">
+            {t('apply.success.cancelLink')}
+          </Link>
+        </p>
       </div>
     </div>
   );

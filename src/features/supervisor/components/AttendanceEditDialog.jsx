@@ -5,7 +5,7 @@ import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import { AttendanceStatus } from '../../../domain/enums';
 import { fullName, formatDate } from '../../../lib/utils';
-import * as attendanceApi from '../../../services/api/attendanceApi';
+import { useMarkAttendance } from '../../../hooks/useAttendance';
 import { useToast } from '../../../context/ToastContext';
 import { useLanguage } from '../../../context/LanguageContext';
 
@@ -19,11 +19,11 @@ import { useLanguage } from '../../../context/LanguageContext';
 export default function AttendanceEditDialog({ open, onClose, intern, supervisorId, date, existingRecord, onSaved }) {
   const { t } = useLanguage();
   const { showToast } = useToast();
+  const markAttendance = useMarkAttendance();
   const [status, setStatus] = useState(AttendanceStatus.PRESENT);
   const [arrivalTime, setArrivalTime] = useState('08:30');
   const [departureTime, setDepartureTime] = useState('16:30');
   const [remarks, setRemarks] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -36,9 +36,8 @@ export default function AttendanceEditDialog({ open, onClose, intern, supervisor
   if (!intern) return null;
 
   async function handleSave() {
-    setIsSaving(true);
     try {
-      await attendanceApi.markAttendance({
+      await markAttendance.mutateAsync({
         internId: intern.id,
         supervisorId,
         date,
@@ -52,8 +51,6 @@ export default function AttendanceEditDialog({ open, onClose, intern, supervisor
       onClose();
     } catch (err) {
       showToast(err.message, { type: 'error' });
-    } finally {
-      setIsSaving(false);
     }
   }
 
@@ -86,10 +83,10 @@ export default function AttendanceEditDialog({ open, onClose, intern, supervisor
           onChange={(e) => setRemarks(e.target.value)}
         />
         <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
+          <Button type="button" variant="outline" onClick={onClose} disabled={markAttendance.isPending}>
             {t('common.cancel')}
           </Button>
-          <Button type="button" onClick={handleSave} isLoading={isSaving}>
+          <Button type="button" onClick={handleSave} isLoading={markAttendance.isPending}>
             {t('supervisor.attendance.save')}
           </Button>
         </div>

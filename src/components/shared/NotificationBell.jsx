@@ -1,9 +1,13 @@
 import { useEffect } from 'react';
 import { Popover } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, BellSimple } from '@phosphor-icons/react';
-import { useNotifications } from '../../hooks/useNotifications';
-import * as notificationsApi from '../../services/api/notificationsApi';
+import { Bell, BellSimple, X } from '@phosphor-icons/react';
+import {
+  useNotifications,
+  useMarkNotificationAsRead,
+  useMarkAllNotificationsAsRead,
+  useDeleteNotification,
+} from '../../hooks/useNotifications';
 import { useAuth } from '../../context/AuthContext';
 import { formatDateTime, cn } from '../../lib/utils';
 import EmptyState from './EmptyState';
@@ -14,7 +18,10 @@ export default function NotificationBell() {
   const { t, tTeam } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { notifications, unreadCount, refetch } = useNotifications();
+  const { notifications, unreadCount } = useNotifications();
+  const markNotificationAsRead = useMarkNotificationAsRead();
+  const markAllNotificationsAsRead = useMarkAllNotificationsAsRead();
+  const deleteNotification = useDeleteNotification();
   const { teams } = useTeams();
   const teamsByName = Object.fromEntries(teams.map((team) => [team.name, team]));
 
@@ -32,8 +39,7 @@ export default function NotificationBell() {
   }
 
   async function handleMarkAllRead() {
-    await notificationsApi.markAllNotificationsAsRead();
-    refetch();
+    await markAllNotificationsAsRead.mutateAsync();
   }
 
   // Opens the page the notification is about (if any) and marks it read —
@@ -41,10 +47,19 @@ export default function NotificationBell() {
   async function handleSelect(notification, closePopover) {
     closePopover();
     if (!notification.isRead) {
-      await notificationsApi.markNotificationAsRead(notification.id);
-      refetch();
+      await markNotificationAsRead.mutateAsync(notification.id);
     }
     if (notification.link) navigate(notification.link);
+  }
+
+  // Deliberately not wrapped in a confirm dialog — deleting a
+  // notification has no real consequence (it's just clearing an already-
+  // read alert out of the list), so a confirmation step would just be
+  // friction for something reversible-in-spirit (the underlying event,
+  // e.g. an assignment, isn't affected).
+  async function handleDelete(event, notification) {
+    event.stopPropagation();
+    await deleteNotification.mutateAsync(notification.id);
   }
 
   return (
@@ -86,18 +101,23 @@ export default function NotificationBell() {
                   ) : (
                     <ul>
                       {notifications.map((n) => (
-                        <li key={n.id} className="border-b border-border last:border-b-0">
+                        <li key={n.id} className={cn('flex items-start border-b border-border last:border-b-0', !n.isRead && 'bg-primary/5')}>
                           <button
                             type="button"
                             onClick={() => handleSelect(n, close)}
-                            className={cn(
-                              'w-full cursor-pointer px-4 py-3 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-                              !n.isRead && 'bg-primary/5'
-                            )}
+                            className="min-w-0 flex-1 cursor-pointer px-4 py-3 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                           >
                             <p className="text-sm font-medium text-foreground">{n.titleKey ? t(n.titleKey) : n.title}</p>
                             <p className="mt-0.5 text-sm text-muted-foreground">{n.messageKey ? t(n.messageKey, renderParams(n.params)) : n.message}</p>
                             <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(n.creationDate)}</p>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => handleDelete(e, n)}
+                            aria-label={t('common.delete')}
+                            className="me-2 mt-2.5 shrink-0 cursor-pointer rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            <X className="h-3.5 w-3.5" aria-hidden="true" />
                           </button>
                         </li>
                       ))}

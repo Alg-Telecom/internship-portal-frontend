@@ -1,4 +1,4 @@
-import { FileText, ArrowSquareOut } from '@phosphor-icons/react';
+import { FileText, FileArchive, LinkSimple, ArrowSquareOut } from '@phosphor-icons/react';
 import { cn } from '../../lib/utils';
 
 /**
@@ -15,8 +15,12 @@ import { cn } from '../../lib/utils';
  * dead link that silently does nothing is worse than a label that's
  * honest about it.
  */
-export default function DocumentLink({ fileName, url, className }) {
+// Icon per upload type (see lib/uploadTypes) — File by default.
+const TYPE_ICONS = { File: FileText, Archive: FileArchive, Link: LinkSimple };
+
+export default function DocumentLink({ fileName, url, className, uploadType }) {
   if (!fileName) return null;
+  const Icon = TYPE_ICONS[uploadType] || FileText;
 
   if (url) {
     return (
@@ -30,8 +34,8 @@ export default function DocumentLink({ fileName, url, className }) {
           className
         )}
       >
-        <FileText className="h-4 w-4 shrink-0" aria-hidden="true" />
-        {fileName}
+        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span className="min-w-0 break-all">{fileName}</span>
         <ArrowSquareOut className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       </a>
     );
@@ -39,7 +43,7 @@ export default function DocumentLink({ fileName, url, className }) {
 
   return (
     <span className={cn('inline-flex items-center gap-1.5 text-sm text-muted-foreground', className)}>
-      <FileText className="h-4 w-4 shrink-0" aria-hidden="true" />
+      <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
       {fileName}
       <span className="text-xs italic">(no file to preview)</span>
     </span>

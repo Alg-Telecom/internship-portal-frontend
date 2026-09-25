@@ -42,3 +42,11 @@ export async function uploadOwnPhoto(file) {
   const user = await http.post('/users/me/photo', formData, { isFormData: true });
   return resolveUserUrls(user);
 }
+
+// Self-service withdrawal (e.g. an intern cancelling their own internship
+// from SettingsPage) — deactivates the account and clears the session
+// cookie server-side.
+export async function deactivateOwnAccount() {
+  await http.post('/users/me/deactivate');
+  return true;
+}

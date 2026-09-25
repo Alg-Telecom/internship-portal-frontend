@@ -1,13 +1,18 @@
+import { useState } from 'react';
 import { UsersThree, ClipboardText, CalendarCheck } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTeams } from '../../hooks/useTeams';
 import { useAssignments } from '../../hooks/useAssignments';
+import { useCalendarEvents } from '../../hooks/useCalendarEvents';
+import { useToast } from '../../context/ToastContext';
 import StatCard from '../../components/shared/StatCard';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import EmptyState from '../../components/shared/EmptyState';
 import TeamSnapshotCard from './components/TeamSnapshotCard';
 import InternshipCalendar from '../../components/shared/InternshipCalendar';
+import CalendarEventFormDialog from '../admin/components/CalendarEventFormDialog';
+import * as calendarEventsApi from '../../services/api/calendarEventsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function DashboardPage() {
@@ -16,10 +21,19 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { teams } = useTeams();
   const { assignments } = useAssignments({ supervisorId: user.id });
+  const { events, isLoading: eventsLoading, refetch: refetchEvents } = useCalendarEvents();
+  const { showToast } = useToast();
+  const [addingEventFor, setAddingEventFor] = useState(null);
 
   const myTeams = teams.filter((t) => t.supervisorId === user.id);
   const internCount = myTeams.reduce((sum, t) => sum + t.internCount, 0);
   const pendingReviews = assignments.filter((a) => a.status === 'Submitted').length;
+
+  async function handleCreateEvent(values) {
+    await calendarEventsApi.createCalendarEvent(values);
+    showToast(t('admin.dashboard.eventAdded'));
+    refetchEvents();
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -51,9 +65,20 @@ export default function DashboardPage() {
           <CardTitle>{t('supervisor.dashboard.calendar')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <InternshipCalendar />
+          <InternshipCalendar
+            events={events}
+            isLoading={eventsLoading}
+            onAddEvent={(date) => setAddingEventFor(date)}
+          />
         </CardContent>
       </Card>
+
+      <CalendarEventFormDialog
+        open={!!addingEventFor}
+        defaultDate={addingEventFor}
+        onClose={() => setAddingEventFor(null)}
+        onSubmit={handleCreateEvent}
+      />
     </div>
   );
 }

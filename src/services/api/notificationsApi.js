@@ -13,3 +13,7 @@ export async function markNotificationAsRead(id) {
 export async function markAllNotificationsAsRead() {
   return http.patch('/notifications/read-all');
 }
+
+export async function deleteNotification(id) {
+  return http.delete(`/notifications/${id}`);
+}

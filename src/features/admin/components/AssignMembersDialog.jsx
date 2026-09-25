@@ -2,23 +2,22 @@ import { useState, useEffect } from 'react';
 import Dialog from '../../../components/ui/Dialog';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
-import { useInterns, useSupervisors } from '../../../hooks/useUsers';
-import { useTeams } from '../../../hooks/useTeams';
+import { useInterns, useSupervisors, useUpdateUser } from '../../../hooks/useUsers';
+import { useTeams, useUpdateTeam } from '../../../hooks/useTeams';
 import { fullName } from '../../../lib/utils';
-import * as teamsApi from '../../../services/api/teamsApi';
-import * as usersApi from '../../../services/api/usersApi';
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function AssignMembersDialog({ open, onClose, team, onChanged }) {
   const { t, tTeam } = useLanguage();
-  const { interns, refetch: refetchInterns } = useInterns();
+  const { interns } = useInterns();
   const { supervisors } = useSupervisors();
   // A supervisor can manage several teams at once — showing how many they
   // already have here makes that explicit instead of it being a silent,
   // easy-to-miss side effect of picking the same name on two teams.
-  const { teams, refetch: refetchTeams } = useTeams();
+  const { teams } = useTeams();
+  const updateTeam = useUpdateTeam();
+  const updateUser = useUpdateUser();
   const [supervisorId, setSupervisorId] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (open) setSupervisorId(team?.supervisorId || '');
@@ -30,23 +29,16 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
     setSupervisorId(value);
     // Real backend has no dedicated "assign supervisor" route — a team's
     // supervisor is just a field updated via PATCH /teams/:id.
-    await teamsApi.updateTeam(team.id, { supervisorId: value || null });
-    await refetchTeams();
+    await updateTeam.mutateAsync({ id: team.id, patch: { supervisorId: value || null } });
     onChanged();
   }
 
   async function toggleIntern(intern, checked) {
-    setIsSaving(true);
-    try {
-      // Likewise, an intern's team is just their own `teamId` field
-      // (see backend/prisma/schema.prisma: User.teamId), updated via
-      // PATCH /users/:id — there's no separate "assign intern" endpoint.
-      await usersApi.updateUser(intern.id, { teamId: checked ? team.id : null });
-      await refetchInterns();
-      onChanged();
-    } finally {
-      setIsSaving(false);
-    }
+    // Likewise, an intern's team is just their own `teamId` field
+    // (see backend/prisma/schema.prisma: User.teamId), updated via
+    // PATCH /users/:id — there's no separate "assign intern" endpoint.
+    await updateUser.mutateAsync({ id: intern.id, patch: { teamId: checked ? team.id : null } });
+    onChanged();
   }
 
   return (
@@ -79,7 +71,7 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
                 <input
                   type="checkbox"
                   checked={intern.teamId === team.id}
-                  disabled={isSaving}
+                  disabled={updateUser.isPending}
                   onChange={(e) => toggleIntern(intern, e.target.checked)}
                   className="h-4 w-4 rounded border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />

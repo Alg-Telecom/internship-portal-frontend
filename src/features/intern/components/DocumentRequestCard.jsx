@@ -7,7 +7,8 @@ import { useLanguage } from '../../../context/LanguageContext';
 
 export default function DocumentRequestCard({ request, onUpload }) {
   const { t } = useLanguage();
-  const needsAction = request.status === 'Pending' || request.status === 'Rejected';
+  // A Late request can still be submitted — it just shows as overdue.
+  const needsAction = ['Pending', 'Rejected', 'Late'].includes(request.status);
 
   return (
     <Card>

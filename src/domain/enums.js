@@ -52,6 +52,7 @@ export const DocumentRequestStatus = {
   APPROVED: 'Approved',
   REJECTED: 'Rejected',
   CANCELLED: 'Cancelled',
+  LATE: 'Late',
 };
 
 export const DocumentType = {

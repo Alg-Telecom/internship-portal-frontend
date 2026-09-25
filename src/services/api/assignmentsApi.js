@@ -1,4 +1,5 @@
 import { http, resolveFileUrl } from './httpClient';
+import { appendUpload } from '../../lib/uploadTypes';
 
 function resolveSubmissionUrls(submission) {
   if (!submission) return submission;
@@ -45,10 +46,11 @@ export async function updateAssignment(id, patch) {
   return resolveAssignmentUrls(assignment);
 }
 
-// Intern submits their work: a single File object plus optional notes.
-export async function submitWork(assignmentId, file, notes) {
+// Intern submits their work as one of three types (see lib/uploadTypes):
+// a File, a compressed folder (Archive), or a Link. Plus optional notes.
+export async function submitWork(assignmentId, { uploadType, file, link, notes }) {
   const formData = new FormData();
-  formData.append('file', file);
+  appendUpload(formData, { uploadType, file, link });
   if (notes) formData.append('notes', notes);
   const submission = await http.post(`/assignments/${assignmentId}/submissions`, formData, {
     isFormData: true,

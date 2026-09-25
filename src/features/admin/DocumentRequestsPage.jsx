@@ -2,23 +2,24 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
-import { useDocumentRequests } from '../../hooks/useDocuments';
+import { useDocumentRequests, useCreateDocumentRequest, useApproveDocument, useRejectDocument } from '../../hooks/useDocuments';
 import { useInterns } from '../../hooks/useUsers';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import DocumentRequestsTable from './components/DocumentRequestsTable';
 import DocumentRequestFormDialog from './components/DocumentRequestFormDialog';
-import * as documentRequestsApi from '../../services/api/documentRequestsApi';
-import * as documentsApi from '../../services/api/documentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function DocumentRequestsPage() {
   const { t } = useLanguage();
   usePageHeader(t('admin.documentRequests.title'));
   const navigate = useNavigate();
-  const { requests, isLoading, refetch } = useDocumentRequests();
+  const { requests, isLoading } = useDocumentRequests();
   const { interns } = useInterns();
+  const createDocumentRequest = useCreateDocumentRequest();
+  const approveDocument = useApproveDocument();
+  const rejectDocument = useRejectDocument();
   const { showToast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -34,21 +35,18 @@ export default function DocumentRequestsPage() {
   });
 
   async function handleCreate(values) {
-    await documentRequestsApi.createDocumentRequest(values);
+    await createDocumentRequest.mutateAsync(values);
     showToast(t('admin.documentRequests.requestSent'));
-    refetch();
   }
 
   async function handleApprove(documentId) {
-    await documentsApi.approveDocument(documentId);
+    await approveDocument.mutateAsync(documentId);
     showToast(t('admin.documentRequests.approved'));
-    refetch();
   }
 
   async function handleReject(documentId, reason) {
-    await documentsApi.rejectDocument(documentId, reason);
+    await rejectDocument.mutateAsync({ documentId, rejectionReason: reason });
     showToast(t('admin.documentRequests.rejected'), { type: 'info' });
-    refetch();
   }
 
   return (

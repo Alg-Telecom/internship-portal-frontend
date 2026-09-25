@@ -4,7 +4,7 @@ import { usePageHeader } from '../../context/PageTitleContext';
 import { useTeams } from '../../hooks/useTeams';
 import { useApplications } from '../../hooks/useApplications';
 import { useInterns } from '../../hooks/useUsers';
-import { useCalendarEvents } from '../../hooks/useCalendarEvents';
+import { useCalendarEvents, useCreateCalendarEvent, useDeleteCalendarEvent } from '../../hooks/useCalendarEvents';
 import { useToast } from '../../context/ToastContext';
 import StatCard from '../../components/shared/StatCard';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
@@ -14,7 +14,6 @@ import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import TeamOverviewCard from './components/TeamOverviewCard';
 import InternshipCalendar from '../../components/shared/InternshipCalendar';
 import CalendarEventFormDialog from './components/CalendarEventFormDialog';
-import * as calendarEventsApi from '../../services/api/calendarEventsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function DashboardPage() {
@@ -23,28 +22,22 @@ export default function DashboardPage() {
   const { teams, isLoading: teamsLoading } = useTeams();
   const { applications } = useApplications({ status: 'Pending' });
   const { interns } = useInterns();
-  const { events, isLoading: eventsLoading, refetch: refetchEvents } = useCalendarEvents();
+  const { events, isLoading: eventsLoading } = useCalendarEvents();
+  const createCalendarEvent = useCreateCalendarEvent();
+  const deleteCalendarEvent = useDeleteCalendarEvent();
   const { showToast } = useToast();
   const [addingEventFor, setAddingEventFor] = useState(null);
   const [deletingEvent, setDeletingEvent] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleCreateEvent(values) {
-    await calendarEventsApi.createCalendarEvent(values);
+    await createCalendarEvent.mutateAsync(values);
     showToast(t('admin.dashboard.eventAdded'));
-    refetchEvents();
   }
 
   async function confirmDeleteEvent() {
-    setIsDeleting(true);
-    try {
-      await calendarEventsApi.deleteCalendarEvent(deletingEvent.id);
-      showToast(t('admin.dashboard.eventDeleted'), { type: 'info' });
-      setDeletingEvent(null);
-      refetchEvents();
-    } finally {
-      setIsDeleting(false);
-    }
+    await deleteCalendarEvent.mutateAsync(deletingEvent.id);
+    showToast(t('admin.dashboard.eventDeleted'), { type: 'info' });
+    setDeletingEvent(null);
   }
 
   return (
@@ -98,7 +91,7 @@ export default function DashboardPage() {
         open={!!deletingEvent}
         onClose={() => setDeletingEvent(null)}
         onConfirm={confirmDeleteEvent}
-        isLoading={isDeleting}
+        isLoading={deleteCalendarEvent.isPending}
         title={t('admin.dashboard.deleteEventTitle')}
         description={deletingEvent ? t('admin.dashboard.deleteEventDescription', { title: deletingEvent.title }) : ''}
       />

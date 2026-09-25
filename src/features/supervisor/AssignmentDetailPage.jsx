@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CaretLeft, PencilSimple } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
-import { useAssignment } from '../../hooks/useAssignments';
+import { useAssignment, useUpdateAssignment, useEvaluateSubmission } from '../../hooks/useAssignments';
 import { useToast } from '../../context/ToastContext';
 import { SkeletonRows } from '../../components/ui/Skeleton';
 import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -13,8 +13,6 @@ import SubmissionViewer from './components/SubmissionViewer';
 import GradeForm from './components/GradeForm';
 import AssignmentFormDialog from './components/AssignmentFormDialog';
 import { formatDate } from '../../lib/utils';
-import * as assignmentsApi from '../../services/api/assignmentsApi';
-import * as submissionsApi from '../../services/api/submissionsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function AssignmentDetailPage() {
@@ -22,21 +20,21 @@ export default function AssignmentDetailPage() {
   usePageHeader(t('supervisor.assignments.details'));
   const { id } = useParams();
   const { showToast } = useToast();
-  const { assignment, refetch } = useAssignment(id);
+  const { assignment } = useAssignment(id);
+  const updateAssignment = useUpdateAssignment();
+  const evaluateSubmission = useEvaluateSubmission();
   const [isEditing, setIsEditing] = useState(false);
 
   async function handleGrade({ grade, feedback }) {
     // Evaluating a submission is its own route/controller on the real
     // backend (PATCH /submissions/:id/evaluate), separate from assignments.
-    await submissionsApi.evaluateSubmission(assignment.submission.id, grade, feedback);
+    await evaluateSubmission.mutateAsync({ submissionId: assignment.submission.id, grade, feedback });
     showToast(t('supervisor.assignments.gradeSubmitted'));
-    refetch();
   }
 
   async function handleEditSubmit(values) {
-    await assignmentsApi.updateAssignment(assignment.id, values);
+    await updateAssignment.mutateAsync({ id: assignment.id, patch: values });
     showToast(t('supervisor.assignments.updated'));
-    refetch();
   }
 
   if (!assignment) {

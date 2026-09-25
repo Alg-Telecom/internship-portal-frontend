@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { Plus } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
-import { useTeams } from '../../hooks/useTeams';
+import { useTeams, useCreateTeam, useUpdateTeam } from '../../hooks/useTeams';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import TeamsTable from './components/TeamsTable';
 import TeamFormDialog from './components/TeamFormDialog';
 import AssignMembersDialog from './components/AssignMembersDialog';
-import * as teamsApi from '../../services/api/teamsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function TeamsPage() {
   const { t } = useLanguage();
   usePageHeader(t('admin.teams.title'));
-  const { teams, isLoading, refetch } = useTeams();
+  const { teams, isLoading } = useTeams();
+  const createTeam = useCreateTeam();
+  const updateTeam = useUpdateTeam();
   const { showToast } = useToast();
   const [editingTeam, setEditingTeam] = useState(undefined); // undefined = closed, null = create, object = edit
   const [assigningTeam, setAssigningTeam] = useState(null);
@@ -27,13 +28,12 @@ export default function TeamsPage() {
 
   async function handleSubmit(values) {
     if (editingTeam) {
-      await teamsApi.updateTeam(editingTeam.id, values);
+      await updateTeam.mutateAsync({ id: editingTeam.id, patch: values });
       showToast(t('admin.teams.updated'));
     } else {
-      await teamsApi.createTeam(values);
+      await createTeam.mutateAsync(values);
       showToast(t('admin.teams.created'));
     }
-    refetch();
   }
 
   return (
@@ -48,7 +48,7 @@ export default function TeamsPage() {
       <TeamsTable teams={teams} isLoading={isLoading} onEdit={setEditingTeam} onAssignMembers={setAssigningTeam} />
 
       <TeamFormDialog open={editingTeam !== undefined} onClose={() => setEditingTeam(undefined)} onSubmit={handleSubmit} team={editingTeam} />
-      <AssignMembersDialog open={!!assigningTeam} onClose={() => setAssigningTeam(null)} team={assigningTeam} onChanged={refetch} />
+      <AssignMembersDialog open={!!assigningTeam} onClose={() => setAssigningTeam(null)} team={assigningTeam} onChanged={() => {}} />
     </Card>
   );
 }

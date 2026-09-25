@@ -58,3 +58,15 @@ export async function approveApplicationDocument(id, field) {
   const application = await http.post(`/applications/${id}/approve-document`, { field });
   return resolveApplicationUrls(application);
 }
+
+// Public — no login required. The applicant cancels their own still-pending
+// application, identified by the email they applied with.
+export async function cancelOwnApplication(email) {
+  return http.post('/applications/cancel', { email });
+}
+
+// Admin cancelling a still-pending application on the candidate's behalf.
+export async function cancelApplicationAsAdmin(id) {
+  const application = await http.post(`/applications/${id}/cancel`);
+  return resolveApplicationUrls(application);
+}

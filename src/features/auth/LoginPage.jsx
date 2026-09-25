@@ -33,6 +33,12 @@ export default function LoginPage() {
           {t('login.submitApplication')}
         </Link>
       </p>
+      <p className="mt-2 text-center text-sm text-muted-foreground">
+        {t('login.cancelApplicationPrompt')}{' '}
+        <Link to="/apply/cancel" className="font-medium text-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">
+          {t('login.cancelApplicationLink')}
+        </Link>
+      </p>
     </AuthLayout>
   );
 }

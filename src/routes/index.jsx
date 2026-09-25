@@ -12,6 +12,7 @@ import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import SettingsPage from '../features/auth/SettingsPage';
 import ApplyPage from '../features/application/ApplyPage';
 import ApplicationSuccessPage from '../features/application/ApplicationSuccessPage';
+import CancelApplicationPage from '../features/application/CancelApplicationPage';
 
 import AdminDashboardPage from '../features/admin/DashboardPage';
 import ApplicationsListPage from '../features/admin/ApplicationsListPage';
@@ -46,6 +47,7 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/apply" element={<ApplyPage />} />
       <Route path="/apply/success" element={<ApplicationSuccessPage />} />
+      <Route path="/apply/cancel" element={<CancelApplicationPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />

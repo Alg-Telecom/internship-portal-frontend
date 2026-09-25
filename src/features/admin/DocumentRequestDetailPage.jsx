@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { CaretLeft } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
-import { useDocumentRequest } from '../../hooks/useDocuments';
+import { useDocumentRequest, useApproveDocument, useRejectDocument } from '../../hooks/useDocuments';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import { SkeletonRows } from '../../components/ui/Skeleton';
@@ -9,7 +9,6 @@ import StatusBadge from '../../components/shared/StatusBadge';
 import DocumentVersionHistory from './components/DocumentVersionHistory';
 import SubmittedDocumentPreview from './components/SubmittedDocumentPreview';
 import { formatDate } from '../../lib/utils';
-import * as documentsApi from '../../services/api/documentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function DocumentRequestDetailPage() {
@@ -17,7 +16,9 @@ export default function DocumentRequestDetailPage() {
   usePageHeader(t('admin.documentRequestDetail.title'));
   const { id } = useParams();
   const { showToast } = useToast();
-  const { request, refetch } = useDocumentRequest(id);
+  const { request } = useDocumentRequest(id);
+  const approveDocument = useApproveDocument();
+  const rejectDocument = useRejectDocument();
 
   // The real backend only returns `documents` (every uploaded version, in
   // whatever order Prisma gives them) - it doesn't compute a "latest" one
@@ -29,15 +30,13 @@ export default function DocumentRequestDetailPage() {
   const previousDocuments = sortedDocuments.slice(1);
 
   async function handleApprove() {
-    await documentsApi.approveDocument(latestDocument.id);
+    await approveDocument.mutateAsync(latestDocument.id);
     showToast(t('admin.documentRequestDetail.approved'));
-    refetch();
   }
 
   async function handleReject(reason) {
-    await documentsApi.rejectDocument(latestDocument.id, reason);
+    await rejectDocument.mutateAsync({ documentId: latestDocument.id, rejectionReason: reason });
     showToast(t('admin.documentRequestDetail.rejected'), { type: 'info' });
-    refetch();
   }
 
   if (!request) {

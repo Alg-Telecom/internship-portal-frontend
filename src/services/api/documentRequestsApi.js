@@ -1,4 +1,5 @@
 import { http, resolveFileUrl } from './httpClient';
+import { appendUpload } from '../../lib/uploadTypes';
 
 function resolveDocumentUrls(document) {
   if (!document) return document;
@@ -36,11 +37,12 @@ export async function createDocumentRequest(data) {
   return resolveRequestUrls(request);
 }
 
-// Intern uploads a document against one of their requests: a single File
-// object plus the required documentType string.
-export async function uploadDocument(requestId, file, documentType) {
+// Intern uploads a document against one of their requests as one of three
+// types (see lib/uploadTypes): a File, a compressed folder (Archive), or a
+// Link. Plus the required documentType string.
+export async function uploadDocument(requestId, { uploadType, file, link, documentType }) {
   const formData = new FormData();
-  formData.append('file', file);
+  appendUpload(formData, { uploadType, file, link });
   formData.append('documentType', documentType);
   const document = await http.post(`/document-requests/${requestId}/documents`, formData, {
     isFormData: true,

@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { Plus } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
 import { useAuth } from '../../context/AuthContext';
-import { useUsers } from '../../hooks/useUsers';
+import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../hooks/useUsers';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import UsersTable from './components/UsersTable';
 import UserFormDialog from './components/UserFormDialog';
-import * as usersApi from '../../services/api/usersApi';
 import { useLanguage } from '../../context/LanguageContext';
 import { fullName } from '../../lib/utils';
 
@@ -17,15 +16,17 @@ export default function UsersPage() {
   const { t } = useLanguage();
   usePageHeader(t('admin.users.title'));
   const { user: currentUser } = useAuth();
-  const { users, isLoading, refetch } = useUsers();
+  const { users, isLoading } = useUsers();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
   const { showToast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
   const [deletingUser, setDeletingUser] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleCreate(values) {
     try {
-      const created = await usersApi.createUser(values);
+      const created = await createUser.mutateAsync(values);
       if (created.temporaryPassword) {
         // No password field in this form - the backend generated one (and
         // tried to email it). Show it once here too, since SMTP may not be
@@ -35,7 +36,6 @@ export default function UsersPage() {
       } else {
         showToast(t('admin.users.created'));
       }
-      refetch();
     } catch (err) {
       showToast(err.message, { type: 'error' });
     }
@@ -45,9 +45,8 @@ export default function UsersPage() {
     try {
       // Real backend has no standalone "deactivate" endpoint — it's just a
       // regular PATCH /users/:id with isActive: false.
-      await usersApi.updateUser(targetUser.id, { isActive: false });
+      await updateUser.mutateAsync({ id: targetUser.id, patch: { isActive: false } });
       showToast(t('admin.users.deactivated', { name: fullName(targetUser) }), { type: 'info' });
-      refetch();
     } catch (err) {
       showToast(err.message, { type: 'error' });
     }
@@ -55,21 +54,18 @@ export default function UsersPage() {
 
   async function handleActivate(targetUser) {
     try {
-      await usersApi.updateUser(targetUser.id, { isActive: true });
+      await updateUser.mutateAsync({ id: targetUser.id, patch: { isActive: true } });
       showToast(t('admin.users.reactivated', { name: fullName(targetUser) }));
-      refetch();
     } catch (err) {
       showToast(err.message, { type: 'error' });
     }
   }
 
   async function confirmDelete() {
-    setIsDeleting(true);
     try {
-      await usersApi.deleteUser(deletingUser.id);
+      await deleteUser.mutateAsync(deletingUser.id);
       showToast(t('admin.users.deleted', { name: fullName(deletingUser) }), { type: 'info' });
       setDeletingUser(null);
-      refetch();
     } catch (err) {
       // Most common case: the backend refuses to hard-delete a user who
       // still has related records (assignments, submissions, attendance,
@@ -77,8 +73,6 @@ export default function UsersPage() {
       // that instead of letting it fail silently. Leave the confirm
       // dialog open so the message stays visible next to it.
       showToast(err.message, { type: 'error', duration: 6000 });
-    } finally {
-      setIsDeleting(false);
     }
   }
 
@@ -105,7 +99,7 @@ export default function UsersPage() {
         open={!!deletingUser}
         onClose={() => setDeletingUser(null)}
         onConfirm={confirmDelete}
-        isLoading={isDeleting}
+        isLoading={deleteUser.isPending}
         title={t('admin.users.deleteTitle')}
         description={deletingUser ? t('admin.users.deleteDescription', { name: fullName(deletingUser) }) : ''}
         confirmLabel={t('admin.users.deleteConfirmLabel')}

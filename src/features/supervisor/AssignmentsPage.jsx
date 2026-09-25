@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
 import { useAuth } from '../../context/AuthContext';
-import { useAssignments } from '../../hooks/useAssignments';
+import { useAssignments, useCreateAssignment, useUpdateAssignment } from '../../hooks/useAssignments';
 import { useInterns } from '../../hooks/useUsers';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
@@ -11,7 +11,6 @@ import Button from '../../components/ui/Button';
 import AssignmentCalendar from '../../components/shared/AssignmentCalendar';
 import AssignmentsTable from './components/AssignmentsTable';
 import AssignmentFormDialog from './components/AssignmentFormDialog';
-import * as assignmentsApi from '../../services/api/assignmentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function AssignmentsPage() {
@@ -19,8 +18,10 @@ export default function AssignmentsPage() {
   usePageHeader(t('supervisor.assignments.title'));
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { assignments, isLoading, refetch } = useAssignments({ supervisorId: user.id });
+  const { assignments, isLoading } = useAssignments({ supervisorId: user.id });
   const { interns } = useInterns();
+  const createAssignment = useCreateAssignment();
+  const updateAssignment = useUpdateAssignment();
   const { showToast } = useToast();
   const [editingAssignment, setEditingAssignment] = useState(undefined); // undefined = closed, null = create, object = edit
 
@@ -28,13 +29,12 @@ export default function AssignmentsPage() {
 
   async function handleSubmit(values) {
     if (editingAssignment) {
-      await assignmentsApi.updateAssignment(editingAssignment.id, values);
+      await updateAssignment.mutateAsync({ id: editingAssignment.id, patch: values });
       showToast(t('supervisor.assignments.updated'));
     } else {
-      await assignmentsApi.createAssignment(values);
+      await createAssignment.mutateAsync(values);
       showToast(t('supervisor.assignments.created'));
     }
-    refetch();
   }
 
   function goToAssignment(a) {

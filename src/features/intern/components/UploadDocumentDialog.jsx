@@ -1,29 +1,31 @@
 import { useState } from 'react';
 import Dialog from '../../../components/ui/Dialog';
-import FileDropzone from '../../../components/ui/FileDropzone';
+import UploadTypeField from '../../../components/shared/UploadTypeField';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import { DocumentType } from '../../../domain/enums';
 import { useLanguage } from '../../../context/LanguageContext';
+import { EMPTY_UPLOAD, validateUpload } from '../../../lib/uploadTypes';
 
 export default function UploadDocumentDialog({ open, onClose, request, onSubmit }) {
   const { t } = useLanguage();
-  const [file, setFile] = useState(null);
+  const [upload, setUpload] = useState(EMPTY_UPLOAD);
   const [documentType, setDocumentType] = useState(DocumentType.OTHER);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!file) {
-      setError(t('intern.documents.fileRequired'));
+    const invalid = validateUpload(upload);
+    if (invalid) {
+      setError(t(invalid));
       return;
     }
     setError('');
     setIsSubmitting(true);
     try {
-      await onSubmit({ file, documentType });
-      setFile(null);
+      await onSubmit({ ...upload, documentType });
+      setUpload(EMPTY_UPLOAD);
       onClose();
     } catch (err) {
       setError(err.message || t('intern.documents.uploadFailed'));
@@ -42,15 +44,14 @@ export default function UploadDocumentDialog({ open, onClose, request, onSubmit 
             </option>
           ))}
         </Select>
-        <FileDropzone
-          id="document-file"
-          label={t('intern.documents.file')}
-          required
-          file={file}
+        <UploadTypeField
+          id="document"
+          value={upload}
+          onChange={setUpload}
           error={error}
-          onChange={setFile}
-          hint={t('intern.documents.fileHint')}
-          maxSizeMB={3}
+          onError={setError}
+          fileLabel={t('intern.documents.file')}
+          fileHint={t('intern.documents.fileHint')}
         />
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>

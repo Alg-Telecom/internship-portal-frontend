@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,9 +35,18 @@ export default function DocumentRequestFormDialog({ open, onClose, onSubmit }) {
   } = useForm({ resolver: zodResolver(schema), defaultValues: { internId: '', title: '', description: '', deadline: '' } });
 
   const deadline = watch('deadline');
+  const [submitError, setSubmitError] = useState('');
 
   async function submit(values) {
-    await onSubmit({ ...values, internId: Number(values.internId) });
+    setSubmitError('');
+    try {
+      await onSubmit({ ...values, internId: Number(values.internId) });
+    } catch (err) {
+      // Without this a rejected request just left the dialog sitting there
+      // with no feedback, as if the button did nothing.
+      setSubmitError(err.message || t('admin.documentRequestForm.sendFailed'));
+      return;
+    }
     reset();
     onClose();
   }
@@ -55,6 +64,11 @@ export default function DocumentRequestFormDialog({ open, onClose, onSubmit }) {
         <Input id="request-title" label={t('admin.documentRequestForm.documentTitle')} required placeholder={t('admin.documentRequestForm.titlePlaceholder')} error={errors.title?.message} {...register('title')} />
         <Textarea id="request-description" label={t('admin.documentRequestForm.instructions')} {...register('description')} />
         <DatePicker id="request-deadline" label={t('admin.documentRequestForm.deadline')} required value={deadline} onChange={(v) => setValue('deadline', v, { shouldValidate: true })} error={errors.deadline?.message} />
+        {submitError && (
+          <p role="alert" className="text-sm text-destructive">
+            {submitError}
+          </p>
+        )}
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             {t('common.cancel')}

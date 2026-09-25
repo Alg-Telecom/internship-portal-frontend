@@ -15,6 +15,12 @@ export async function getTeams() {
   return teams.map(resolveTeamCounts);
 }
 
+// No auth required — used by the public application form, before the
+// applicant has an account, to populate the "preferred team" dropdown.
+export async function getPublicTeams() {
+  return http.get('/teams/public');
+}
+
 export async function getTeam(id) {
   const team = await http.get(`/teams/${id}`);
   return resolveTeamCounts(team);

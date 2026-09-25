@@ -1,11 +1,13 @@
 import Card, { CardContent, CardHeader, CardTitle } from '../../../components/ui/Card';
 import DocumentReviewRow from './DocumentReviewRow';
 import DocumentLink from '../../../components/shared/DocumentLink';
-import * as applicationsApi from '../../../services/api/applicationsApi';
+import { useApproveApplicationDocument, useRejectApplication } from '../../../hooks/useApplications';
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function CandidateDocumentsList({ application, onChanged }) {
   const { t } = useLanguage();
+  const approveApplicationDocument = useApproveApplicationDocument();
+  const rejectApplication = useRejectApplication();
 
   // Both actions map onto real backend routes now:
   // - accept -> POST /applications/:id/approve-document {field}
@@ -14,12 +16,12 @@ export default function CandidateDocumentsList({ application, onChanged }) {
   //   backend controller — accept has no such side effect, it only marks
   //   that one document Approved).
   async function accept(field) {
-    await applicationsApi.approveApplicationDocument(application.id, field);
+    await approveApplicationDocument.mutateAsync({ id: application.id, field });
     onChanged();
   }
 
   async function reject(field, reason) {
-    await applicationsApi.rejectApplication(application.id, reason, field);
+    await rejectApplication.mutateAsync({ id: application.id, rejectionReason: reason, rejectedField: field });
     onChanged();
   }
 

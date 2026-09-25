@@ -1,30 +1,29 @@
 import { useState } from "react";
 import { usePageHeader } from "../../context/PageTitleContext";
 import { useAuth } from "../../context/AuthContext";
-import { useDocumentRequests } from "../../hooks/useDocuments";
+import { useDocumentRequests, useUploadDocument } from "../../hooks/useDocuments";
 import { useToast } from "../../context/ToastContext";
 import EmptyState from "../../components/shared/EmptyState";
 import { SkeletonRows } from "../../components/ui/Skeleton";
 import { FolderSimple } from "@phosphor-icons/react";
 import DocumentRequestCard from "./components/DocumentRequestCard";
 import UploadDocumentDialog from "./components/UploadDocumentDialog";
-import * as documentRequestsApi from "../../services/api/documentRequestsApi";
 import { useLanguage } from "../../context/LanguageContext";
 
 export default function DocumentsPage() {
   const { t } = useLanguage();
   usePageHeader(t('intern.documents.title'));
   const { user } = useAuth();
-  const { requests, isLoading, refetch } = useDocumentRequests({
+  const { requests, isLoading } = useDocumentRequests({
     internId: user.id,
   });
+  const uploadDocument = useUploadDocument();
   const { showToast } = useToast();
   const [uploadingRequest, setUploadingRequest] = useState(null);
 
-  async function handleUpload({ file, documentType }) {
-    await documentRequestsApi.uploadDocument(uploadingRequest.id, file, documentType);
+  async function handleUpload(upload) {
+    await uploadDocument.mutateAsync({ requestId: uploadingRequest.id, ...upload });
     showToast(t('intern.documents.submitted'));
-    refetch();
   }
 
   if (isLoading) return <SkeletonRows rows={4} />;

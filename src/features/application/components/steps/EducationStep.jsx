@@ -1,14 +1,14 @@
 import Input from '../../../../components/ui/Input';
 import Select from '../../../../components/ui/Select';
 import DateRangePicker from '../../../../components/ui/DateRangePicker';
-import { useTeams } from '../../../../hooks/useTeams';
+import { usePublicTeams } from '../../../../hooks/useTeams';
 import { useLanguage } from '../../../../context/LanguageContext';
 
 const GRADE_OPTIONS = ["Bachelor's", "Master's", 'Engineering', 'PhD'];
 
 export default function EducationStep({ register, errors, watch, setValue }) {
   const { t, tTeam } = useLanguage();
-  const { teams } = useTeams();
+  const { teams } = usePublicTeams();
   const startDate = watch('startDate');
   const endDate = watch('endDate');
 

@@ -38,7 +38,7 @@ export default function SubmittedDocumentPreview({ document, onApprove, onReject
     <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2.5">
       <div className="flex items-center gap-2.5">
         <div>
-          <DocumentLink fileName={document.fileName} url={document.fileUrl} />
+          <DocumentLink fileName={document.fileName} url={document.fileUrl} uploadType={document.uploadType} />
           <p className="mt-0.5 text-xs text-muted-foreground">
             {t('admin.review.versionUploaded', { version: document.version, date: formatDateTime(document.uploadDate) })}
           </p>

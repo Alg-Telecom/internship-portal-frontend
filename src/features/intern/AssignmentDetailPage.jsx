@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { CaretLeft } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
-import { useAssignment } from '../../hooks/useAssignments';
+import { useAssignment, useSubmitWork } from '../../hooks/useAssignments';
 import { useToast } from '../../context/ToastContext';
 import { SkeletonRows } from '../../components/ui/Skeleton';
 import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -10,7 +10,6 @@ import Badge from '../../components/ui/Badge';
 import SubmitWorkForm from './components/SubmitWorkForm';
 import FeedbackPanel from './components/FeedbackPanel';
 import { formatDate } from '../../lib/utils';
-import * as assignmentsApi from '../../services/api/assignmentsApi';
 import { useLanguage } from '../../context/LanguageContext';
 
 const CAN_SUBMIT_STATUSES = ['Pending', 'InProgress', 'Late'];
@@ -20,12 +19,12 @@ export default function AssignmentDetailPage() {
   usePageHeader(t('intern.assignments.details'));
   const { id } = useParams();
   const { showToast } = useToast();
-  const { assignment, refetch } = useAssignment(id);
+  const { assignment } = useAssignment(id);
+  const submitWork = useSubmitWork();
 
-  async function handleSubmitWork({ file, notes }) {
-    await assignmentsApi.submitWork(assignment.id, file, notes);
+  async function handleSubmitWork(work) {
+    await submitWork.mutateAsync({ assignmentId: assignment.id, ...work });
     showToast(t('intern.assignments.submitted'));
-    refetch();
   }
 
   if (!assignment) {
