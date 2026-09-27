@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Prohibit } from '@phosphor-icons/react';
+import { Prohibit, Eye, EyeSlash } from '@phosphor-icons/react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
@@ -14,17 +14,26 @@ export default function CancelApplicationPage() {
   const { t } = useLanguage();
   const cancelOwnApplication = useCancelOwnApplication();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState(null); // null | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus(null);
+    if (!email.trim() || !password) {
+      setErrorMessage(t('apply.cancel.fieldsRequired'));
+      setStatus('error');
+      return;
+    }
     try {
-      await cancelOwnApplication.mutateAsync(email);
+      await cancelOwnApplication.mutateAsync({ email: email.trim(), password });
       setStatus('success');
     } catch (err) {
-      setErrorMessage(err.message || t('common.somethingWentWrong'));
+      // 401 = wrong email/password or nothing pending — shown translated
+      // rather than the backend's English message.
+      setErrorMessage(err.status === 401 ? t('apply.cancel.invalidCredentials') : err.message || t('common.somethingWentWrong'));
       setStatus('error');
     }
   }
@@ -67,6 +76,26 @@ export default function CancelApplicationPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+            <div className="relative">
+              <Input
+                id="cancel-application-password"
+                type={showPassword ? 'text' : 'password'}
+                label={t('login.password')}
+                required
+                autoComplete="current-password"
+                helperText={t('apply.cancel.passwordHint')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+                className="absolute end-3 top-9 cursor-pointer text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeSlash className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
+              </button>
+            </div>
             <Button type="submit" isLoading={cancelOwnApplication.isPending} className="w-full">
               {t('apply.cancel.submit')}
             </Button>

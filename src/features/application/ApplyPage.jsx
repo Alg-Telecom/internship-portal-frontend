@@ -119,7 +119,7 @@ export default function ApplyPage() {
       await applicationsApi.submitApplication(formData);
       navigate('/apply/success', { replace: true });
     } catch (error) {
-      setSubmitError(error.message || t('apply.errors.submitFailed'));
+      setSubmitError(error.code === 'TEAM_UNAVAILABLE' ? t('apply.errors.teamUnavailable') : error.message || t('apply.errors.submitFailed'));
     }
   }
 

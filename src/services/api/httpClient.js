@@ -26,6 +26,7 @@ async function request(
       payload?.message || `Request failed with status ${response.status}`,
     );
     error.status = response.status;
+    error.code = payload?.code; // optional machine-readable reason, e.g. TEAM_UNAVAILABLE
     throw error;
   }
 

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { WarningCircle } from '@phosphor-icons/react';
-import Input from '../../../components/ui/Input';
+import PasswordInput from '../../../components/ui/PasswordInput';
 import Button from '../../../components/ui/Button';
 import { useLanguage } from '../../../context/LanguageContext';
 
@@ -46,9 +46,8 @@ export default function ResetPasswordForm({ onSubmit }) {
           {formError}
         </div>
       )}
-      <Input
+      <PasswordInput
         id="newPassword"
-        type="password"
         label={t('settings.newPassword')}
         required
         autoComplete="new-password"
@@ -56,7 +55,7 @@ export default function ResetPasswordForm({ onSubmit }) {
         error={errors.newPassword?.message}
         {...register('newPassword')}
       />
-      <Input id="confirmPassword" type="password" label={t('settings.confirmNewPassword')} required autoComplete="new-password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
+      <PasswordInput id="confirmPassword" label={t('settings.confirmNewPassword')} required autoComplete="new-password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
       <Button type="submit" isLoading={isSubmitting} className="mt-2 w-full">
         {t('login.resetPassword.submit')}
       </Button>

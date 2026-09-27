@@ -10,6 +10,11 @@ export function useUsers(filters = {}) {
   return { users: data || [], isLoading, error, refetch };
 }
 
+// `interns` is ACTIVE interns only — what every list, count and "pick an
+// intern" menu should show, since a deactivated intern has left. Use
+// `allInterns` only to look up names on existing history (assignments,
+// document requests, attendance) so records of a deactivated intern don't
+// turn nameless. Inactive accounts are still managed from Admin > Users.
 export function useInterns(filters = {}) {
   const key = JSON.stringify(filters);
   const { data, isLoading, error, refetch } = useQuery({
@@ -19,7 +24,8 @@ export function useInterns(filters = {}) {
       return filters.teamId ? interns.filter((i) => i.teamId === Number(filters.teamId)) : interns;
     },
   });
-  return { interns: data || [], isLoading, error, refetch };
+  const allInterns = data || [];
+  return { interns: allInterns.filter((i) => i.isActive !== false), allInterns, isLoading, error, refetch };
 }
 
 export function useSupervisors() {

@@ -7,6 +7,7 @@ import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import { Role } from '../../../domain/enums';
+import { useTeams } from '../../../hooks/useTeams';
 import { useLanguage } from '../../../context/LanguageContext';
 
 function makeSchema(t) {
@@ -16,24 +17,47 @@ function makeSchema(t) {
     email: z.string().min(1, t('admin.userForm.emailRequired')).email(t('admin.userForm.emailInvalid')),
     phoneNumber: z.string().min(1, t('admin.userForm.phoneRequired')),
     role: z.string().min(1, t('admin.userForm.roleRequired')),
+    // Intern-only fields — required only when the role is Intern (below).
+    studentId: z.string().optional(),
+    university: z.string().optional(),
+    fieldOfStudy: z.string().optional(),
+    academicLevel: z.string().optional(),
+    teamId: z.string().optional(),
+  }).superRefine((values, ctx) => {
+    if (values.role !== Role.INTERN) return;
+    if (!values.studentId?.trim()) ctx.addIssue({ code: 'custom', path: ['studentId'], message: t('admin.userForm.studentIdRequired') });
+    if (!values.university?.trim()) ctx.addIssue({ code: 'custom', path: ['university'], message: t('admin.userForm.universityRequired') });
   });
 }
+
+const INTERN_FIELDS = ['studentId', 'university', 'fieldOfStudy', 'academicLevel', 'teamId'];
 
 export default function UserFormDialog({ open, onClose, onSubmit }) {
   const { t } = useLanguage();
   const schema = useMemo(() => makeSchema(t), [t]);
   const [submitError, setSubmitError] = useState('');
+  const { teams } = useTeams();
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema), defaultValues: { firstName: '', lastName: '', email: '', phoneNumber: '', role: Role.SUPERVISOR } });
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { firstName: '', lastName: '', email: '', phoneNumber: '', role: Role.SUPERVISOR, studentId: '', university: '', fieldOfStudy: '', academicLevel: '', teamId: '' },
+  });
+  const isIntern = watch('role') === Role.INTERN;
 
   async function submit(values) {
     setSubmitError('');
+    // Only send intern fields for an intern (and drop empty optional ones).
+    const payload = { ...values };
+    INTERN_FIELDS.forEach((field) => {
+      if (!isIntern || !payload[field]) delete payload[field];
+    });
     try {
-      await onSubmit(values);
+      await onSubmit(payload);
       reset();
       onClose();
     } catch (error) {
@@ -63,7 +87,29 @@ export default function UserFormDialog({ open, onClose, onSubmit }) {
         <Select id="user-role" label={t('admin.userForm.role')} required error={errors.role?.message} {...register('role')}>
           <option value={Role.ADMIN}>{t('admin.userForm.administrator')}</option>
           <option value={Role.SUPERVISOR}>{t('admin.userForm.supervisor')}</option>
+          <option value={Role.INTERN}>{t('admin.userForm.intern')}</option>
         </Select>
+        {isIntern && (
+          <fieldset className="flex flex-col gap-4 rounded-md border border-border p-4">
+            <legend className="px-1 text-sm font-medium text-foreground">{t('admin.userForm.internDetails')}</legend>
+            <div className="grid grid-cols-2 gap-4">
+              <Input id="user-studentId" label={t('common.field.studentId')} required error={errors.studentId?.message} {...register('studentId')} />
+              <Input id="user-university" label={t('common.field.university')} required error={errors.university?.message} {...register('university')} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Input id="user-fieldOfStudy" label={t('common.field.fieldOfStudy')} {...register('fieldOfStudy')} />
+              <Input id="user-academicLevel" label={t('common.field.academicLevel')} {...register('academicLevel')} />
+            </div>
+            <Select id="user-team" label={t('admin.userForm.team')} {...register('teamId')}>
+              <option value="">{t('admin.userForm.noTeam')}</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </Select>
+          </fieldset>
+        )}
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
             {t('common.cancel')}

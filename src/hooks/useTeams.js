@@ -11,10 +11,17 @@ export function useTeams() {
 
 // For the public application form — no login yet, so this hits the
 // unauthenticated /teams/public endpoint instead of /teams.
+// Used by the public apply form. An applicant can sit on the Education step
+// for a while, so the list refreshes itself (every 30s, and when they come
+// back to the tab) — a team the admin creates meanwhile shows up without
+// them reloading and losing what they typed. The global default turns
+// refetchOnWindowFocus off (see main.jsx), so it's re-enabled here.
 export function usePublicTeams() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['publicTeams'],
     queryFn: () => teamsApi.getPublicTeams(),
+    refetchInterval: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
   return { teams: data || [], isLoading, error };
 }
@@ -33,6 +40,17 @@ export function useCreateTeam() {
   return useMutation({
     mutationFn: (data) => teamsApi.createTeam(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] }),
+  });
+}
+
+export function useCompleteTeam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => teamsApi.completeTeam(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+    },
   });
 }
 

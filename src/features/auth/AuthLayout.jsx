@@ -1,10 +1,12 @@
 import logo from '../../assets/algerie-telecom-logo.png';
 import LanguageSwitcher from '../../components/layout/LanguageSwitcher';
 
-export default function AuthLayout({ title, subtitle, children }) {
+// `widthClassName` lets a page widen the card (the login page does, so its
+// longer footer links fit on one line); other auth pages keep max-w-md.
+export default function AuthLayout({ title, subtitle, children, widthClassName = 'max-w-md' }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <div className="w-full max-w-md">
+      <div className={`w-full ${widthClassName}`}>
         <div className="mb-3 flex justify-end">
           <LanguageSwitcher />
         </div>

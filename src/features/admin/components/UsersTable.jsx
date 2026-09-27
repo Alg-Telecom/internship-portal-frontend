@@ -64,12 +64,15 @@ export default function UsersTable({ users, isLoading, currentUserId, onDeactiva
                 <CheckCircle className="h-4 w-4" aria-hidden="true" />
               </button>
             )}
+            {/* Deleting is permanent: an account must be deactivated first
+                (the backend enforces this too). */}
             <button
               type="button"
               onClick={() => onDelete(row)}
+              disabled={row.isActive}
               aria-label={t('admin.users.deleteAria', { name: fullName(row) })}
-              title={t('admin.users.delete')}
-              className="cursor-pointer text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+              title={row.isActive ? t('admin.users.deactivateBeforeDelete') : t('admin.users.delete')}
+              className="cursor-pointer text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-muted-foreground"
             >
               <TrashSimple className="h-4 w-4" aria-hidden="true" />
             </button>

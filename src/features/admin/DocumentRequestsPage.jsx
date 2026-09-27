@@ -16,14 +16,14 @@ export default function DocumentRequestsPage() {
   usePageHeader(t('admin.documentRequests.title'));
   const navigate = useNavigate();
   const { requests, isLoading } = useDocumentRequests();
-  const { interns } = useInterns();
+  const { allInterns } = useInterns();
   const createDocumentRequest = useCreateDocumentRequest();
   const approveDocument = useApproveDocument();
   const rejectDocument = useRejectDocument();
   const { showToast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
 
-  const internsById = Object.fromEntries(interns.map((i) => [i.id, i]));
+  const internsById = Object.fromEntries(allInterns.map((i) => [i.id, i]));
 
   // The table (and the admin below) expect each row to carry a
   // `latestDocument` - the real backend only gives us the raw `documents`

@@ -35,3 +35,9 @@ export async function updateTeam(id, patch) {
   const team = await http.patch(`/teams/${id}`, patch);
   return resolveTeamCounts(team);
 }
+
+// Admin marks a team Completed now, even before its end date.
+export async function completeTeam(id) {
+  const team = await http.post(`/teams/${id}/complete`);
+  return resolveTeamCounts(team);
+}

@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import * as applicationsApi from '../services/api/applicationsApi';
+import { useMemo } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as applicationsApi from "../services/api/applicationsApi";
 
 export function useApplications(filters = {}) {
   const key = JSON.stringify(filters);
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['applications', key],
+    queryKey: ["applications", key],
     queryFn: () => applicationsApi.getApplications(filters.status),
   });
   return { applications: data || [], isLoading, error, refetch };
@@ -13,7 +13,7 @@ export function useApplications(filters = {}) {
 
 export function useApplication(id) {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['application', id],
+    queryKey: ["application", id],
     queryFn: () => applicationsApi.getApplication(id),
     enabled: !!id,
   });
@@ -23,18 +23,22 @@ export function useApplication(id) {
 /** Convenience: applications still awaiting a decision. */
 export function usePendingApplicationsCount() {
   const { applications } = useApplications();
-  return useMemo(() => applications.filter((a) => a.status === 'Pending').length, [applications]);
+  return useMemo(
+    () => applications.filter((a) => a.status === "Pending").length,
+    [applications],
+  );
 }
 
 function invalidateApplications(queryClient) {
-  queryClient.invalidateQueries({ queryKey: ['applications'] });
-  queryClient.invalidateQueries({ queryKey: ['application'] });
+  queryClient.invalidateQueries({ queryKey: ["applications"] });
+  queryClient.invalidateQueries({ queryKey: ["application"] });
 }
 
 export function useAcceptApplication() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, teamId }) => applicationsApi.acceptApplication(id, teamId),
+    mutationFn: ({ id, teamId }) =>
+      applicationsApi.acceptApplication(id, teamId),
     onSuccess: () => invalidateApplications(queryClient),
   });
 }
@@ -42,7 +46,8 @@ export function useAcceptApplication() {
 export function useRejectApplication() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, rejectionReason, rejectedField }) => applicationsApi.rejectApplication(id, rejectionReason, rejectedField),
+    mutationFn: ({ id, rejectionReason, rejectedField }) =>
+      applicationsApi.rejectApplication(id, rejectionReason, rejectedField),
     onSuccess: () => invalidateApplications(queryClient),
   });
 }
@@ -50,7 +55,8 @@ export function useRejectApplication() {
 export function useApproveApplicationDocument() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, field }) => applicationsApi.approveApplicationDocument(id, field),
+    mutationFn: ({ id, field }) =>
+      applicationsApi.approveApplicationDocument(id, field),
     onSuccess: () => invalidateApplications(queryClient),
   });
 }
@@ -68,6 +74,7 @@ export function useCancelApplication() {
 // CancelApplicationPage. No session to invalidate anything against.
 export function useCancelOwnApplication() {
   return useMutation({
-    mutationFn: (email) => applicationsApi.cancelOwnApplication(email),
+    mutationFn: ({ email, password }) =>
+      applicationsApi.cancelOwnApplication(email, password),
   });
 }

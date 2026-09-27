@@ -61,8 +61,8 @@ export async function approveApplicationDocument(id, field) {
 
 // Public — no login required. The applicant cancels their own still-pending
 // application, identified by the email they applied with.
-export async function cancelOwnApplication(email) {
-  return http.post('/applications/cancel', { email });
+export async function cancelOwnApplication(email, password) {
+  return http.post('/applications/cancel', { email, password });
 }
 
 // Admin cancelling a still-pending application on the candidate's behalf.

@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { Plus } from '@phosphor-icons/react';
 import { usePageHeader } from '../../context/PageTitleContext';
-import { useTeams, useCreateTeam, useUpdateTeam } from '../../hooks/useTeams';
+import { useTeams, useCreateTeam, useUpdateTeam, useCompleteTeam } from '../../hooks/useTeams';
 import { useToast } from '../../context/ToastContext';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import TeamsTable from './components/TeamsTable';
 import TeamFormDialog from './components/TeamFormDialog';
 import AssignMembersDialog from './components/AssignMembersDialog';
+import ConfirmDialog from '../../components/shared/ConfirmDialog';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function TeamsPage() {
-  const { t } = useLanguage();
+  const { t, tTeam } = useLanguage();
   usePageHeader(t('admin.teams.title'));
   const { teams, isLoading } = useTeams();
   const createTeam = useCreateTeam();
@@ -19,6 +20,8 @@ export default function TeamsPage() {
   const { showToast } = useToast();
   const [editingTeam, setEditingTeam] = useState(undefined); // undefined = closed, null = create, object = edit
   const [assigningTeam, setAssigningTeam] = useState(null);
+  const [completingTeam, setCompletingTeam] = useState(null);
+  const completeTeam = useCompleteTeam();
 
   // NOTE: the real backend has no "delete team" endpoint (only
   // GET/GET/POST/PATCH on /teams — see backend/src/routes/teamsRoutes.js),
@@ -36,6 +39,17 @@ export default function TeamsPage() {
     }
   }
 
+  async function confirmComplete() {
+    try {
+      await completeTeam.mutateAsync(completingTeam.id);
+      showToast(t('admin.teams.completed', { name: tTeam(completingTeam) }));
+    } catch (err) {
+      showToast(err.message, { type: 'error' });
+    } finally {
+      setCompletingTeam(null);
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -45,9 +59,19 @@ export default function TeamsPage() {
           {t('admin.teams.newTeam')}
         </Button>
       </CardHeader>
-      <TeamsTable teams={teams} isLoading={isLoading} onEdit={setEditingTeam} onAssignMembers={setAssigningTeam} />
+      <TeamsTable teams={teams} isLoading={isLoading} onEdit={setEditingTeam} onAssignMembers={setAssigningTeam} onComplete={setCompletingTeam} />
 
       <TeamFormDialog open={editingTeam !== undefined} onClose={() => setEditingTeam(undefined)} onSubmit={handleSubmit} team={editingTeam} />
+      <ConfirmDialog
+        open={!!completingTeam}
+        onClose={() => setCompletingTeam(null)}
+        onConfirm={confirmComplete}
+        isLoading={completeTeam.isPending}
+        isDestructive={false}
+        title={t('admin.teams.completeTitle')}
+        description={completingTeam ? t('admin.teams.completeDescription', { name: tTeam(completingTeam) }) : ''}
+        confirmLabel={t('admin.teams.complete')}
+      />
       <AssignMembersDialog open={!!assigningTeam} onClose={() => setAssigningTeam(null)} team={assigningTeam} onChanged={() => {}} />
     </Card>
   );

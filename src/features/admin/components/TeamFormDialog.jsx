@@ -5,10 +5,8 @@ import { z } from 'zod';
 import Dialog from '../../../components/ui/Dialog';
 import Input from '../../../components/ui/Input';
 import Textarea from '../../../components/ui/Textarea';
-import Select from '../../../components/ui/Select';
 import DateRangePicker from '../../../components/ui/DateRangePicker';
 import Button from '../../../components/ui/Button';
-import { TeamStatus } from '../../../domain/enums';
 import { useLanguage } from '../../../context/LanguageContext';
 
 function makeSchema(t) {
@@ -17,7 +15,6 @@ function makeSchema(t) {
     nameFr: z.string().optional(),
     nameAr: z.string().optional(),
     description: z.string().optional(),
-    status: z.string().min(1, t('admin.teamForm.statusRequired')),
     startDate: z.string().min(1, t('admin.teamForm.startDateRequired')),
     endDate: z.string().min(1, t('admin.teamForm.endDateRequired')),
   });
@@ -42,7 +39,6 @@ export default function TeamFormDialog({ open, onClose, onSubmit, team }) {
         nameFr: team?.nameFr || '',
         nameAr: team?.nameAr || '',
         description: team?.description || '',
-        status: team?.status || TeamStatus.PLANNED,
         startDate: team?.startDate || '',
         endDate: team?.endDate || '',
       });
@@ -66,17 +62,11 @@ export default function TeamFormDialog({ open, onClose, onSubmit, team }) {
           <Input id="team-nameAr" label={t('admin.teamForm.nameAr')} placeholder={t('admin.teamForm.nameOptionalPlaceholder')} dir="rtl" error={errors.nameAr?.message} {...register('nameAr')} />
         </div>
         <Textarea id="team-description" label={t('admin.teamForm.description')} {...register('description')} />
-        <Select id="team-status" label={t('admin.teamForm.status')} required error={errors.status?.message} {...register('status')}>
-          {Object.values(TeamStatus).map((value) => (
-            <option key={value} value={value}>
-              {t(`status.${value}`)}
-            </option>
-          ))}
-        </Select>
         <DateRangePicker
           id="team-dates"
           label={t('admin.teamForm.dates')}
           required
+          helperText={t('admin.teamForm.statusAutoHelper')}
           startValue={startDate}
           endValue={endDate}
           error={errors.startDate?.message || errors.endDate?.message}

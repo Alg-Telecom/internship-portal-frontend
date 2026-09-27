@@ -1,10 +1,10 @@
-import { UsersThree, PencilSimple } from '@phosphor-icons/react';
+import { UsersThree, PencilSimple, CheckCircle } from '@phosphor-icons/react';
 import DataTable from '../../../components/shared/DataTable';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import { fullName, formatDate } from '../../../lib/utils';
 import { useLanguage } from '../../../context/LanguageContext';
 
-export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers }) {
+export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, onComplete }) {
   const { t, tTeam } = useLanguage();
   const columns = [
     { key: 'name', header: t('admin.teams.team'), render: (row) => <span className="font-medium text-foreground">{tTeam(row)}</span> },
@@ -19,6 +19,17 @@ export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers }
       className: 'text-right',
       render: (row) => (
         <div className="flex justify-end gap-3">
+          {/* Only a Planned/Active team can be completed (status is otherwise automatic from its dates). */}
+          {(row.status === 'Planned' || row.status === 'Active') && (
+            <button
+              type="button"
+              onClick={() => onComplete(row)}
+              className="flex cursor-pointer items-center gap-1 text-sm font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+            >
+              <CheckCircle className="h-4 w-4" aria-hidden="true" />
+              {t('admin.teams.complete')}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onAssignMembers(row)}

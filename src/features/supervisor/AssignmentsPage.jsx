@@ -19,13 +19,13 @@ export default function AssignmentsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { assignments, isLoading } = useAssignments({ supervisorId: user.id });
-  const { interns } = useInterns();
+  const { allInterns } = useInterns();
   const createAssignment = useCreateAssignment();
   const updateAssignment = useUpdateAssignment();
   const { showToast } = useToast();
   const [editingAssignment, setEditingAssignment] = useState(undefined); // undefined = closed, null = create, object = edit
 
-  const internsById = Object.fromEntries(interns.map((i) => [i.id, i]));
+  const internsById = Object.fromEntries(allInterns.map((i) => [i.id, i]));
 
   async function handleSubmit(values) {
     if (editingAssignment) {

@@ -20,7 +20,7 @@ export default function AttendancePage() {
   const { user } = useAuth();
   const { teams } = useTeams();
   const myTeamIds = teams.filter((tm) => tm.supervisorId === user.id).map((tm) => tm.id);
-  const { interns } = useInterns();
+  const { interns, allInterns } = useInterns();
   const myInterns = interns.filter((i) => myTeamIds.includes(i.teamId));
 
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -36,7 +36,8 @@ export default function AttendancePage() {
   // History mixes records from every intern the supervisor has — pass this
   // so AttendanceHistoryTable adds an Intern column instead of showing a
   // wall of dates with no way to tell whose record is whose.
-  const internsById = Object.fromEntries(myInterns.map((i) => [i.id, i]));
+  // History can include interns deactivated since — look names up among all of them.
+  const internsById = Object.fromEntries(allInterns.filter((i) => myTeamIds.includes(i.teamId)).map((i) => [i.id, i]));
 
   return (
     <Card>
