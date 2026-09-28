@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Dialog from '../../../components/ui/Dialog';
@@ -26,7 +26,7 @@ export default function CalendarEventFormDialog({ open, onClose, onSubmit, defau
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(schema) });
@@ -41,7 +41,7 @@ export default function CalendarEventFormDialog({ open, onClose, onSubmit, defau
     }
   }, [open, defaultDate, reset]);
 
-  const date = watch('date');
+  const date = useWatch({ control, name: 'date' });
 
   async function submit(values) {
     await onSubmit(values);

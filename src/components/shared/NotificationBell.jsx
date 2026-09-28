@@ -8,7 +8,6 @@ import {
   useMarkAllNotificationsAsRead,
   useDeleteNotification,
 } from '../../hooks/useNotifications';
-import { useAuth } from '../../context/AuthContext';
 import { formatDateTime, cn } from '../../lib/utils';
 import EmptyState from './EmptyState';
 import { useLanguage } from '../../context/LanguageContext';
@@ -16,7 +15,6 @@ import { useTeams } from '../../hooks/useTeams';
 
 export default function NotificationBell() {
   const { t, tTeam } = useLanguage();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { notifications, unreadCount } = useNotifications();
   const markNotificationAsRead = useMarkNotificationAsRead();

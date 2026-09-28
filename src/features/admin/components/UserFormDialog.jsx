@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Dialog from '../../../components/ui/Dialog';
@@ -41,13 +41,13 @@ export default function UserFormDialog({ open, onClose, onSubmit }) {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { firstName: '', lastName: '', email: '', phoneNumber: '', role: Role.SUPERVISOR, studentId: '', university: '', fieldOfStudy: '', academicLevel: '', teamId: '' },
   });
-  const isIntern = watch('role') === Role.INTERN;
+  const isIntern = useWatch({ control, name: 'role' }) === Role.INTERN;
 
   async function submit(values) {
     setSubmitError('');

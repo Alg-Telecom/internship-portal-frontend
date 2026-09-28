@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Dialog from '../../../components/ui/Dialog';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
@@ -19,9 +19,13 @@ export default function AssignMembersDialog({ open, onClose, team, onChanged }) 
   const updateUser = useUpdateUser();
   const [supervisorId, setSupervisorId] = useState('');
 
-  useEffect(() => {
+  // Show the team's current supervisor each time the dialog opens.
+  const resetKey = open ? `open:${team?.id}:${team?.supervisorId ?? ''}` : 'closed';
+  const [lastResetKey, setLastResetKey] = useState(null);
+  if (resetKey !== lastResetKey) {
+    setLastResetKey(resetKey);
     if (open) setSupervisorId(team?.supervisorId || '');
-  }, [open, team]);
+  }
 
   if (!team) return null;
 

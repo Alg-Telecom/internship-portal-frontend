@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Dialog from '../../../components/ui/Dialog';
@@ -29,12 +29,12 @@ export default function DocumentRequestFormDialog({ open, onClose, onSubmit }) {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(schema), defaultValues: { internId: '', title: '', description: '', deadline: '' } });
 
-  const deadline = watch('deadline');
+  const deadline = useWatch({ control, name: 'deadline' });
   const [submitError, setSubmitError] = useState('');
 
   async function submit(values) {

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:lan": "vite build --mode lan",
     "lint": "eslint .",
     "preview": "vite preview"
   },

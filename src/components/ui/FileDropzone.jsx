@@ -5,16 +5,12 @@ import Field from './Field';
 import { useLanguage } from '../../context/LanguageContext';
 
 /**
- * Accepts a single file via click or drag-and-drop. Only file metadata +
- * a base64 data: URL (see lib/utils#fileToDataUrl) are kept client-side —
- * real storage happens once the Express/multer backend exists (see
- * services/mockApi/documentsApi.js).
+ * Accepts a single file via click or drag-and-drop and hands the File
+ * object to `onChange`; the form then uploads it to the backend (multer).
  *
- * `maxSizeMB`, when given, rejects an oversized pick/drop before it ever
- * reaches `onChange` — this mock stores files as base64 in localStorage,
- * which has a small (commonly ~5MB per origin, shared across everything
- * the app stores) browser-enforced quota, so an unvalidated multi-MB file
- * would only fail later with a confusing storage error at submit time.
+ * `maxSizeMB`, when given, rejects an oversized pick/drop right away with
+ * a clear message, instead of letting the upload fail later on the
+ * server's own size limit.
  */
 export default function FileDropzone({ id, label, required, error, helperText, accept, file, onChange, hint, maxSizeMB }) {
   const { t } = useLanguage();

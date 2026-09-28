@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Dialog from '../../../components/ui/Dialog';
 import Select from '../../../components/ui/Select';
 import Input from '../../../components/ui/Input';
@@ -25,13 +25,21 @@ export default function AttendanceEditDialog({ open, onClose, intern, supervisor
   const [departureTime, setDepartureTime] = useState('16:30');
   const [remarks, setRemarks] = useState('');
 
-  useEffect(() => {
-    if (!open) return;
-    setStatus(existingRecord?.status || AttendanceStatus.PRESENT);
-    setArrivalTime(existingRecord?.arrivalTime || '08:30');
-    setDepartureTime(existingRecord?.departureTime || '16:30');
-    setRemarks(existingRecord?.remarks || '');
-  }, [open, existingRecord]);
+  // Fill the form with what's saved each time the dialog opens (or the
+  // record behind it changes) — done during render, not in an effect.
+  const resetKey = open
+    ? `open:${intern?.id}:${date}:${existingRecord?.id ?? 'new'}:${existingRecord?.status ?? ''}:${existingRecord?.arrivalTime ?? ''}:${existingRecord?.departureTime ?? ''}:${existingRecord?.remarks ?? ''}`
+    : 'closed';
+  const [lastResetKey, setLastResetKey] = useState(null);
+  if (resetKey !== lastResetKey) {
+    setLastResetKey(resetKey);
+    if (open) {
+      setStatus(existingRecord?.status || AttendanceStatus.PRESENT);
+      setArrivalTime(existingRecord?.arrivalTime || '08:30');
+      setDepartureTime(existingRecord?.departureTime || '16:30');
+      setRemarks(existingRecord?.remarks || '');
+    }
+  }
 
   if (!intern) return null;
 

@@ -10,7 +10,7 @@ export function useNotifications() {
     queryFn: () => notificationsApi.getMyNotifications(),
     enabled: !!user,
   });
-  const notifications = data || [];
+  const notifications = useMemo(() => data || [], [data]);
   const unreadCount = useMemo(() => notifications.filter((n) => !n.isRead).length, [notifications]);
   return { notifications, unreadCount, isLoading, refetch };
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { WarningCircle } from '@phosphor-icons/react';
 import Dialog from '../../../components/ui/Dialog';
 import Select from '../../../components/ui/Select';
@@ -24,12 +24,17 @@ export default function AcceptApplicationDialog({ open, onClose, application, on
   const hasPreference = application?.teamPreference && application.teamPreference !== 'No preference';
   const preferredTeam = hasPreference ? teams.find((t) => t.name === application.teamPreference) : null;
 
-  useEffect(() => {
+  // Pre-select the preferred team each time the dialog opens (and once the
+  // teams list has loaded) — done during render, not in an effect.
+  const resetKey = open ? `open:${preferredTeam?.id ?? ''}` : 'closed';
+  const [lastResetKey, setLastResetKey] = useState(null);
+  if (resetKey !== lastResetKey) {
+    setLastResetKey(resetKey);
     if (open) {
       setTeamId(preferredTeam ? String(preferredTeam.id) : '');
       setSubmitError('');
     }
-  }, [open, preferredTeam]);
+  }
 
   if (!application) return null;
 
