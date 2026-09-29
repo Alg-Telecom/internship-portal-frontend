@@ -30,14 +30,17 @@ export default function TeamsTable({ teams, isLoading, onEdit, onAssignMembers, 
               {t('admin.teams.complete')}
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => onAssignMembers(row)}
-            className="flex cursor-pointer items-center gap-1 text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
-          >
-            <UsersThree className="h-4 w-4" aria-hidden="true" />
-            {t('admin.teams.members')}
-          </button>
+          {/* A completed team is emptied — no members to manage. */}
+          {row.status !== 'Completed' && (
+            <button
+              type="button"
+              onClick={() => onAssignMembers(row)}
+              className="flex cursor-pointer items-center gap-1 text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+            >
+              <UsersThree className="h-4 w-4" aria-hidden="true" />
+              {t('admin.teams.members')}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onEdit(row)}

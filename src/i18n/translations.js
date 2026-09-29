@@ -469,7 +469,7 @@ const en = {
     teams: {
       complete: 'Complete',
       completeTitle: 'Complete this team?',
-      completeDescription: '"{name}" will be marked as Completed now, before its end date. This cannot be undone.',
+      completeDescription: '"{name}" will be marked as Completed now, before its end date. Its interns will be removed from the team (their accounts stay active) and its supervisor unassigned. This cannot be undone.',
       completed: '"{name}" is now completed.',
       title: 'Teams',
       newTeam: 'New team',
@@ -1267,7 +1267,7 @@ const fr = {
     teams: {
       complete: 'Terminer',
       completeTitle: 'Terminer cette équipe ?',
-      completeDescription: '« {name} » sera marquée comme Terminée dès maintenant, avant sa date de fin. Cette action est irréversible.',
+      completeDescription: '« {name} » sera marquée comme Terminée dès maintenant, avant sa date de fin. Ses stagiaires seront retirés de l’équipe (leurs comptes restent actifs) et son encadrant ne lui sera plus assigné. Cette action est irréversible.',
       completed: '« {name} » est maintenant terminée.',
       title: 'Équipes',
       newTeam: 'Nouvelle équipe',
@@ -2065,7 +2065,7 @@ const ar = {
     teams: {
       complete: 'إنهاء',
       completeTitle: 'إنهاء هذا الفريق؟',
-      completeDescription: 'سيتم وضع علامة «منتهية» على «{name}» الآن، قبل تاريخ انتهائه. لا يمكن التراجع عن هذا الإجراء.',
+      completeDescription: 'سيتم وضع علامة «منتهية» على «{name}» الآن، قبل تاريخ انتهائه. سيتم إخراج متربصيه من الفريق (تبقى حساباتهم نشطة) وإلغاء تعيين مؤطره. لا يمكن التراجع عن هذا الإجراء.',
       completed: '«{name}» منتهية الآن.',
       title: 'الفرق',
       newTeam: 'فريق جديد',
