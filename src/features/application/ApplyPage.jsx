@@ -119,7 +119,9 @@ export default function ApplyPage() {
       await applicationsApi.submitApplication(formData);
       navigate('/apply/success', { replace: true });
     } catch (error) {
-      setSubmitError(error.code === 'TEAM_UNAVAILABLE' ? t('apply.errors.teamUnavailable') : error.message || t('apply.errors.submitFailed'));
+      if (error.code === 'TEAM_UNAVAILABLE') setSubmitError(t('apply.errors.teamUnavailable'));
+      else if (error.code === 'EMAIL_ALREADY_USED') setSubmitError(t('apply.errors.emailAlreadyExists'));
+      else setSubmitError(error.message || t('apply.errors.submitFailed'));
     }
   }
 

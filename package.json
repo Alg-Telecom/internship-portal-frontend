@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:lan": "vite build --mode lan",
     "lint": "eslint .",
+    "security:check": "snyk test",
     "preview": "vite preview"
   },
   "dependencies": {
