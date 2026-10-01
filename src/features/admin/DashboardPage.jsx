@@ -15,11 +15,17 @@ import TeamOverviewCard from './components/TeamOverviewCard';
 import InternshipCalendar from '../../components/shared/InternshipCalendar';
 import CalendarEventFormDialog from './components/CalendarEventFormDialog';
 import { useLanguage } from '../../context/LanguageContext';
+import { TeamStatus } from '../../domain/enums';
+
+// The dashboard only shows current teams; Completed (and Cancelled) ones
+// stay listed on the Teams page.
+const CURRENT_TEAM_STATUSES = [TeamStatus.ACTIVE, TeamStatus.PLANNED];
 
 export default function DashboardPage() {
   const { t } = useLanguage();
   usePageHeader(t('admin.dashboard.title'));
   const { teams, isLoading: teamsLoading } = useTeams();
+  const currentTeams = teams.filter((team) => CURRENT_TEAM_STATUSES.includes(team.status));
   const { applications } = useApplications({ status: 'Pending' });
   const { interns } = useInterns();
   const { events, isLoading: eventsLoading } = useCalendarEvents();
@@ -55,11 +61,11 @@ export default function DashboardPage() {
         <CardContent>
           {teamsLoading ? (
             <SkeletonRows rows={3} />
-          ) : teams.length === 0 ? (
+          ) : currentTeams.length === 0 ? (
             <EmptyState icon={UsersThree} title={t('admin.dashboard.noTeamsYet')} description={t('admin.dashboard.noTeamsDescription')} />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {teams.map((team) => (
+              {currentTeams.map((team) => (
                 <TeamOverviewCard key={team.id} team={team} />
               ))}
             </div>
